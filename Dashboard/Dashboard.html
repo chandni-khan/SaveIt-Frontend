@@ -25,7 +25,7 @@
             </div>
 
             <div class="sidebar">
-                <a href="./Dashboard.html">
+                <a href="#" onclick="createDashboard()">
                     <span class="material-icons-sharp">
                         dashboard
                     </span>
@@ -43,7 +43,7 @@
                     </span>
                     <h3>Expense</h3>
                 </a>
-                <a href="#" onclick="Budgets()" class="active">
+                <a href="#" onclick="Budgets()">
                     <span class="material-icons-sharp">
                         insights
                     </span>
@@ -60,7 +60,6 @@
                         mail_outline
                     </span>
                     <h3>Reminder</h3>
-                    <span class="message-count">27</span>
                 </a>
                 <a href="#">
                     <span class="material-icons-sharp">
@@ -88,7 +87,46 @@
                 </a>
             </div>
         </aside>
-      <!-- <main id="cards-container"></main> -->
+
+        <main id="dashboard-content"></main>
+
+        <div class="right-section">
+            <div class="nav">
+                <button id="menu-btn">
+                    <span class="material-icons-sharp">
+                        menu
+                    </span>
+                </button>
+                <div class="dark-mode">
+                    <span class="material-icons-sharp active">
+                        light_mode
+                    </span>
+                    <span class="material-icons-sharp">
+                        dark_mode
+                    </span>
+                </div>
+
+                <div class="profile">
+                    <div class="info">
+                        <p>Hello, <b>User</b></p>
+                    </div>
+                    <div class="profile-photo">
+                        <img src="../Images/User.png">
+                    </div>
+                </div>
+
+            </div>
+          
+
+            <div class="user-profile">
+                <div class="logo">
+                    <img src="../Images/logo.png">
+                    <h2>SaveIt</h2>
+                    <p>Finance and Budgeting</p>
+                </div>
+            </div>
+
+        </div>
     </div>
     <script src="./Dashboard.js"></script>
     <script src="./Budget.js"></script>
