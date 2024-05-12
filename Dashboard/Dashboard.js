@@ -18,7 +18,6 @@ darkMode.addEventListener('click', () => {
     darkMode.querySelector('span:nth-child(2)').classList.toggle('active');
 })
 
-
 function createDashboard() {
     const dashboardContent = document.getElementById("dashboard-content");
     dashboardContent.innerHTML = ""; // Clear previous content
@@ -68,9 +67,12 @@ function createDashboard() {
 
     const newUsersDiv = document.createElement("div");
     newUsersDiv.classList.add("new-users");
-    newUsersDiv.innerHTML = "<h2>Report</h2><div class='user-list'></div>";
+    newUsersDiv.innerHTML = "<h2>Report</h2><canvas id='expenseChart' width='400' height='200'></canvas>";
     dashboardContent.appendChild(newUsersDiv);
+
+    generateExpenseChart();
 }
+
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -305,5 +307,6 @@ document.addEventListener("DOMContentLoaded", function () {
 //             });
 //     }
 // }
+
 
 

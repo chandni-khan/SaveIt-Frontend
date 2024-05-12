@@ -61,7 +61,7 @@
                     </span>
                     <h3>Reminder</h3>
                 </a>
-                <a href="#">
+                <a href="#" onclick="generateExpenseChart()">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
                     </span>
@@ -88,7 +88,9 @@
             </div>
         </aside>
 
-        <main id="dashboard-content"></main>
+        <main id="dashboard-content">
+
+        </main>
 
         <div class="right-section">
             <div class="nav">
@@ -128,8 +130,11 @@
 
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script src="./Dashboard.js"></script>
     <script src="./Budget.js"></script>
     <script src="../Expense.js"></script>
+    <script src="../Report.js"></script>
 </body>
 </html>
