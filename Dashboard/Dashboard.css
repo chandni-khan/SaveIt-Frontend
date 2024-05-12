@@ -22,14 +22,14 @@
     --box-shadow: 0 2rem 3rem var(--color-light);
 }
 
-.dark-mode-variables{
+/* .dark-mode-variables{
     --color-background: #181a1e;
     --color-white: #202528;
     --color-dark: #edeffd;
     --color-dark-variant: #a3bdcc;
     --color-light: rgba(0, 0, 0, 0.4);
     --box-shadow: 0 2rem 3rem var(--color-light);
-}
+} */
 
 *{
     margin: 0;
@@ -54,6 +54,9 @@ body{
     overflow-x: hidden;
     color: var(--color-dark);
     background-color: var(--color-background);
+    display: grid;
+    grid-template-columns: 250px 1fr; 
+    grid-template-rows: 100vh;
 }
 
 a{
@@ -114,15 +117,24 @@ b{
 }
 
 .container{
-    display: grid;
+    display: flex;
+    flex: 1;
+    overflow: hidden;
     width: 96%;
     margin: 0 auto;
     gap: 1.8rem;
     grid-template-columns: 12rem auto 23rem;
 }
 
+
 aside{
     height: 100vh;
+    width: 250px; /* Adjust the width as needed */
+    background-color: #f1f1f1;
+    overflow-y: auto;
+    /* position: sticky;
+    top: 0;
+     */
 }
 
 aside .toggle{
@@ -185,7 +197,7 @@ aside .sidebar a:last-child{
     width: 100%;
 }
 
-/* aside .sidebar a.active{
+aside .sidebar a.active{
     width: 100%;
     color: var(--color-primary);
     background-color: var(--color-light);
@@ -202,7 +214,7 @@ aside .sidebar a.active::before{
 aside .sidebar a.active span{
     color: var(--color-primary);
     margin-left: calc(1rem - 3px);
-} */
+}
 
 aside .sidebar a:hover{
     color: var(--color-primary);
@@ -219,8 +231,47 @@ aside .sidebar .message-count{
     font-size: 11px;
     border-radius: var(--border-radius-1);
 }
+.table-container {
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .add-button{
+      background-color: red;
+      color: white;
+      padding: 10px;
+      float: inline-end;
+  }
 
-main{
+  main {
+
+    overflow-y: auto;
+    padding: 20px; /* Add padding to prevent content from sticking to the edge */
+    /* display: flex;
+    flex-direction: column; */
+}
+/* main{
     margin-top: 1.4rem;
 }
 
@@ -418,7 +469,7 @@ main .recent-orders a{
     border-radius: var(--border-radius-1);
 } */
 
-.right-section .nav .profile{
+/* .right-section .nav .profile{
     display: flex;
     gap: 2rem;
     text-align: right;
@@ -705,4 +756,3 @@ main .recent-orders a{
         font-size: 2rem;
     }
 
-}
