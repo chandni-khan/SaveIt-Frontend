@@ -3,7 +3,6 @@ const menuBtn = document.getElementById('menu-btn');
 const closeBtn = document.getElementById('close-btn');
 const expenseListItem = document.querySelector('a[data-action="expense"]');
 expenseListItem.addEventListener("click", displayExpense);
-let editRecord=null;
 const darkMode = document.querySelector('.dark-mode');
 let totalExpense=0
 let totalIncome=0
@@ -181,7 +180,7 @@ function displayExpense()
     addBtn.style.height="30px";
     addBtn.style.width="100px";
     addBtn.onclick=()=>{
-        createxpenseForm();
+        createxpenseForm(id=null);
     }
     addBtn.style.fontWeight="bold";
     mainContainer.replaceChildren(addBtn);
@@ -249,8 +248,7 @@ function displayExpense()
                 editButton.textContent = "Edit";
                 editButton.style.backgroundColor="blue";
                 editButton.onclick = function () {
-                    createxpenseForm()
-                    editRecord=expense.expenseId;
+                    createxpenseForm(expense.expenseId);
                 };
                 actionsCell.appendChild(editButton);
 
@@ -272,14 +270,14 @@ function displayExpense()
         });
 }
 
-function createxpenseForm() {
+function createxpenseForm(id) {
     const mainContainer = document.getElementById("dashboard-content");
     const formElements = [
       { type: 'input', inputType: 'text', name: 'expenseDescription', labelText: 'Description:' },
       { type: 'input', inputType: 'date', name: 'spendDate', labelText: 'Spend Date:' },
       { type: 'input', inputType: 'number', name: 'amountSpend', labelText: 'AmountSpend:' },
       { type: 'input', inputType: 'number', name: 'expenseCategory', labelText: 'Category:' },
-      { type: 'input', inputType: 'submit', name: 'addExpense'}    
+      { type: 'input', inputType: 'submit', name: 'addExpense' ,value:"Add Expense"}    
     ];
   
     const formContainer = document.createElement('div');
@@ -308,8 +306,9 @@ function createxpenseForm() {
       form.appendChild(formGroup);
     });
     
-    if(editRecord!=null){
-        fetch(`http://52.50.239.63:8080/getExpenseById/${expenseId}`)
+    if(id!=null){
+      console.log(id);
+        fetch(`http://52.50.239.63:8080/getExpenseById/${id}`)
         .then(response => {
             if (response.status === 204) {
                 return;
@@ -321,12 +320,10 @@ function createxpenseForm() {
             document.getElementsByName("expenseDescription")[0].value = data.expenseDescription;
             document.getElementsByName("spendDate")[0].value = data.spendDate;
             document.getElementsByName("amountSpend")[0].value = data.amountSpend;
-            // Assuming an input named "userId" exists (modify if different)
-            document.getElementsByName("userId")[0].value = data.userId;
             document.getElementsByName("expenseCategory")[0].value = data.expenseCategory;
-            form.elements["addExpense"].value = "Update Expense"; // Update submit button text
-            editRecord = data.expenseId;
-            console.log("Editing expense with ID:", editRecord);
+            form.elements["addExpense"].name = "Update Expense"; // Update submit button text
+            id = data.expenseId;
+            console.log("Editing expense with ID:", id);
           }).catch(e => {
             console.log("error", e);
         });
@@ -337,14 +334,14 @@ function createxpenseForm() {
         event.preventDefault();
         const formData = new FormData(this);
         let bodyData = {};
-        if (editRecord) {
+        if (id) {
             bodyData = {
                 "expenseDescription": formData.get("expenseDescription"),
                 "spendDate": formData.get("spendDate"),
                 "amountSpend": formData.get("amountSpend"),
                 "userId": 8,
                 "expenseCategory": formData.get("expenseCategory"),
-                "expenseId": editRecord
+                "expenseId": id
             };
         } else {
             bodyData = {
@@ -355,8 +352,8 @@ function createxpenseForm() {
                 "expenseCategory": formData.get("expenseCategory")
             };
         }
-        fetch(editRecord ? "http://52.50.239.63:8080/updateExpense" : "http://52.50.239.63:8080/addExpense", {
-                method: editRecord ? "PUT" : "POST",
+        fetch(id ? "http://52.50.239.63:8080/updateExpense" : "http://52.50.239.63:8080/addExpense", {
+                method: id ? "PUT" : "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -369,26 +366,27 @@ function createxpenseForm() {
                 return response;
             })
             .then(data => {
-                console.log("Data received:", data);
-                resetForm();
-                window.alert(editRecord ? "Updated Expense" : "Added Expense");
+                setTimeout(()=>{
+                  window.alert(id ? "Updated Expense" : "Added Expense");
+                  displayExpense();
+                },1000)
             })
             .catch(error => {
                 console.error("Error:", error);
                 window.alert("An error occurred. Please try again later.");
             });
-            createDashboard();
     });
   }
 
 function deleteExpense(expenseId) {
-if(window.confirm("Do you want to delet?")){
+if(window.confirm("Do you want to Delete?")){
     fetch(`http://52.50.239.63:8080/deleteExpense/${expenseId}`, {
         method: "DELETE",
     })
     .then(response => response.json())
     .catch(error => console.error("Error:", error));
-    window.alert("deleted")
+    window.alert("deleted");
+    displayExpense();
 }
  console.log("Deleting expense with ID:", expenseId);
 }
