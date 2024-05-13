@@ -1163,17 +1163,6 @@ if(window.confirm("Do you want to delete?")){
  console.log("Deleting goal with ID:", goalId);
 }
 
-
-function displayReport() {
-  const dashboardContent = document.getElementById("dashboard-content");
-  dashboardContent.innerHTML = ""; // Clear previous content
-
-  const reportHeading = document.createElement("h1");
-  reportHeading.textContent = "Report";
-  dashboardContent.appendChild(reportHeading);
-
-  generateExpenseChart();
-}
  
 
 
