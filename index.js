@@ -3,18 +3,38 @@ const menuBtn = document.getElementById('menu-btn');
 const closeBtn = document.getElementById('close-btn');
 const expenseListItem = document.querySelector('a[data-action="expense"]');
 expenseListItem.addEventListener("click", displayExpense);
-const budgetListItem = document.querySelector('a[data-action="budget"]');
-budgetListItem.addEventListener("click", displayBudget);
-const goalListItem = document.querySelector('a[data-action="goal"]');
-goalListItem.addEventListener("click", displayGoals);
-const incomeListItem = document.querySelector('a[data-action="income"]');
-incomeListItem.addEventListener("click", displayIncome);
-
-
-
 let editRecord=null;
-let editBudgetId = null;
 const darkMode = document.querySelector('.dark-mode');
+let expenseAllCategory=null;
+
+async function fetchExpenseCategory(){
+  try {
+    const response = await fetch('http://52.50.239.63:8080/getExpenseCategories');
+
+    if (response.status === 204) {
+      console.log('No expenses found');
+      return 0;
+    } else if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching expensecategory:', error);
+    return 0; 
+  }
+  }
+
+fetchExpenseCategory().then(data=>{
+  console.log("data",data);
+  expenseAllCategory=data;
+})
+.catch(error => {
+console.error('Error getting total Expense:', error);
+});
+
+
+
 let totalExpense=0
 let totalIncome=0
 let totalBudget=0
@@ -380,7 +400,7 @@ async function getTotalExpenses() {
         return totalAmount;
         })
         .catch(error => {
-        console.error('Error getting total Income:', error);
+        console.error('Error getting total Expense:', error);
         });
 
 async function getTotalIncome() {
@@ -451,7 +471,7 @@ function displayExpense()
     addBtn.style.height="30px";
     addBtn.style.width="100px";
     addBtn.onclick=()=>{
-        createxpenseForm();
+        createxpenseForm(id=null);
     }
     addBtn.style.fontWeight="bold";
     mainContainer.replaceChildren(addBtn);
@@ -502,13 +522,22 @@ function displayExpense()
                         cell.style.height="30px";
                         cell.style.textAlign="center"
                         cell.style.fontSize="15px";
-                        cell.style.fontWeight="15px";
+                        cell.style.fontWeight="15px";              
                         if(key == "spendDate"){
                             const timestamp = expense[key];
                             const date = new Date(timestamp)
                             cell.textContent = date.toDateString();
                         }else{
-                            cell.textContent = expense[key];
+                          if (key === "expenseCategory") {
+                            expenseAllCategory.map((v) => {
+                                if (v.expenseCategoryId === expense.expenseCategory) {
+                                    cell.textContent = v.expenseCategoryName;
+                                }
+                            });
+                        }else{
+                          cell.textContent = expense[key];
+                        }       
+                            
                         }
                     }
                 }
@@ -519,8 +548,7 @@ function displayExpense()
                 editButton.textContent = "Edit";
                 editButton.style.backgroundColor="blue";
                 editButton.onclick = function () {
-                    createxpenseForm()
-                    editRecord=expense.expenseId;
+                    createxpenseForm(expense.expenseId);
                 };
                 actionsCell.appendChild(editButton);
 
@@ -542,14 +570,14 @@ function displayExpense()
         });
 }
 
-function createxpenseForm() {
+function createxpenseForm(id) {
     const mainContainer = document.getElementById("dashboard-content");
     const formElements = [
       { type: 'input', inputType: 'text', name: 'expenseDescription', labelText: 'Description:' },
       { type: 'input', inputType: 'date', name: 'spendDate', labelText: 'Spend Date:' },
       { type: 'input', inputType: 'number', name: 'amountSpend', labelText: 'AmountSpend:' },
-      { type: 'input', inputType: 'number', name: 'expenseCategory', labelText: 'Category:' },
-      { type: 'input', inputType: 'submit', name: 'addExpense'}    
+      { type: 'input', inputType: 'select', name: 'expenseCategory', labelText: 'Category:', },
+      { type: 'input', inputType: 'submit', name: 'addExpense' ,value:"Add Expense"}    
     ];
   
     const formContainer = document.createElement('div');
@@ -567,19 +595,39 @@ function createxpenseForm() {
       label.textContent = element.labelText;
       label.classList.add('form-label'); // New class
       formGroup.appendChild(label);
-  
-      const input = document.createElement('input');
+      if(element.name=="expenseCategory"){
+        console.log("expenseAllCategory",expenseAllCategory);
+        const expenseCategorySelect = document.createElement('select');
+        expenseCategorySelect.id = 'expenseCategory';
+        expenseCategorySelect.name = 'expenseCategory';
+        expenseCategorySelect.required = true;
+        expenseAllCategory?.map((expenseCategoryItem) => {
+          const option = document.createElement('option');
+          option.value = expenseCategoryItem.expenseCategoryId;
+          option.textContent = expenseCategoryItem.expenseCategoryName;
+          expenseCategorySelect.appendChild(option);
+         expenseCategorySelect.type = element.inputType;
+         expenseCategorySelect.name = element.name;
+         expenseCategorySelect.id = element.name;
+         expenseCategorySelect.required = true;
+         expenseCategorySelect.classList.add('form-control'); // New class
+          formGroup.appendChild(expenseCategorySelect);
+      });
+      }else{const input = document.createElement('input');
       input.type = element.inputType;
       input.name = element.name;
       input.id = element.name;
       input.required = true;
       input.classList.add('form-control'); // New class
       formGroup.appendChild(input);
+    }
       form.appendChild(formGroup);
     });
+
     
-    if(editRecord!=null){
-        fetch(`http://52.50.239.63:8080/getExpenseById/${expenseId}`)
+    if(id!=null){
+      console.log(id);
+        fetch(`http://52.50.239.63:8080/getExpenseById/${id}`)
         .then(response => {
             if (response.status === 204) {
                 return;
@@ -591,12 +639,10 @@ function createxpenseForm() {
             document.getElementsByName("expenseDescription")[0].value = data.expenseDescription;
             document.getElementsByName("spendDate")[0].value = data.spendDate;
             document.getElementsByName("amountSpend")[0].value = data.amountSpend;
-            // Assuming an input named "userId" exists (modify if different)
-            document.getElementsByName("userId")[0].value = data.userId;
             document.getElementsByName("expenseCategory")[0].value = data.expenseCategory;
-            form.elements["addExpense"].value = "Update Expense"; // Update submit button text
-            editRecord = data.expenseId;
-            console.log("Editing expense with ID:", editRecord);
+            form.elements["addExpense"].name = "Update Expense"; // Update submit button text
+            id = data.expenseId;
+            console.log("Editing expense with ID:", id);
           }).catch(e => {
             console.log("error", e);
         });
@@ -607,14 +653,14 @@ function createxpenseForm() {
         event.preventDefault();
         const formData = new FormData(this);
         let bodyData = {};
-        if (editRecord) {
+        if (id) {
             bodyData = {
                 "expenseDescription": formData.get("expenseDescription"),
                 "spendDate": formData.get("spendDate"),
                 "amountSpend": formData.get("amountSpend"),
                 "userId": 8,
                 "expenseCategory": formData.get("expenseCategory"),
-                "expenseId": editRecord
+                "expenseId": id
             };
         } else {
             bodyData = {
@@ -625,8 +671,8 @@ function createxpenseForm() {
                 "expenseCategory": formData.get("expenseCategory")
             };
         }
-        fetch(editRecord ? "http://52.50.239.63:8080/updateExpense" : "http://52.50.239.63:8080/addExpense", {
-                method: editRecord ? "PUT" : "POST",
+        fetch(id ? "http://52.50.239.63:8080/updateExpense" : "http://52.50.239.63:8080/addExpense", {
+                method: id ? "PUT" : "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -639,26 +685,27 @@ function createxpenseForm() {
                 return response;
             })
             .then(data => {
-                console.log("Data received:", data);
-                resetForm();
-                window.alert(editRecord ? "Updated Expense" : "Added Expense");
+                setTimeout(()=>{
+                  window.alert(id ? "Updated Expense" : "Added Expense");
+                  displayExpense();
+                },1000)
             })
             .catch(error => {
                 console.error("Error:", error);
                 window.alert("An error occurred. Please try again later.");
             });
-            createDashboard();
     });
   }
 
 function deleteExpense(expenseId) {
-if(window.confirm("Do you want to delet?")){
+if(window.confirm("Do you want to Delete?")){
     fetch(`http://52.50.239.63:8080/deleteExpense/${expenseId}`, {
         method: "DELETE",
     })
     .then(response => response.json())
     .catch(error => console.error("Error:", error));
-    window.alert("deleted")
+    window.alert("deleted");
+    displayExpense();
 }
  console.log("Deleting expense with ID:", expenseId);
 }
