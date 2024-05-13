@@ -2,6 +2,8 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="./index.css">
     <title>SaveIt</title>
@@ -29,7 +31,7 @@
                     </span>
                     <h3>Dashboard</h3>
                 </a>
-                <a href="#">
+                <a href="#" data-action="income">
                     <span class="material-icons-sharp">
                         person_outline
                     </span>
@@ -41,25 +43,19 @@
                     </span>
                     <h3>Expense</h3>
                 </a>
-                <a href="#" onclick="Budgets()">
+                <a data-action="budget">
                     <span class="material-icons-sharp">
                         insights
                     </span>
                     <h3>Budget</h3>
                 </a>
-                <a href="#">
+                <a href="#" data-action="goal">
                     <span class="material-icons-sharp">
                         inventory
                     </span>
                     <h3>Goals</h3>
                 </a>
-                <a href="#">
-                    <span class="material-icons-sharp">
-                        mail_outline
-                    </span>
-                    <h3>Reminder</h3>
-                </a>
-                <a href="#" onclick="generateExpenseChart()">
+                <a href="#" onclick="displayReport()">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
                     </span>
@@ -73,12 +69,15 @@
                 </a>
                 <a href="#">
                     <span class="material-icons-sharp">
+<<<<<<< HEAD
                         add
                     </span>
                     <h3>New Login</h3>
                 </a>
                 <a href="#" onclick="LogOut()">
                     <span class="material-icons-sharp">
+=======
+>>>>>>> 701323172e1c886ef2737f7c60e45c7ade6a7672
                         logout
                     </span>
                     <h3>Logout</h3>
@@ -111,7 +110,7 @@
                         <p>Hello, <b>User</b></p>
                     </div>
                     <div class="profile-photo">
-                        <img src="../Images/User.png">
+                        <img src="./Images/User.png">
                     </div>
                 </div>
 
@@ -120,7 +119,7 @@
 
             <div class="user-profile">
                 <div class="logo">
-                    <img src="../Images/logo.png">
+                    <img src="./Images/logo.png">
                     <h2>SaveIt</h2>
                     <p>Finance and Budgeting</p>
                 </div>
@@ -128,6 +127,7 @@
 
         </div>
     </div>
+<<<<<<< HEAD
     <script src="./index.js">
          
          let params={};
@@ -152,6 +152,10 @@
          }
 
     </script>
+=======
+
+    <script src="./index.js"> </script>
+>>>>>>> 701323172e1c886ef2737f7c60e45c7ade6a7672
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
