@@ -1,8 +1,16 @@
 const sideMenu = document.querySelector('aside');
 const menuBtn = document.getElementById('menu-btn');
 const closeBtn = document.getElementById('close-btn');
+const incomeListItem = document.querySelector('a[data-action="income"]');
+incomeListItem.addEventListener("click", displayIncome);
 const expenseListItem = document.querySelector('a[data-action="expense"]');
 expenseListItem.addEventListener("click", displayExpense);
+const budgetListItem = document.querySelector('a[data-action="budget"]');
+budgetListItem.addEventListener("click", displayBudget);
+const goalListItem = document.querySelector('a[data-action="goal"]');
+goalListItem.addEventListener("click", displayGoals);
+
+
 let editRecord=null;
 const darkMode = document.querySelector('.dark-mode');
 let expenseAllCategory=null;
