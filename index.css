@@ -151,12 +151,6 @@ aside .sidebar a span{
     transition: all 0.3s ease;
 }
 
-aside .sidebar a:last-child{
-    position: absolute;
-    bottom: 2rem;
-    width: 100%;
-}
-
 aside .sidebar a:hover{
     color: var(--color-primary);
 }
