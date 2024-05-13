@@ -4,6 +4,36 @@ const closeBtn = document.getElementById('close-btn');
 const expenseListItem = document.querySelector('a[data-action="expense"]');
 expenseListItem.addEventListener("click", displayExpense);
 const darkMode = document.querySelector('.dark-mode');
+let expenseAllCategory=null;
+
+async function fetchExpenseCategory(){
+  try {
+    const response = await fetch('http://52.50.239.63:8080/getExpenseCategories');
+
+    if (response.status === 204) {
+      console.log('No expenses found');
+      return 0;
+    } else if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching expensecategory:', error);
+    return 0; 
+  }
+  }
+
+fetchExpenseCategory().then(data=>{
+  console.log("data",data);
+  expenseAllCategory=data;
+})
+.catch(error => {
+console.error('Error getting total Expense:', error);
+});
+
+
+
 let totalExpense=0
 let totalIncome=0
 let totalBudget=0
@@ -101,7 +131,7 @@ async function getTotalExpenses() {
         return totalAmount;
         })
         .catch(error => {
-        console.error('Error getting total Income:', error);
+        console.error('Error getting total Expense:', error);
         });
 
 async function getTotalIncome() {
@@ -231,13 +261,22 @@ function displayExpense()
                         cell.style.height="30px";
                         cell.style.textAlign="center"
                         cell.style.fontSize="15px";
-                        cell.style.fontWeight="15px";
+                        cell.style.fontWeight="15px";              
                         if(key == "spendDate"){
                             const timestamp = expense[key];
                             const date = new Date(timestamp)
                             cell.textContent = date.toDateString();
                         }else{
-                            cell.textContent = expense[key];
+                          if (key === "expenseCategory") {
+                            expenseAllCategory.map((v) => {
+                                if (v.expenseCategoryId === expense.expenseCategory) {
+                                    cell.textContent = v.expenseCategoryName;
+                                }
+                            });
+                        }else{
+                          cell.textContent = expense[key];
+                        }       
+                            
                         }
                     }
                 }
@@ -276,7 +315,7 @@ function createxpenseForm(id) {
       { type: 'input', inputType: 'text', name: 'expenseDescription', labelText: 'Description:' },
       { type: 'input', inputType: 'date', name: 'spendDate', labelText: 'Spend Date:' },
       { type: 'input', inputType: 'number', name: 'amountSpend', labelText: 'AmountSpend:' },
-      { type: 'input', inputType: 'number', name: 'expenseCategory', labelText: 'Category:' },
+      { type: 'input', inputType: 'select', name: 'expenseCategory', labelText: 'Category:', },
       { type: 'input', inputType: 'submit', name: 'addExpense' ,value:"Add Expense"}    
     ];
   
@@ -295,16 +334,35 @@ function createxpenseForm(id) {
       label.textContent = element.labelText;
       label.classList.add('form-label'); // New class
       formGroup.appendChild(label);
-  
-      const input = document.createElement('input');
+      if(element.name=="expenseCategory"){
+        console.log("expenseAllCategory",expenseAllCategory);
+        const expenseCategorySelect = document.createElement('select');
+        expenseCategorySelect.id = 'expenseCategory';
+        expenseCategorySelect.name = 'expenseCategory';
+        expenseCategorySelect.required = true;
+        expenseAllCategory?.map((expenseCategoryItem) => {
+          const option = document.createElement('option');
+          option.value = expenseCategoryItem.expenseCategoryId;
+          option.textContent = expenseCategoryItem.expenseCategoryName;
+          expenseCategorySelect.appendChild(option);
+         expenseCategorySelect.type = element.inputType;
+         expenseCategorySelect.name = element.name;
+         expenseCategorySelect.id = element.name;
+         expenseCategorySelect.required = true;
+         expenseCategorySelect.classList.add('form-control'); // New class
+          formGroup.appendChild(expenseCategorySelect);
+      });
+      }else{const input = document.createElement('input');
       input.type = element.inputType;
       input.name = element.name;
       input.id = element.name;
       input.required = true;
       input.classList.add('form-control'); // New class
       formGroup.appendChild(input);
+    }
       form.appendChild(formGroup);
     });
+
     
     if(id!=null){
       console.log(id);
