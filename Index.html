@@ -9,7 +9,7 @@
 
 <body>
 
-    <div class="container">
+    <div class="container" id="body">
         <aside>
             <div class="toggle">
                 <div class="logo">
@@ -77,7 +77,7 @@
                     </span>
                     <h3>New Login</h3>
                 </a>
-                <a href="#">
+                <a href="#" onclick="LogOut()">
                     <span class="material-icons-sharp">
                         logout
                     </span>
@@ -128,7 +128,30 @@
 
         </div>
     </div>
-    <script src="./index.js"></script>
+    <script src="./index.js">
+         
+         let params={};
+        let regex=/([^&=]+)=([^&]*)/g, m
+         while(m=regex.exec(location.href)){
+            params[decodeURIComponent(m[1])]=decodeURIComponent(m[2])
+         }
+         if(Object.keys(params).length>0){
+            localStorage.setItem('authInfo',JSON.stringify(params));
+         }
+         window.history.pushState({},document.title,"/"+"demoIndex.html");
+         let info=JSON.parse(localStorage.getItem('authInfo'))
+    
+         console.log(info);
+         function LogOut(){
+            fetch("https://oauth2.googleapis.com/revoke?token="+info['access_token'],
+              { method:"POST",
+                headers:{
+                    'Content-type':'application/x-www-form-urlencoded'
+                }}
+            )
+         }
+
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

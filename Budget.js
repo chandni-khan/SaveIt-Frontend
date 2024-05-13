@@ -82,30 +82,8 @@ document.getElementById("addExpenseForm").addEventListener("submit", function(ev
         });
 });
 
-function editExpense(expenseId) {
-    fetch(`http://52.50.239.63:8080/getExpenseById/${expenseId}`)
-        .then(response => {
-            if (response.status === 204) {
-                return;
-            } else if (response.status !== 200) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        }).then(data => {
-            document.getElementById("expenseDescription").value = data.expenseDescription;
-            document.getElementById("spendDate").value = data.spendDate;
-            document.getElementById("amountSpend").value = data.amountSpend;
-            document.getElementById("userId").value = data.userId;
-            document.getElementById("expenseCategory").value = data.expenseCategory;
-            document.getElementById("btn").value = "Update Expense";
-            editRecord = data.expenseId;
-            console.log("Editing expense with ID:", editRecord);
-        }).catch(e => {
-            console.log("error", e);
-        })
-}
 
-function deleteExpense(expenseId) {
+function deleteBudget(expenseId) {
     fetch(`http://52.50.239.63:8080/deleteExpense/${expenseId}`, {
             method: "DELETE",
         })
