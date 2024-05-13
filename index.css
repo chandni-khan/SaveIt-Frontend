@@ -496,3 +496,39 @@ main .new-users .user-list .user img{
     }
 
 }
+.expense-form-container {
+    margin: 90px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 500px 
+  }
+  
+  .expense-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between form groups */
+  }
+  
+  .form-label {
+    font-weight: bold;
+    font-size: medium;
+    margin-bottom: 5px;
+    display: inline-block;
+    width: 120px; /* Adjust label width if needed */
+  }
+  
+  .form-control {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 100%; /* Full width */
+  }
+  
+  .form-control[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+  
