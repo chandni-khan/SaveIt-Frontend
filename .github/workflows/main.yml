@@ -21,7 +21,7 @@ jobs:
 
       # Copy the entire repository to EC2
       - name: Copy repository to EC2 instance
-        run: scp -r ./* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/path/to/destination
+        run: scp -r ./* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user
         env:
           # Ensure the destination path ends with a slash (/)
           path: "/home/ec2-user/"
