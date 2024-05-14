@@ -1300,3 +1300,4 @@ function displayReport() {
 
   generateExpenseChart();
 }
+console.log("Deleting goal with ID:", goalId);
