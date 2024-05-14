@@ -1,0 +1,31 @@
+name: Deploy SaveIt
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install SSH key
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      # Copy the entire repository to EC2
+      - name: Copy repository to EC2 instance
+        run: scp -r ./* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/path/to/destination
+        env:
+          # Ensure the destination path ends with a slash (/)
+          path: "/home/ec2-user/"
+
+      # Restart the web server to reflect changes
+      - name: Restart Web Server
+        run: ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo systemctl restart nginx"  # Assuming you're using Nginx
