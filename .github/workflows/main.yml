@@ -42,5 +42,14 @@ jobs:
             # Enable Apache service to start on boot
             sudo systemctl enable httpd
 
-            # Copy index.html to the web server directory
-            sudo cp index.html /var/www/html
+            # Copy index.html from home directory to web server directory
+            if [ -f ~/index.html ]; then
+              sudo cp ~/index.html /var/www/html
+              echo "index.html copied successfully."
+            else
+              echo "Error: index.html not found in the home directory."
+              exit 1
+            fi
+
+            # Restart Apache to apply changes
+            sudo systemctl restart httpd
