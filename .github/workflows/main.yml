@@ -30,9 +30,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            sudo apt-get update
-            sudo apt-get install -y apache2
-            sudo systemctl start apache2
-            sudo systemctl enable apache2
-            cd /home
-            sudo mv * /var/www/html
+            # Update package manager (using yum)
+            sudo yum update -y
+
+            # Install Apache
+     
