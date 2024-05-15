@@ -34,4 +34,21 @@ jobs:
             sudo yum update -y
 
             # Install Apache
-     
+            sudo yum install -y httpd
+
+            # Start Apache service
+            sudo systemctl start httpd
+
+            # Enable Apache service to start on boot
+            sudo systemctl enable httpd
+
+            # Navigate to the directory containing your files
+            cd /home/ec2-user
+
+            # Verify if the files exist before moving them
+            if [ -e "*" ]; then
+              # Move files to the web server directory
+              sudo mv * /var/www/html
+            else
+              echo "No files found to move."
+            fi
