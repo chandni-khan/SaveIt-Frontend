@@ -46,8 +46,8 @@ jobs:
             sudo systemctl enable httpd
 
             # Copy Index.html from the correct directory to web server directory
-            if [ -f /home/Index.html ]; then
-              sudo cp /home/Index.html /var/www/html/index.html
+            if [ -f /home/ec2-user/home/Index.html ]; then
+              sudo cp /home/ec2-user/home/Index.html /var/www/html/index.html
               echo "Index.html copied successfully."
             else
               echo "Error: Index.html not found in the /home directory."
