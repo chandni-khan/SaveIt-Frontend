@@ -30,29 +30,12 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # Update package manager (using yum)
             sudo yum update -y
-
-            # Check if Apache is already installed
             if ! rpm -q httpd; then
-              # Install Apache if not already installed
               sudo yum install -y httpd
             fi
-
-            # Start Apache service
             sudo systemctl start httpd
-
-            # Enable Apache service to start on boot
             sudo systemctl enable httpd
-
-            # Copy Index.html from the correct directory to web server directory
-            if [ -f /home/ec2-user/home/Index.html ]; then
-              sudo cp /home/ec2-user/home/Index.html /var/www/html/index.html
-              echo "Index.html copied successfully."
-            else
-              echo "Error: Index.html not found in the /home directory."
-              exit 1
-            fi
-
-            # Restart Apache to apply changes
+            cd home
+            sudo mv * /var/www/html
             sudo systemctl restart httpd
