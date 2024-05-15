@@ -1,4 +1,4 @@
-name: Saveit
+name: ResetEC2
 
 # Trigger deployment only on push to main branch
 on:
@@ -7,47 +7,49 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Deploy to EC2 on main branch push
+  reset:
+    name: Reset EC2 to Initial Stage on main branch push
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
-          REMOTE_HOST: 54.72.186.52
-          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
-          TARGET: ${{ secrets.TARGET_DIR }}
-
-      - name: Execute remote commands
+      - name: Remove Index.html file
         uses: appleboy/ssh-action@master
         with:
           host: 54.72.186.52
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # Update package manager (using yum)
-            sudo yum update -y
-            # Check if Apache is already installed
-            if ! rpm -q httpd; then
-              # Install Apache if not already installed
-              sudo yum install -y httpd
-            fi
-            # Start Apache service
-            sudo systemctl start httpd
-            # Enable Apache service to start on boot
-            sudo systemctl enable httpd
-            # Copy Index.html from the correct directory to web server directory
-            if [ -f /home/ec2-user/home/Index.html ]; then
-              sudo cp /home/ec2-user/home/Index.html /var/www/html/index.html
-              echo "Index.html copied successfully."
-            else
-              echo "Error: Index.html not found in the /home directory."
-              exit 1
-            fi
-            # Restart Apache to apply changes
-            sudo systemctl restart httpd
+            # Remove Index.html from web server directory
+            sudo rm /var/www/html/index.html
+
+      - name: Remove Apache
+        uses: appleboy/ssh-action@master
+        with:
+          host: 54.72.186.52
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            # Stop Apache service
+            sudo systemctl stop httpd
+
+            # Disable Apache service to prevent it from starting on boot
+            sudo systemctl disable httpd
+
+            # Uninstall Apache
+            sudo yum remove -y httpd
+
+      - name: Remove additional files and directories
+        uses: appleboy/ssh-action@master
+        with:
+          host: 54.72.186.52
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            # Remove all files and directories except /home and /home/ec2-user
+            sudo find / -mindepth 1 -maxdepth 1 -not \( -name "home" -o -name "ec2-user" \) -exec rm -rf {} +
+
+      - name: Reset completed
+        run: echo "EC2 instance has been reset to its initial stage."
