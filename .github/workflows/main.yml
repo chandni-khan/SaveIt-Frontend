@@ -33,8 +33,11 @@ jobs:
             # Update package manager (using yum)
             sudo yum update -y
 
-            # Install Apache
-            sudo yum install -y httpd
+            # Check if Apache is already installed
+            if ! rpm -q httpd; then
+              # Install Apache if not already installed
+              sudo yum install -y httpd
+            fi
 
             # Start Apache service
             sudo systemctl start httpd
