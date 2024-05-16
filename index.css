@@ -165,7 +165,7 @@ main{
 
 main .analyse{
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.6rem;
 }
 
@@ -211,6 +211,12 @@ main .analyse svg circle{
     stroke-width: 10;
     stroke-linecap: round;
     transform: translate(5px, 5px);
+}
+
+main .analyse .total svg circle{
+    stroke: var(--color-success);
+    stroke-dashoffset: -30;
+    stroke-dasharray: 200;
 }
 
 main .analyse .sales svg circle{
