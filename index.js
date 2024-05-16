@@ -9,16 +9,40 @@ const budgetListItem = document.querySelector('a[data-action="budget"]');
 budgetListItem.addEventListener("click", displayBudget);
 const goalListItem = document.querySelector('a[data-action="goal"]');
 goalListItem.addEventListener("click", displayGoals);
-let expenseData = null;
-let incomeData = null;
-let budgetData = null;
+let expenseData = [];
+let incomeData = [];
+let budgetData = [];
 let totalExpense = 0;
 let totalIncome = 0;
 let totalBudget = 0;
 let editRecord = null;
 const darkMode = document.querySelector(".dark-mode");
-let expenseAllCategory = null;
-let budgetAllCategory = null;
+let expenseAllCategory = [];
+let budgetAllCategory = [];
+let access_token = localStorage.getItem("authInfo");
+let graphData = [{}];
+let month = "Apr";
+
+window.onload = async function () {
+  if (access_token == null) {
+    const mainContainer = document.getElementById("dashboard-content");
+    const addBtn = document.createElement("button");
+    addBtn.id = "login";
+    addBtn.textContent = "Login";
+    addBtn.style.color = "white";
+    addBtn.style.backgroundColor = "green";
+    addBtn.style.height = "5rem";
+    addBtn.style.width = "15rem";
+    addBtn.style.margin = "10rem";
+    addBtn.onclick = () => {
+      SignIn();
+    };
+    addBtn.style.fontWeight = "bold";
+    mainContainer.replaceChildren(addBtn);
+  } else {
+    await createDashboard();
+  }
+};
 
 async function fetchAllExpense() {
   await fetch("http://52.50.239.63:8080/getExpensesByUserId/8")
@@ -30,17 +54,14 @@ async function fetchAllExpense() {
     })
     .then((data) => {
       expenseData = data;
-      setTimeout(() => {
-        const totalAmount = expenseData.reduce(
-          (acc, expense) => acc + expense.amountSpend,
-          0
-        );
-        totalExpense = totalAmount;
-      }, 1000);
-    });
-}
-fetchAllExpense().then((data) => console.log("expenseData fetched"));
 
+      const totalAmount = expenseData.reduce(
+        (acc, expense) => acc + expense.amountSpend,
+        0
+      );
+      totalExpense = totalAmount;
+    }, 1000);
+}
 async function fetchAllIncome() {
   await fetch("http://52.50.239.63:8080/getIncomeByUserId/8")
     .then((response) => {
@@ -58,8 +79,6 @@ async function fetchAllIncome() {
       totalIncome = totalAmount;
     });
 }
-fetchAllIncome().then((data) => console.log("incomeData data is fetched"));
-
 async function fetchAllBudget() {
   await fetch("http://52.50.239.63:8080/getBudgetByUserId/8")
     .then((response) => {
@@ -74,8 +93,6 @@ async function fetchAllBudget() {
       totalBudget = totalAmount;
     });
 }
-fetchAllBudget().then((data) => console.log("Budget data is fetched"));
-
 async function fetchExpenseCategory() {
   try {
     const response = await fetch(
@@ -129,8 +146,45 @@ function generateExpenseChart() {
       return response.json();
     })
     .then((data) => {
-      const labels = data.map((expense) => expense.expenseDescription);
-      const amounts = data.map((expense) => expense.amountSpend);
+      let graphData = [];
+
+      expenseAllCategory.forEach((category) => {
+        let key = category.expenseCategoryName;
+        let obj = { [key]: 0 };
+        graphData.push(obj);
+      });
+      expenseAllCategory.forEach((category) => {
+        let count = 0;
+        data.forEach((expenseData) => {
+          if (expenseData.expenseCategory === category.expenseCategoryId) {
+            count++;
+          }
+        });
+        let key = category.expenseCategoryName;
+        let existingObjIndex = graphData.findIndex((obj) =>
+          obj.hasOwnProperty(key)
+        );
+        if (existingObjIndex !== -1) {
+          graphData[existingObjIndex][key] = count;
+        }
+      });
+
+      console.log(graphData);
+
+      const labels = [];
+      const amounts = [];
+
+      graphData.forEach((expense) => {
+        const category = Object.keys(expense)[0];
+        const count = Object.values(expense)[0];
+
+        labels.push(category);
+        amounts.push(count);
+      });
+
+      // Outputting the extracted data
+      console.log("Labels:", labels);
+      console.log("Amounts:", amounts);
 
       const ctx = document.getElementById("expenseChart").getContext("2d");
       const expenseChart = new Chart(ctx, {
@@ -161,13 +215,33 @@ function generateExpenseChart() {
     });
 }
 
-function createDashboard() {
+async function createDashboard() {
+  await fetchAllExpense();
+  await fetchAllIncome();
+  await fetchAllBudget();
   const dashboardContent = document.getElementById("dashboard-content");
   dashboardContent.innerHTML = "";
 
   const dashboardTitle = document.createElement("h1");
   dashboardTitle.textContent = "Dashboard";
   dashboardContent.appendChild(dashboardTitle);
+
+  const monthInput = document.createElement("input");
+  monthInput.type = "month";
+  monthInput.id = "monthInput"; // Add an id for easier access
+  dashboardContent.appendChild(monthInput);
+
+  const findButton = document.createElement("button");
+  findButton.textContent = "Find";
+  findButton.style.backgroundColor = "blue";
+  findButton.style.color = "white";
+  findButton.style.width = "5rem";
+  findButton.onclick = function () {
+    const selectedMonth = document.getElementById("monthInput").value;
+    const selectedYear = selectedMonth.split("-")[0];
+    const selectedMonthValue = selectedMonth.split("-")[1];
+  };
+  dashboardContent.appendChild(findButton);
 
   const analyseDiv = document.createElement("div");
   analyseDiv.classList.add("analyse");
@@ -178,7 +252,9 @@ function createDashboard() {
   totalBalanceDiv.classList.add("status");
   const totalBalanceInfoDiv = document.createElement("div");
   totalBalanceInfoDiv.classList.add("info");
-  totalBalanceInfoDiv.innerHTML = `<h3>Current Balance</h3><h1>Rs.${totalIncome}</h1>`;
+  totalBalanceInfoDiv.innerHTML = `<h3>Current Balance</h3><h1>Rs.${
+    totalIncome - totalExpense
+  }</h1>`;
   totalBalanceDiv.appendChild(totalBalanceInfoDiv);
   totalBalance.appendChild(totalBalanceDiv);
 
@@ -221,7 +297,8 @@ function createDashboard() {
 
   const newUsersDiv = document.createElement("div");
   newUsersDiv.classList.add("new-users");
-  newUsersDiv.innerHTML = "<h2>Report</h2><canvas id='expenseChart'></canvas>";
+  newUsersDiv.innerHTML =
+    "<h2>Report for Month</h2><canvas id='expenseChart'></canvas>";
   dashboardContent.appendChild(newUsersDiv);
 
   generateExpenseChart();
@@ -1300,4 +1377,33 @@ function displayReport() {
 
   generateExpenseChart();
 }
-console.log("Deleting goal with ID:", goalId);
+// console.log("Deleting goal with ID:", goalId);
+
+function SignIn() {
+  let oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
+  let form = document.createElement("form");
+  form.setAttribute("method", "GET");
+  form.setAttribute("action", oauth2Endpoint);
+
+  let params = {
+    client_id:
+      "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
+    redirect_uri: "http://127.0.0.1:5500/index.html",
+    response_type: "token",
+    scope: "https://www.googleapis.com/auth/userinfo.profile",
+    include_granted_scopes: "true",
+    state: "pass-through-value",
+  };
+
+  for (var p in params) {
+    let input = document.createElement("input");
+    input.setAttribute("type", "hidden");
+    input.setAttribute("name", p);
+    input.setAttribute("value", params[p]);
+    form.appendChild(input);
+  }
+
+  document.body.appendChild(form);
+
+  form.submit();
+}
