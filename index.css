@@ -424,3 +424,60 @@ main .new-users .user-list .user img{
     border: none;
   }
   
+
+#addGoal{
+    color:#1B9C85;
+    height:30px;
+    width:100px;
+    font-weight: bold;
+  
+}
+
+#modal{
+    display:none;
+    position:fixed;
+    z-index: 1;
+    left:0;
+    top: 0;
+    width:100%;
+    height: 100%;
+    overflow:auto;
+    background-color:rgba(0, 0, 0, 0.4) ;
+
+}
+
+/* Add this CSS to your stylesheet or inside a <style> tag in your HTML */
+#addGoal {
+    float: right;
+    margin-bottom: 20px;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+progress {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 20px;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #eee;
+    border-radius: 10px;
+}
+
+progress::-webkit-progress-value {
+    background-color: #6C9BCF;
+    border-radius: 10px;
+}
+
+progress::-moz-progress-bar {
+    background-color: #6C9BCF;
+    border-radius: 10px;
+}
+
+
