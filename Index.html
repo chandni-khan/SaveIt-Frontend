@@ -124,7 +124,7 @@
         if (Object.keys(params).length > 0) {
           localStorage.setItem("authInfo", JSON.stringify(params));
         }
-        window.history.pushState({}, document.title, "/" + "index.html");
+        window.history.pushState({}, document.title, "/");
         let authInfo = JSON.parse(localStorage.getItem("authInfo"));
       } else if (!localStorage.getItem("authInfo")) {
         console.log(
