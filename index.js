@@ -16,16 +16,13 @@ let totalExpense = 0;
 let totalIncome = 0;
 let totalBudget = 0;
 let editRecord = null;
+let editGoalObject=null;
 const darkMode = document.querySelector(".dark-mode");
 let expenseAllCategory = [];
 let budgetAllCategory = [];
 let access_token = localStorage.getItem("authInfo");
 let graphData = [{}];
 let month = "Apr";
-let editGoalObject=null;
-let editRecord=null;
-const darkMode = document.querySelector('.dark-mode');
-let expenseAllCategory=null;
 
 window.onload = async function () {
   if (access_token == null) {
@@ -124,48 +121,6 @@ fetchExpenseCategory()
   .catch((error) => {
     console.error("Error getting total Expense:", error);
   });
-fetchExpenseCategory().then(data=>{
-  console.log("data",data);
-  expenseAllCategory=data;
-})
-.catch(error => {
-console.error('Error getting total Expense:', error);
-});
-
-// let budgetAllCategory = null;
-
-async function fetchBudgetCategories() {
-  try {
-    const response = await fetch('http://52.50.239.63:8080/getBudgetCategories');
-
-    if (response.status === 204) {
-      console.log('No budget categories found');
-      return 0;
-    } else if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching budget categories:', error);
-    return 0;
-  }
-}
-fetchBudgetCategories().then(data=>{
-    console.log("data",data);
-    budgetAllCategory=data;
-  })
-  .catch(error => {
-  console.error('Error getting total budget:', error);
-  });
-
-
-
-
-let totalExpense=0
-let totalIncome=0
-let totalBudget=0
 
 menuBtn.addEventListener("click", () => {
   sideMenu.style.display = "block";
@@ -587,101 +542,79 @@ function deleteIncome(incomeId) {
 }
 
 async function displayExpense() {
-  await fetchAllExpense();
-  const mainContainer = document.getElementById("dashboard-content");
-  const addBtn = document.createElement("button");
-  addBtn.id = "addData";
-  addBtn.textContent = "Add Expense";
-  addBtn.style.color = "green";
-  addBtn.style.height = "30px";
-  addBtn.style.width = "100px";
-  addBtn.onclick = () => {
-    createxpenseForm((id = null));
-  };
-  addBtn.style.fontWeight = "bold";
-  mainContainer.replaceChildren(addBtn);
-
-  // Create a table element
-  const table = document.createElement("table");
-  table.style.marginTop = "20px";
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.overflow = "scroll";
-  table.style.border = "2";
-  table.style.borderColor = "black";
-
-  // Create the table header
-  const headerRow = table.insertRow();
-  for (const key in expenseData[0]) {
-    if (Object.hasOwnProperty.call(expenseData[0], key) && key !== "userId") {
-      const headerCell = document.createElement("th");
-      headerCell.textContent = key.toUpperCase();
-      headerCell.style.height = "30px";
-      headerCell.style.textAlign = "center";
-      headerCell.style.fontSize = "15px";
-      headerRow.appendChild(headerCell);
-    }
-  }
-  // Add Actions column header
-  const actionsHeader = document.createElement("th");
-  actionsHeader.textContent = "Actions";
-  actionsHeader.style.height = "30px";
-  actionsHeader.style.textAlign = "center";
-  actionsHeader.style.fontSize = "15px";
-  headerRow.appendChild(actionsHeader);
-
-  // Create and populate the table rows with expense data
-  expenseData.forEach((expense) => {
-    const row = table.insertRow();
-    for (const key in expense) {
-      if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
-        const cell = row.insertCell();
-        cell.style.height = "30px";
-        cell.style.textAlign = "center";
-        cell.style.fontSize = "15px";
-        cell.style.fontWeight = "15px";
-        if (key == "spendDate") {
-          const timestamp = expense[key];
-          const date = new Date(timestamp);
-          cell.textContent = date.toDateString();
-        } else {
-          if (key === "expenseCategory") {
-            expenseAllCategory.map((v) => {
-              if (v.expenseCategoryId === expense.expenseCategory) {
-                cell.textContent = v.expenseCategoryName;
-              }
-            });
-          } else {
-            cell.textContent = expense[key];
-          }
+    await fetchAllExpense();
+    const mainContainer = document.getElementById("dashboard-content");
+    mainContainer.innerHTML = ""; // Clear previous content
+  
+    const addBtn = document.createElement("button");
+    addBtn.id = "addData";
+    addBtn.textContent = "Add Expense";
+    addBtn.style.color = "green";
+    addBtn.style.height = "30px";
+    addBtn.style.width = "100px";
+    addBtn.onclick = () => {
+      createxpenseForm((id = null));
+    };
+    addBtn.style.fontWeight = "bold";
+    mainContainer.appendChild(addBtn);
+  
+    const listContainer = document.createElement("ul");
+    listContainer.style.marginTop = "20px";
+    listContainer.style.listStyleType = "none";
+    listContainer.style.padding = "0";
+  
+    expenseData.forEach((expense) => {
+      const listItem = document.createElement("li");
+      listItem.style.border = "1px solid black";
+      listItem.style.padding = "10px";
+      listItem.style.borderRadius = "5px";
+      listItem.style.marginBottom = "10px";
+      listItem.style.display = "flex";
+      listItem.style.justifyContent = "space-between";
+  
+      const expenseInfo = document.createElement("div");
+      for (const key in expense) {
+        if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
+          const item = document.createElement("div");
+          item.style.marginBottom = "5px";
+          item.textContent = key.toUpperCase() + ": " + expense[key];
+          expenseInfo.appendChild(item);
         }
       }
-    }
-
-    // Add buttons for edit and delete in the Actions column
-    const actionsCell = row.insertCell();
-    const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
-    editButton.style.backgroundColor = "blue";
-    editButton.onclick = function () {
-      createxpenseForm(expense.expenseId);
-    };
-    actionsCell.appendChild(editButton);
-
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.style.backgroundColor = "red";
-    deleteButton.onclick = function () {
-      deleteExpense(expense.expenseId);
-    };
-    actionsCell.style.textAlign = "center";
-    actionsCell.appendChild(deleteButton);
-  });
-
-  // Append the table to the main container
-  mainContainer.appendChild(table);
-}
-
+  
+      const actions = document.createElement("div");
+      actions.style.display = "flex";
+      actions.style.gap = "10px";
+  
+      const editIcon = document.createElement("span");
+      editIcon.classList.add("material-icons-sharp");
+      editIcon.textContent = "edit";
+      editIcon.style.color = "#6C9BCF";
+      editIcon.style.cursor = "pointer";
+      editIcon.onclick = function () {
+        createxpenseForm(expense.expenseId);
+      };
+      actions.appendChild(editIcon);
+  
+      const deleteIcon = document.createElement("span");
+      deleteIcon.classList.add("material-icons-sharp");
+      deleteIcon.textContent = "delete";
+      deleteIcon.style.color = "#FF0060";
+      deleteIcon.style.cursor = "pointer";
+      deleteIcon.onclick = function () {
+        deleteExpense(expense.expenseId);
+      };
+      actions.appendChild(deleteIcon);
+  
+      listItem.appendChild(expenseInfo);
+      listItem.appendChild(actions);
+  
+      listContainer.appendChild(listItem);
+    });
+  
+    mainContainer.appendChild(listContainer);
+  }
+  
 
 function createxpenseForm(id) {
   const mainContainer = document.getElementById("dashboard-content");
@@ -886,23 +819,11 @@ fetchBudgetCategory()
     console.error("Error getting total Budget:", error);
   });
 
-function displayBudget() {
-  const mainContainer = document.getElementById("dashboard-content");
-  const addBtn = document.createElement("button");
-  addBtn.id = "addBudget";
-  addBtn.textContent = "Add Budget";
-  addBtn.style.color = "green";
-  addBtn.style.height = "30px";
-  addBtn.style.width = "100px";
-  addBtn.onclick = () => {
-    createBudgetForm((id = null));
-  };
-  addBtn.style.fontWeight = "bold";
-  mainContainer.replaceChildren(addBtn);
-
-
-function displayBudget() {
+  function displayBudget() {
     const mainContainer = document.getElementById("dashboard-content");
+    mainContainer.innerHTML = ""; // Clear previous content
+
+    // Add "Create Budget" button
     const addBtn = document.createElement("button");
     addBtn.id = "addBudget";
     addBtn.textContent = "Create Budget";
@@ -913,74 +834,8 @@ function displayBudget() {
         createBudgetForm();
     };
     addBtn.style.fontWeight = "bold";
-    mainContainer.replaceChildren(addBtn);
+    mainContainer.appendChild(addBtn);
 
-  // Create a table element
-  const table = document.createElement("table");
-  table.style.marginTop = "20px";
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.overflow = "scroll";
-  table.style.border = "2";
-  table.style.borderColor = "black";
-
-  // Create the table header
-  const headerRow = table.insertRow();
-  for (const key in budgetData[0]) {
-    if (Object.hasOwnProperty.call(budgetData[0], key) && key !== "userId") {
-      const headerCell = document.createElement("th");
-      headerCell.textContent = key.toUpperCase();
-      headerCell.style.height = "30px";
-      headerCell.style.textAlign = "center";
-      headerCell.style.fontSize = "15px";
-      headerRow.appendChild(headerCell);
-    }
-  }
-  // Add Actions column header
-  const actionsHeader = document.createElement("th");
-  actionsHeader.textContent = "Actions";
-  actionsHeader.style.height = "30px";
-  actionsHeader.style.textAlign = "center";
-  actionsHeader.style.fontSize = "15px";
-  headerRow.appendChild(actionsHeader);
-
-  // Create and populate the table rows with budget data
-  budgetData.forEach((budget) => {
-    const row = table.insertRow();
-    for (const key in budget) {
-      if (Object.hasOwnProperty.call(budget, key) && key !== "userId") {
-        const cell = row.insertCell();
-        cell.style.height = "30px";
-        cell.style.textAlign = "center";
-        cell.style.fontSize = "15px";
-        cell.style.fontWeight = "15px";
-        if (key == "start_date" || key == "end_date") {
-          const timestamp = budget[key];
-          const date = new Date(timestamp);
-          cell.textContent = date.toDateString();
-        } else {
-          if (key === "budget_category_id") {
-            budgetAllCategory.map((v) => {
-              if (v.budgetCategoryId === budget.budget_category_id) {
-                cell.textContent = v.budgetCategoryName;
-              }
-            });
-          } else {
-            cell.textContent = budget[key];
-          }
-        }
-      }
-    }
-
-    // Add buttons for edit and delete in the Actions column
-    const actionsCell = row.insertCell();
-    const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
-    editButton.style.backgroundColor = "blue";
-    editButton.onclick = function () {
-      createBudgetForm(budget.budget_id);
-    };
-    actionsCell.appendChild(editButton);
     fetch('http://52.50.239.63:8080/getBudgetByUserId/8')
         .then(response => {
             if (!response.ok) {
@@ -1023,42 +878,60 @@ function displayBudget() {
                         infoContainer.appendChild(infoItem);
                     }
                 }
+
+                // Display category
+                const categoryItem = document.createElement("div");
+                categoryItem.style.marginBottom = "5px";
+                categoryItem.style.fontSize = "15px";
+                categoryItem.style.fontWeight = "bold";
+                categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
+                infoContainer.appendChild(categoryItem);
+
+                // Progress bar
+                const progressContainer = document.createElement("div");
+                progressContainer.style.width = "100%";
+                progressContainer.style.height = "20px";
+                progressContainer.style.backgroundColor = "#f0f0f0";
+                progressContainer.style.borderRadius = "5px";
+
+                const progressBar = document.createElement("div");
+                const percentage = (budget.amount_spent / budget.amount) * 100;
+                progressBar.style.width = `${percentage}%`;
+                progressBar.style.height = "100%";
+                progressBar.style.backgroundColor = "green";
+                progressBar.style.borderRadius = "5px";
+
+                progressContainer.appendChild(progressBar);
+                infoContainer.appendChild(progressContainer);
+
                 itemContainer.appendChild(infoContainer);
 
                 const actionsContainer = document.createElement("div");
                 actionsContainer.style.display = "flex";
                 actionsContainer.style.gap = "10px";
 
-                const editButton = document.createElement("button");
-                editButton.textContent = "Edit";
-                editButton.style.backgroundColor = "blue";
-                editButton.style.color = "white";
-                editButton.onclick = function () {
+                // Edit icon
+                const editIcon = document.createElement("span");
+                editIcon.classList.add("material-icons-sharp");
+                editIcon.textContent = "edit";
+                editIcon.style.color = "#6C9BCF";
+                editIcon.style.cursor = "pointer";
+                editIcon.onclick = function () {
                     createBudgetForm();
                     editRecord = budget.budget_id;
                 };
-                actionsContainer.appendChild(editButton);
+                actionsContainer.appendChild(editIcon);
 
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.style.backgroundColor = "red";
-    deleteButton.onclick = function () {
-      deleteBudget(budget.budget_id);
-    };
-    actionsCell.style.textAlign = "center";
-    actionsCell.appendChild(deleteButton);
-  });
-
-  // Append the table to the main container
-  mainContainer.appendChild(table);
-                const deleteButton = document.createElement("button");
-                deleteButton.textContent = "Delete";
-                deleteButton.style.backgroundColor = "red";
-                deleteButton.style.color = "white";
-                deleteButton.onclick = function () {
+                // Delete icon
+                const deleteIcon = document.createElement("span");
+                deleteIcon.classList.add("material-icons-sharp");
+                deleteIcon.textContent = "delete";
+                deleteIcon.style.color = "#FF0060";
+                deleteIcon.style.cursor = "pointer";
+                deleteIcon.onclick = function () {
                     deleteBudget(budget.budget_id);
                 };
-                actionsContainer.appendChild(deleteButton);
+                actionsContainer.appendChild(deleteIcon);
 
                 itemContainer.appendChild(actionsContainer);
                 listContainer.appendChild(itemContainer);
@@ -1070,6 +943,7 @@ function displayBudget() {
             console.error('There was a problem with the fetch operation:', error);
         });
 }
+
 
 
 function createBudgetForm(id) {
@@ -1229,7 +1103,7 @@ function createBudgetForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response;
+        // return response;
       })
       .then((data) => {
         setTimeout(() => {
@@ -1242,68 +1116,6 @@ function createBudgetForm(id) {
         window.alert("An error occurred. Please try again later.");
       });
   });
-function createBudgetForm() {
-    const mainContainer = document.getElementById("dashboard-content");
-    const formElements = [
-      { type: 'input', inputType: 'number', name: 'budget_category_id', labelText: 'Category ID:' },
-      { type: 'input', inputType: 'number', name: 'amount', labelText: 'Amount:' },
-      { type: 'input', inputType: 'date', name: 'start_date', labelText: 'Start Date:' },
-      { type: 'input', inputType: 'date', name: 'end_date', labelText: 'End Date:' },
-      { type: 'input', inputType: 'text', name: 'budget_description', labelText: 'Description:' },
-      { type: 'input', inputType: 'submit', name: 'addBudget'}    
-    ];
-  
-    const formContainer = document.createElement('div');
-    formContainer.classList.add('budget-form-container'); // New class
-  
-    const form = document.createElement('form');
-    form.id = 'addBudgetForm';
-    form.classList.add('budget-form'); // New class
-  
-    formElements.forEach(element => {
-      const formGroup = document.createElement('div');
-      formGroup.classList.add('form-group');
-  
-      const label = document.createElement('label');
-      label.textContent = element.labelText;
-      label.classList.add('form-label'); // New class
-      formGroup.appendChild(label);
-  
-      if (element.name === 'budget_category_id') {
-        const select = document.createElement('select');
-        select.name = 'budget_category_id';
-        select.required = true;
-        select.classList.add('form-control'); // New class
-  
-        // Fetch budget categories from API endpoint
-        fetchBudgetCategories()
-          .then(categories => {
-            categories.forEach(category => {
-              const option = document.createElement('option');
-              option.value = category.budgetCategoryId;
-              option.textContent = category.budgetCategoryName;
-              select.appendChild(option);
-            });
-          })
-          .catch(error => {
-            console.error('Error fetching budget categories:', error);
-          });
-  
-        formGroup.appendChild(select);
-      } else {
-        const input = document.createElement('input');
-        input.type = element.inputType;
-        input.name = element.name;
-        input.id = element.name;
-        input.required = true;
-        input.classList.add('form-control'); // New class
-        formGroup.appendChild(input);
-      }
-  
-      form.appendChild(formGroup);
-    });
-    
-    // Rest of your form creation logic...
 }
 
 function deleteBudget(budgetId) {
@@ -1317,42 +1129,13 @@ function deleteBudget(budgetId) {
     displayBudget();
   }
   console.log("Deleting budget with ID:", budgetId);
-    if (window.confirm("Do you want to delete?")) {
-        fetch(`http://52.50.239.63:8080/deleteBudget/${budgetId}`, {
-                method: "DELETE",
-            })
-            .then(response => response.json())
-            .catch(error => console.error("Error:", error));
-        window.alert("deleted");
-    }
-    console.log("Deleting budget with ID:", budgetId);
 }
-
-function displayGoals() {
-  const mainContainer = document.getElementById("dashboard-content");
-  const addBtn = document.createElement("button");
-  addBtn.id = "addGoal";
-  addBtn.textContent = "Add Goal";
-  addBtn.style.color = "green";
-  addBtn.style.height = "30px";
-  addBtn.style.width = "100px";
-  addBtn.onclick = () => {
-    createGoalForm();
-  };
-  addBtn.style.fontWeight = "bold";
-  mainContainer.replaceChildren(addBtn);
-
 
 function displayGoals() {
     const mainContainer = document.getElementById("dashboard-content");
     mainContainer.innerHTML = ""; // Clear previous content
 
-    // Add heading
-    const heading = document.createElement("h2");
-    heading.textContent = "Goals";
-    mainContainer.appendChild(heading);
 
-    // Add "Create Goal" button
     const addBtn = document.createElement("button");
     addBtn.id = "addGoal";
     addBtn.textContent = "Create Goal";
@@ -1360,6 +1143,12 @@ function displayGoals() {
         addGoalForm();
     };
     mainContainer.appendChild(addBtn);
+    // Add heading
+    const heading = document.createElement("h1");
+    heading.textContent = "Goals";
+    mainContainer.appendChild(heading);
+
+   
 
     // Add Modal Structure
     const modal = document.createElement("div");
@@ -1438,73 +1227,6 @@ function displayGoals() {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
-  fetch("http://52.50.239.63:8080/getGoalByUserId/8")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      // Create a table element
-      const table = document.createElement("table");
-      table.style.marginTop = "20px";
-      table.style.borderCollapse = "collapse";
-      table.style.width = "100%";
-      table.style.overflow = "scroll";
-      table.style.border = "2";
-      table.style.borderColor = "black";
-
-      // Create the table header
-      const headerRow = table.insertRow();
-      for (const key in data[0]) {
-        if (Object.hasOwnProperty.call(data[0], key) && key !== "user_id") {
-          const headerCell = document.createElement("th");
-          headerCell.textContent = key.toUpperCase();
-          headerCell.style.height = "30px";
-          headerCell.style.textAlign = "center";
-          headerCell.style.fontSize = "15px";
-          headerRow.appendChild(headerCell);
-        }
-      }
-      // Add Actions column header
-      const actionsHeader = document.createElement("th");
-      actionsHeader.textContent = "Actions";
-      actionsHeader.style.height = "30px";
-      actionsHeader.style.textAlign = "center";
-      actionsHeader.style.fontSize = "15px";
-      headerRow.appendChild(actionsHeader);
-
-      // Create and populate the table rows with goal data
-      data.forEach((goal) => {
-        const row = table.insertRow();
-        for (const key in goal) {
-          if (Object.hasOwnProperty.call(goal, key) && key !== "user_id") {
-            const cell = row.insertCell();
-            cell.style.height = "30px";
-            cell.style.textAlign = "center";
-            cell.style.fontSize = "15px";
-            cell.style.fontWeight = "15px";
-            if (key == "desired_date") {
-              const timestamp = goal[key];
-              const date = new Date(timestamp);
-              cell.textContent = date.toDateString();
-            } else {
-              cell.textContent = goal[key];
-            }
-          }
-        }
-
-        // Add buttons for edit and delete in the Actions column
-        const actionsCell = row.insertCell();
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.style.backgroundColor = "blue";
-        editButton.onclick = function () {
-          createGoalForm();
-          editRecord = goal.goal_id;
-        };
-        actionsCell.appendChild(editButton);
     fetch("http://52.50.239.63:8080/getGoalByUserId/8")
         .then(response => {
             if (!response.ok) {
@@ -1531,7 +1253,7 @@ function displayGoals() {
                 const goalContent = document.createElement("div");
 
                 // Goal title
-                const title = document.createElement("h3");
+                const title = document.createElement("h2");
                 title.textContent = goal["goal_for"];
                 goalContent.appendChild(title);
 
@@ -1586,7 +1308,7 @@ function displayGoals() {
                                 if (!response.ok) {
                                     throw new Error("Network response was not ok");
                                 }
-                                return response.json();
+                                
                             })
                             .then(data => {
                                 // Update the progress bar and text in the UI
@@ -1622,22 +1344,6 @@ function displayGoals() {
                 };
                 buttonContainer.appendChild(editIcon);
 
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.style.backgroundColor = "red";
-        deleteButton.onclick = function () {
-          deleteGoal(goal.goal_id);
-        };
-        actionsCell.style.textAlign = "center";
-        actionsCell.appendChild(deleteButton);
-      });
-
-      // Append the table to the main container
-      mainContainer.appendChild(table);
-    })
-    .catch((error) => {
-      console.error("There was a problem with the fetch operation:", error);
-    });
                 // Delete icon
                 const deleteIcon = document.createElement("span");
                 deleteIcon.classList.add("material-icons-sharp");
@@ -1663,140 +1369,6 @@ function displayGoals() {
         });
 }
 
-function createGoalForm() {
-  const mainContainer = document.getElementById("dashboard-content");
-  const formElements = [
-    {
-      type: "input",
-      inputType: "text",
-      name: "goal_for",
-      labelText: "Goal For:",
-    },
-    {
-      type: "input",
-      inputType: "number",
-      name: "target_amount",
-      labelText: "Target Amount:",
-    },
-    {
-      type: "input",
-      inputType: "date",
-      name: "desired_date",
-      labelText: "Desired Date:",
-    },
-    {
-      type: "input",
-      inputType: "number",
-      name: "saved_already",
-      labelText: "Saved Already:",
-    },
-    { type: "input", inputType: "submit", name: "addGoal" },
-  ];
-
-  const formContainer = document.createElement("div");
-  formContainer.classList.add("goal-form-container"); // New class
-
-  const form = document.createElement("form");
-  form.id = "addGoalForm";
-  form.classList.add("goal-form"); // New class
-
-  formElements.forEach((element) => {
-    const formGroup = document.createElement("div");
-    formGroup.classList.add("form-group");
-
-    const label = document.createElement("label");
-    label.textContent = element.labelText;
-    label.classList.add("form-label"); // New class
-    formGroup.appendChild(label);
-
-    const input = document.createElement("input");
-    input.type = element.inputType;
-    input.name = element.name;
-    input.id = element.name;
-    input.required = true;
-    input.classList.add("form-control"); // New class
-    formGroup.appendChild(input);
-    form.appendChild(formGroup);
-  });
-
-  if (editRecord != null) {
-    fetch(`http://52.50.239.63:8080/getGoalById/${goalId}`)
-      .then((response) => {
-        if (response.status === 204) {
-          return;
-        } else if (response.status !== 200) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        document.getElementsByName("goal_for")[0].value = data.goal_for;
-        document.getElementsByName("target_amount")[0].value =
-          data.target_amount;
-        document.getElementsByName("desired_date")[0].value = data.desired_date;
-        document.getElementsByName("saved_already")[0].value =
-          data.saved_already;
-        form.elements["addGoal"].value = "Update Goal"; // Update submit button text
-        editRecord = data.goal_id;
-        console.log("Editing goal with ID:", editRecord);
-      })
-      .catch((e) => {
-        console.log("error", e);
-      });
-  }
-  formContainer.appendChild(form);
-  mainContainer.replaceChildren(formContainer);
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    let bodyData = {};
-    if (editRecord) {
-      bodyData = {
-        goal_for: formData.get("goal_for"),
-        target_amount: formData.get("target_amount"),
-        desired_date: formData.get("desired_date"),
-        saved_already: formData.get("saved_already"),
-        user_id: 8,
-        goal_id: editRecord,
-      };
-    } else {
-      bodyData = {
-        goal_for: formData.get("goal_for"),
-        target_amount: formData.get("target_amount"),
-        desired_date: formData.get("desired_date"),
-        saved_already: formData.get("saved_already"),
-        user_id: 8,
-      };
-    }
-    fetch(
-      editRecord
-        ? "http://52.50.239.63:8080/updateGoal"
-        : "http://52.50.239.63:8080/addGoal",
-      {
-        method: editRecord ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bodyData),
-      }
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response;
-      })
-      .then((data) => {
-        console.log("Data received:", data);
-        resetForm();
-        window.alert(editRecord ? "Updated Goal" : "Added Goal");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
-      });
-    createDashboard();
-  });
 
 
 
@@ -1908,16 +1480,16 @@ function addGoalForm() {
 }
 
 function deleteGoal(goalId) {
-  if (window.confirm("Do you want to delete?")) {
-    fetch(`http://52.50.239.63:8080/deleteGoal/${goalId}`, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
-  }
-  console.log("Deleting goal with ID:", goalId);
-}
+    if(window.confirm("Do you want to delete?")){
+        fetch(`http://52.50.239.63:8080/deleteGoal/${goalId}`, {
+            method: "DELETE",
+        })
+        .then(response => response.json())
+        .catch(error => console.error("Error:", error));
+        window.alert("deleted")
+    }
+     console.log("Deleting goal with ID:", goalId);
+    }
 
 function displayReport() {
   const dashboardContent = document.getElementById("dashboard-content");
@@ -1940,7 +1512,7 @@ function SignIn() {
   let params = {
     client_id:
       "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
-    redirect_uri: "http://127.0.0.1:5500/index.html",
+    redirect_uri: "http://127.0.0.1:5500",
     response_type: "token",
     scope: "https://www.googleapis.com/auth/userinfo.profile",
     include_granted_scopes: "true",

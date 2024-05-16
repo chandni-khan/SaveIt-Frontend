@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
-      rel="stylesheet" />
-    <link rel="stylesheet" href="./index.css" />
+       href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" 
+       rel="stylesheet">
+    <link rel="stylesheet" href="./index.css">
     <title>SaveIt</title>
-  </head>
-  <body>
+</head>
+
+<body>
+
     <div class="container" id="body">
         <aside>
             <div class="toggle">
@@ -62,12 +65,6 @@
                 </a>
                 <a href="#">
                     <span class="material-icons-sharp">
-                        add
-                    </span>
-                    <h3>New Login</h3>
-                </a>
-                <a href="#" onclick="LogOut()">
-                    <span class="material-icons-sharp">
                         logout
                     </span>
                     <h3>Logout</h3>
@@ -79,84 +76,46 @@
 
         </main>
 
+        <div class="right-section">
+            <div class="nav">
+                <button id="menu-btn">
+                    <span class="material-icons-sharp">
+                        menu
+                    </span>
+                </button>
+                <div class="dark-mode">
+                    <span class="material-icons-sharp active">
+                        light_mode
+                    </span>
+                    <span class="material-icons-sharp">
+                        dark_mode
+                    </span>
+                </div>
 
-      <main id="dashboard-content"></main>
-      <div class="right-section">
-        <div class="nav">
-          <button id="menu-btn">
-            <span class="material-icons-sharp"> menu </span>
-          </button>
-          <div class="dark-mode">
-            <span class="material-icons-sharp active"> light_mode </span>
-            <span class="material-icons-sharp"> dark_mode </span>
-          </div>
+                <div class="profile">
+                    <div class="info">
+                        <p>Hello, <b>User</b></p>
+                    </div>
+                    <div class="profile-photo">
+                        <img src="./Images/User.png">
+                    </div>
+                </div>
 
-          <div class="profile">
-            <div class="info">
-              <p>Hello, <b>User</b></p>
             </div>
-            <div class="profile-photo">
-              <img src="./Images/User.png" />
-            </div>
-          </div>
-        </div>
+          
 
-        <div class="user-profile">
-          <div class="logo">
-            <img src="./Images/logo.png" />
-            <h2>SaveIt</h2>
-            <p>Finance and Budgeting</p>
-          </div>
+            <div class="user-profile">
+                <div class="logo">
+                    <img src="./Images/logo.png">
+                    <h2>SaveIt</h2>
+                    <p>Finance and Budgeting</p>
+                </div>
+            </div>
+
         </div>
-      </div>
     </div>
-    <script>
-      if (
-        window.location.href != "http://127.0.0.1:5500/index.html" ||
-        "http://127.0.0.1:5500/index.html#"
-      ) {
-        let params = {};
-        let regex = /([^&=]+)=([^&]*)/g,
-          m;
-        while ((m = regex.exec(location.href))) {
-          params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-        }
-        if (Object.keys(params).length > 0) {
-          localStorage.setItem("authInfo", JSON.stringify(params));
-        }
-        window.history.pushState({}, document.title, "/");
-        let authInfo = JSON.parse(localStorage.getItem("authInfo"));
-      } else if (!localStorage.getItem("authInfo")) {
-        console.log(
-          "No parameters in URL and authInfo not found in localStorage."
-        );
-      }
 
-      function LogOut() {
-        let access_token = localStorage.getItem("authInfo");
-        if (localStorage.getItem("authInfo") != null) {
-          let authInfo = JSON.parse(localStorage.getItem("authInfo"));
-          fetch(
-            "https://oauth2.googleapis.com/revoke?token=" +
-              authInfo["access_token"],
-            {
-              method: "POST",
-              headers: {
-                "Content-type": "application/x-www-form-urlencoded",
-              },
-            }
-          );
-          localStorage.removeItem("authInfo");
-          var url = new URL("http://127.0.0.1:5500/Index.html");
-          window.location.href = "http://127.0.0.1:5500/Index.html";
-        } else {
-          window.alert("Already Logged Out");
-        }
-      }
-    </script>
-
-    <script src="./index.js"></script>
+    <script src="./index.js"> </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </body>
 </body>
 </html>
