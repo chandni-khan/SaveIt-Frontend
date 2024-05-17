@@ -16,6 +16,7 @@ let totalExpense = 0;
 let totalIncome = 0;
 let totalBudget = 0;
 let editRecord = null;
+let editGoalObject = null;
 const darkMode = document.querySelector(".dark-mode");
 let expenseAllCategory = [];
 let budgetAllCategory = [];
@@ -119,45 +120,6 @@ fetchExpenseCategory()
   })
   .catch((error) => {
     console.error("Error getting total Expense:", error);
-  });
-fetchExpenseCategory()
-  .then((data) => {
-    console.log("data", data);
-    expenseAllCategory = data;
-  })
-  .catch((error) => {
-    console.error("Error getting total Expense:", error);
-  });
-
-// let budgetAllCategory = null;
-
-async function fetchBudgetCategories() {
-  try {
-    const response = await fetch(
-      "http://52.50.239.63:8080/getBudgetCategories"
-    );
-
-    if (response.status === 204) {
-      console.log("No budget categories found");
-      return 0;
-    } else if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching budget categories:", error);
-    return 0;
-  }
-}
-fetchBudgetCategories()
-  .then((data) => {
-    console.log("data", data);
-    budgetAllCategory = data;
-  })
-  .catch((error) => {
-    console.error("Error getting total budget:", error);
   });
 
 menuBtn.addEventListener("click", () => {
@@ -352,6 +314,9 @@ document.addEventListener("DOMContentLoaded", function () {
 async function displayIncome() {
   await fetchAllIncome();
   const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; // Clear previous content
+
+  // Add "Add Income" button
   const addBtn = document.createElement("button");
   addBtn.id = "addIncome";
   addBtn.textContent = "Add Income";
@@ -362,73 +327,85 @@ async function displayIncome() {
     createIncomeForm();
   };
   addBtn.style.fontWeight = "bold";
-  mainContainer.replaceChildren(addBtn);
+  mainContainer.appendChild(addBtn);
 
-  // Create a table element
-  const table = document.createElement("table");
-  table.style.marginTop = "20px";
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.overflow = "scroll";
-  table.style.border = "2";
-  table.style.borderColor = "black";
+  const listContainer = document.createElement("div");
+  listContainer.style.marginTop = "20px";
+  listContainer.style.display = "flex";
+  listContainer.style.flexDirection = "column";
+  listContainer.style.gap = "10px";
 
-  // Create the table header
-  const headerRow = table.insertRow();
-  for (const key in incomeData[0]) {
-    if (Object.hasOwnProperty.call(incomeData[0], key) && key !== "userId") {
-      const headerCell = document.createElement("th");
-      headerCell.textContent = key.toUpperCase();
-      headerCell.style.height = "30px";
-      headerCell.style.textAlign = "center";
-      headerCell.style.fontSize = "15px";
-      headerRow.appendChild(headerCell);
-    }
-  }
-  const actionsHeader = document.createElement("th");
-  actionsHeader.textContent = "Actions";
-  actionsHeader.style.height = "30px";
-  actionsHeader.style.textAlign = "center";
-  actionsHeader.style.fontSize = "15px";
-  headerRow.appendChild(actionsHeader);
   incomeData.forEach((income) => {
-    const row = table.insertRow();
+    const itemContainer = document.createElement("div");
+    itemContainer.style.border = "1px solid black";
+    itemContainer.style.padding = "10px";
+    itemContainer.style.borderRadius = "5px";
+    itemContainer.style.display = "flex";
+    itemContainer.style.justifyContent = "space-between";
+    itemContainer.style.alignItems = "center";
+
+    const infoContainer = document.createElement("div");
     for (const key in income) {
-      if (Object.hasOwnProperty.call(income, key) && key !== "userId") {
-        const cell = row.insertCell();
-        cell.style.height = "30px";
-        cell.style.textAlign = "center";
-        cell.style.fontSize = "15px";
-        cell.style.fontWeight = "15px";
+      if (
+        Object.hasOwnProperty.call(income, key) &&
+        key !== "userId" &&
+        key !== "incomeId"
+      ) {
+        const infoItem = document.createElement("div");
+        infoItem.style.marginBottom = "5px";
+        infoItem.style.fontSize = "15px";
+        infoItem.style.fontWeight = "bold";
+
         if (key == "incomeDate") {
           const timestamp = income[key];
           const date = new Date(timestamp);
-          cell.textContent = date.toDateString();
+          infoItem.textContent = `${key
+            .replace("_", " ")
+            .toUpperCase()}: ${date.toDateString()}`;
         } else {
-          cell.textContent = income[key];
+          infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
+            income[key]
+          }`;
         }
+
+        infoContainer.appendChild(infoItem);
       }
     }
-    const actionsCell = row.insertCell();
-    const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
-    editButton.style.backgroundColor = "blue";
-    editButton.onclick = function () {
+
+    itemContainer.appendChild(infoContainer);
+
+    const actionsContainer = document.createElement("div");
+    actionsContainer.style.display = "flex";
+    actionsContainer.style.gap = "10px";
+
+    // Edit icon
+    const editIcon = document.createElement("span");
+    editIcon.classList.add("material-icons-sharp");
+    editIcon.textContent = "edit";
+    editIcon.style.color = "#6C9BCF";
+    editIcon.style.cursor = "pointer";
+    editIcon.onclick = function () {
       createIncomeForm();
       editRecord = income.incomeId;
     };
-    actionsCell.appendChild(editButton);
+    actionsContainer.appendChild(editIcon);
 
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.style.backgroundColor = "red";
-    deleteButton.onclick = function () {
+    // Delete icon
+    const deleteIcon = document.createElement("span");
+    deleteIcon.classList.add("material-icons-sharp");
+    deleteIcon.textContent = "delete";
+    deleteIcon.style.color = "#FF0060";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.onclick = function () {
       deleteIncome(income.incomeId);
     };
-    actionsCell.style.textAlign = "center";
-    actionsCell.appendChild(deleteButton);
+    actionsContainer.appendChild(deleteIcon);
+
+    itemContainer.appendChild(actionsContainer);
+    listContainer.appendChild(itemContainer);
   });
-  mainContainer.appendChild(table);
+
+  mainContainer.appendChild(listContainer);
 }
 
 function createIncomeForm() {
@@ -582,6 +559,8 @@ function deleteIncome(incomeId) {
 async function displayExpense() {
   await fetchAllExpense();
   const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; // Clear previous content
+
   const addBtn = document.createElement("button");
   addBtn.id = "addData";
   addBtn.textContent = "Add Expense";
@@ -592,87 +571,63 @@ async function displayExpense() {
     createxpenseForm((id = null));
   };
   addBtn.style.fontWeight = "bold";
-  mainContainer.replaceChildren(addBtn);
+  mainContainer.appendChild(addBtn);
 
-  // Create a table element
-  const table = document.createElement("table");
-  table.style.marginTop = "20px";
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.overflow = "scroll";
-  table.style.border = "2";
-  table.style.borderColor = "black";
+  const listContainer = document.createElement("ul");
+  listContainer.style.marginTop = "20px";
+  listContainer.style.listStyleType = "none";
+  listContainer.style.padding = "0";
 
-  // Create the table header
-  const headerRow = table.insertRow();
-  for (const key in expenseData[0]) {
-    if (Object.hasOwnProperty.call(expenseData[0], key) && key !== "userId") {
-      const headerCell = document.createElement("th");
-      headerCell.textContent = key.toUpperCase();
-      headerCell.style.height = "30px";
-      headerCell.style.textAlign = "center";
-      headerCell.style.fontSize = "15px";
-      headerRow.appendChild(headerCell);
-    }
-  }
-  // Add Actions column header
-  const actionsHeader = document.createElement("th");
-  actionsHeader.textContent = "Actions";
-  actionsHeader.style.height = "30px";
-  actionsHeader.style.textAlign = "center";
-  actionsHeader.style.fontSize = "15px";
-  headerRow.appendChild(actionsHeader);
-
-  // Create and populate the table rows with expense data
   expenseData.forEach((expense) => {
-    const row = table.insertRow();
+    const listItem = document.createElement("li");
+    listItem.style.border = "1px solid black";
+    listItem.style.padding = "10px";
+    listItem.style.borderRadius = "5px";
+    listItem.style.marginBottom = "10px";
+    listItem.style.display = "flex";
+    listItem.style.justifyContent = "space-between";
+
+    const expenseInfo = document.createElement("div");
     for (const key in expense) {
       if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
-        const cell = row.insertCell();
-        cell.style.height = "30px";
-        cell.style.textAlign = "center";
-        cell.style.fontSize = "15px";
-        cell.style.fontWeight = "15px";
-        if (key == "spendDate") {
-          const timestamp = expense[key];
-          const date = new Date(timestamp);
-          cell.textContent = date.toDateString();
-        } else {
-          if (key === "expenseCategory") {
-            expenseAllCategory.map((v) => {
-              if (v.expenseCategoryId === expense.expenseCategory) {
-                cell.textContent = v.expenseCategoryName;
-              }
-            });
-          } else {
-            cell.textContent = expense[key];
-          }
-        }
+        const item = document.createElement("div");
+        item.style.marginBottom = "5px";
+        item.textContent = key.toUpperCase() + ": " + expense[key];
+        expenseInfo.appendChild(item);
       }
     }
 
-    // Add buttons for edit and delete in the Actions column
-    const actionsCell = row.insertCell();
-    const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
-    editButton.style.backgroundColor = "blue";
-    editButton.onclick = function () {
+    const actions = document.createElement("div");
+    actions.style.display = "flex";
+    actions.style.gap = "10px";
+
+    const editIcon = document.createElement("span");
+    editIcon.classList.add("material-icons-sharp");
+    editIcon.textContent = "edit";
+    editIcon.style.color = "#6C9BCF";
+    editIcon.style.cursor = "pointer";
+    editIcon.onclick = function () {
       createxpenseForm(expense.expenseId);
     };
-    actionsCell.appendChild(editButton);
+    actions.appendChild(editIcon);
 
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.style.backgroundColor = "red";
-    deleteButton.onclick = function () {
+    const deleteIcon = document.createElement("span");
+    deleteIcon.classList.add("material-icons-sharp");
+    deleteIcon.textContent = "delete";
+    deleteIcon.style.color = "#FF0060";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.onclick = function () {
       deleteExpense(expense.expenseId);
     };
-    actionsCell.style.textAlign = "center";
-    actionsCell.appendChild(deleteButton);
+    actions.appendChild(deleteIcon);
+
+    listItem.appendChild(expenseInfo);
+    listItem.appendChild(actions);
+
+    listContainer.appendChild(listItem);
   });
 
-  // Append the table to the main container
-  mainContainer.appendChild(table);
+  mainContainer.appendChild(listContainer);
 }
 
 function createxpenseForm(id) {
@@ -880,6 +835,9 @@ fetchBudgetCategory()
 
 function displayBudget() {
   const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; // Clear previous content
+
+  // Add "Create Budget" button
   const addBtn = document.createElement("button");
   addBtn.id = "addBudget";
   addBtn.textContent = "Create Budget";
@@ -890,164 +848,112 @@ function displayBudget() {
     createBudgetForm();
   };
   addBtn.style.fontWeight = "bold";
-  mainContainer.replaceChildren(addBtn);
+  mainContainer.appendChild(addBtn);
 
-  // Create a table element
-  const table = document.createElement("table");
-  table.style.marginTop = "20px";
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.overflow = "scroll";
-  table.style.border = "2";
-  table.style.borderColor = "black";
+  fetch("http://52.50.239.63:8080/getBudgetByUserId/8")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      const listContainer = document.createElement("div");
+      listContainer.style.marginTop = "20px";
+      listContainer.style.display = "flex";
+      listContainer.style.flexDirection = "column";
+      listContainer.style.gap = "10px";
 
-  // Create the table header
-  const headerRow = table.insertRow();
-  for (const key in budgetData[0]) {
-    if (Object.hasOwnProperty.call(budgetData[0], key) && key !== "userId") {
-      const headerCell = document.createElement("th");
-      headerCell.textContent = key.toUpperCase();
-      headerCell.style.height = "30px";
-      headerCell.style.textAlign = "center";
-      headerCell.style.fontSize = "15px";
-      headerRow.appendChild(headerCell);
-    }
-  }
-  // Add Actions column header
-  const actionsHeader = document.createElement("th");
-  actionsHeader.textContent = "Actions";
-  actionsHeader.style.height = "30px";
-  actionsHeader.style.textAlign = "center";
-  actionsHeader.style.fontSize = "15px";
-  headerRow.appendChild(actionsHeader);
+      data.forEach((budget) => {
+        const itemContainer = document.createElement("div");
+        itemContainer.style.border = "1px solid black";
+        itemContainer.style.padding = "10px";
+        itemContainer.style.borderRadius = "5px";
+        itemContainer.style.display = "flex";
+        itemContainer.style.justifyContent = "space-between";
+        itemContainer.style.alignItems = "center";
 
-  // Create and populate the table rows with budget data
-  budgetData
-    .forEach((budget) => {
-      const row = table.insertRow();
-      for (const key in budget) {
-        if (Object.hasOwnProperty.call(budget, key) && key !== "userId") {
-          const cell = row.insertCell();
-          cell.style.height = "30px";
-          cell.style.textAlign = "center";
-          cell.style.fontSize = "15px";
-          cell.style.fontWeight = "15px";
-          if (key == "start_date" || key == "end_date") {
-            const timestamp = budget[key];
-            const date = new Date(timestamp);
-            cell.textContent = date.toDateString();
-          } else {
-            if (key === "budget_category_id") {
-              budgetAllCategory.map((v) => {
-                if (v.budgetCategoryId === budget.budget_category_id) {
-                  cell.textContent = v.budgetCategoryName;
-                }
-              });
+        const infoContainer = document.createElement("div");
+        for (const key in budget) {
+          if (Object.hasOwnProperty.call(budget, key) && key !== "user_id") {
+            const infoItem = document.createElement("div");
+            infoItem.style.marginBottom = "5px";
+            infoItem.style.fontSize = "15px";
+            infoItem.style.fontWeight = "bold";
+
+            if (key == "start_date" || key == "end_date") {
+              const timestamp = budget[key];
+              const date = new Date(timestamp);
+              infoItem.textContent = `${key
+                .replace("_", " ")
+                .toUpperCase()}: ${date.toDateString()}`;
             } else {
-              cell.textContent = budget[key];
+              infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
+                budget[key]
+              }`;
             }
+
+            infoContainer.appendChild(infoItem);
           }
         }
-      }
 
-      // Add buttons for edit and delete in the Actions column
-      const actionsCell = row.insertCell();
-      const editButton = document.createElement("button");
-      editButton.textContent = "Edit";
-      editButton.style.backgroundColor = "blue";
-      editButton.onclick = function () {
-        createBudgetForm(budget.budget_id);
-      };
-      actionsCell.appendChild(editButton);
-      fetch("http://52.50.239.63:8080/getBudgetByUserId/8")
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          const listContainer = document.createElement("div");
-          listContainer.style.marginTop = "20px";
-          listContainer.style.display = "flex";
-          listContainer.style.flexDirection = "column";
-          listContainer.style.gap = "10px";
+        // Display category
+        const categoryItem = document.createElement("div");
+        categoryItem.style.marginBottom = "5px";
+        categoryItem.style.fontSize = "15px";
+        categoryItem.style.fontWeight = "bold";
+        categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
+        infoContainer.appendChild(categoryItem);
 
-          data.forEach((budget) => {
-            const itemContainer = document.createElement("div");
-            itemContainer.style.border = "1px solid black";
-            itemContainer.style.padding = "10px";
-            itemContainer.style.borderRadius = "5px";
-            itemContainer.style.display = "flex";
-            itemContainer.style.justifyContent = "space-between";
-            itemContainer.style.alignItems = "center";
+        // Progress bar
+        const progressContainer = document.createElement("div");
+        progressContainer.style.width = "100%";
+        progressContainer.style.height = "8px";
+        progressContainer.style.backgroundColor = "#f0f0f0";
+        progressContainer.style.borderRadius = "5px";
 
-            const infoContainer = document.createElement("div");
-            for (const key in budget) {
-              if (
-                Object.hasOwnProperty.call(budget, key) &&
-                key !== "user_id"
-              ) {
-                const infoItem = document.createElement("div");
-                infoItem.style.marginBottom = "5px";
-                infoItem.style.fontSize = "15px";
-                infoItem.style.fontWeight = "bold";
+        const progressBar = document.createElement("div");
+        const percentage = (budget.amount_spent / budget.amount) * 100;
+        progressBar.style.width = `${percentage}%`;
+        progressBar.style.height = "80%";
+        progressBar.style.backgroundColor = "green";
+        progressBar.style.borderRadius = "5px";
 
-                if (key == "start_date" || key == "end_date") {
-                  const timestamp = budget[key];
-                  const date = new Date(timestamp);
-                  infoItem.textContent = `${key
-                    .replace("_", " ")
-                    .toUpperCase()}: ${date.toDateString()}`;
-                } else {
-                  infoItem.textContent = `${key
-                    .replace("_", " ")
-                    .toUpperCase()}: ${budget[key]}`;
-                }
+        progressContainer.appendChild(progressBar);
+        infoContainer.appendChild(progressContainer);
 
-                infoContainer.appendChild(infoItem);
-              }
-            }
-            itemContainer.appendChild(infoContainer);
+        itemContainer.appendChild(infoContainer);
 
-            const actionsContainer = document.createElement("div");
-            actionsContainer.style.display = "flex";
-            actionsContainer.style.gap = "10px";
+        const actionsContainer = document.createElement("div");
+        actionsContainer.style.display = "flex";
+        actionsContainer.style.gap = "10px";
 
-            const editButton = document.createElement("button");
-            editButton.textContent = "Edit";
-            editButton.style.backgroundColor = "blue";
-            editButton.style.color = "white";
-            editButton.onclick = function () {
-              createBudgetForm();
-              editRecord = budget.budget_id;
-            };
-            actionsContainer.appendChild(editButton);
+        // Edit icon
+        const editIcon = document.createElement("span");
+        editIcon.classList.add("material-icons-sharp");
+        editIcon.textContent = "edit";
+        editIcon.style.color = "#6C9BCF";
+        editIcon.style.cursor = "pointer";
+        editIcon.onclick = function () {
+          createBudgetForm();
+          editRecord = budget.budget_id;
+        };
+        actionsContainer.appendChild(editIcon);
 
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.style.backgroundColor = "red";
-            deleteButton.onclick = function () {
-              deleteBudget(budget.budget_id);
-            };
-            actionsCell.style.textAlign = "center";
-            actionsCell.appendChild(deleteButton);
-          });
+        // Delete icon
+        const deleteIcon = document.createElement("span");
+        deleteIcon.classList.add("material-icons-sharp");
+        deleteIcon.textContent = "delete";
+        deleteIcon.style.color = "#FF0060";
+        deleteIcon.style.cursor = "pointer";
+        deleteIcon.onclick = function () {
+          deleteBudget(budget.budget_id);
+        };
+        actionsContainer.appendChild(deleteIcon);
 
-          // Append the table to the main container
-          mainContainer.appendChild(table);
-          const deleteButton = document.createElement("button");
-          deleteButton.textContent = "Delete";
-          deleteButton.style.backgroundColor = "red";
-          deleteButton.style.color = "white";
-          deleteButton.onclick = function () {
-            deleteBudget(budget.budget_id);
-          };
-          actionsContainer.appendChild(deleteButton);
-
-          itemContainer.appendChild(actionsContainer);
-          listContainer.appendChild(itemContainer);
-        });
+        itemContainer.appendChild(actionsContainer);
+        listContainer.appendChild(itemContainer);
+      });
 
       mainContainer.appendChild(listContainer);
     })
@@ -1213,7 +1119,7 @@ function createBudgetForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response;
+        // return response;
       })
       .then((data) => {
         setTimeout(() => {
@@ -1226,41 +1132,7 @@ function createBudgetForm(id) {
         window.alert("An error occurred. Please try again later.");
       });
   });
-  if (element.name === "budget_category_id") {
-    const select = document.createElement("select");
-    select.name = "budget_category_id";
-    select.required = true;
-    select.classList.add("form-control"); // New class
-
-    // Fetch budget categories from API endpoint
-    fetchBudgetCategories()
-      .then((categories) => {
-        categories.forEach((category) => {
-          const option = document.createElement("option");
-          option.value = category.budgetCategoryId;
-          option.textContent = category.budgetCategoryName;
-          select.appendChild(option);
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching budget categories:", error);
-      });
-
-    formGroup.appendChild(select);
-  } else {
-    const input = document.createElement("input");
-    input.type = element.inputType;
-    input.name = element.name;
-    input.id = element.name;
-    input.required = true;
-    input.classList.add("form-control"); // New class
-    formGroup.appendChild(input);
-  }
-
-  form.appendChild(formGroup);
 }
-
-// Rest of your form creation logic...
 
 function deleteBudget(budgetId) {
   if (window.confirm("Do you want to Delete?")) {
@@ -1273,27 +1145,12 @@ function deleteBudget(budgetId) {
     displayBudget();
   }
   console.log("Deleting budget with ID:", budgetId);
-  if (window.confirm("Do you want to delete?")) {
-    fetch(`http://52.50.239.63:8080/deleteBudget/${budgetId}`, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
-  }
-  console.log("Deleting budget with ID:", budgetId);
 }
 
 function displayGoals() {
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = ""; // Clear previous content
 
-  // Add heading
-  const heading = document.createElement("h2");
-  heading.textContent = "Goals";
-  mainContainer.appendChild(heading);
-
-  // Add "Create Goal" button
   const addBtn = document.createElement("button");
   addBtn.id = "addGoal";
   addBtn.textContent = "Create Goal";
@@ -1301,6 +1158,10 @@ function displayGoals() {
     addGoalForm();
   };
   mainContainer.appendChild(addBtn);
+  // Add heading
+  const heading = document.createElement("h1");
+  heading.textContent = "Goals";
+  mainContainer.appendChild(heading);
 
   // Add Modal Structure
   const modal = document.createElement("div");
@@ -1387,65 +1248,127 @@ function displayGoals() {
       return response.json();
     })
     .then((data) => {
-      // Create a table element
-      const table = document.createElement("table");
-      table.style.marginTop = "20px";
-      table.style.borderCollapse = "collapse";
-      table.style.width = "100%";
-      table.style.overflow = "scroll";
-      table.style.border = "2";
-      table.style.borderColor = "black";
+      // Create a list element
+      const list = document.createElement("ul");
+      list.style.listStyleType = "none";
+      list.style.padding = "0";
 
-      // Create the table header
-      const headerRow = table.insertRow();
-      for (const key in data[0]) {
-        if (Object.hasOwnProperty.call(data[0], key) && key !== "user_id") {
-          const headerCell = document.createElement("th");
-          headerCell.textContent = key.toUpperCase();
-          headerCell.style.height = "30px";
-          headerCell.style.textAlign = "center";
-          headerCell.style.fontSize = "15px";
-          headerRow.appendChild(headerCell);
-        }
-      }
-      // Add Actions column header
-      const actionsHeader = document.createElement("th");
-      actionsHeader.textContent = "Actions";
-      actionsHeader.style.height = "30px";
-      actionsHeader.style.textAlign = "center";
-      actionsHeader.style.fontSize = "15px";
-      headerRow.appendChild(actionsHeader);
-
-      // Create and populate the table rows with goal data
+      // Populate the list with goal data
       data.forEach((goal) => {
-        const row = table.insertRow();
-        for (const key in goal) {
-          if (Object.hasOwnProperty.call(goal, key) && key !== "user_id") {
-            const cell = row.insertCell();
-            cell.style.height = "30px";
-            cell.style.textAlign = "center";
-            cell.style.fontSize = "15px";
-            cell.style.fontWeight = "15px";
-            if (key == "desired_date") {
-              const timestamp = goal[key];
-              const date = new Date(timestamp);
-              cell.textContent = date.toDateString();
-            } else {
-              cell.textContent = goal[key];
-            }
-          }
-        }
+        const listItem = document.createElement("li");
+        listItem.style.borderBottom = "1px solid #ccc";
+        listItem.style.padding = "10px";
+        listItem.style.display = "flex";
+        listItem.style.justifyContent = "space-between";
+        listItem.style.alignItems = "center"; // Center align items vertically
 
-        // Add buttons for edit and delete in the Actions column
-        const actionsCell = row.insertCell();
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.style.backgroundColor = "blue";
-        editButton.onclick = function () {
-          createGoalForm();
+        // Goal content container
+        const goalContent = document.createElement("div");
+
+        // Goal title
+        const title = document.createElement("h2");
+        title.textContent = goal["goal_for"];
+        goalContent.appendChild(title);
+
+        // Progress bar container
+        const progressContainer = document.createElement("div");
+        progressContainer.classList.add("progress-container");
+
+        // Progress bar
+        const progressBar = document.createElement("progress");
+        progressBar.value = goal["saved_already"];
+        progressBar.max = goal["target_amount"];
+        progressContainer.appendChild(progressBar);
+
+        // Progress text
+        const progressText = document.createElement("p");
+        const progress = (goal["saved_already"] / goal["target_amount"]) * 100;
+        progressText.textContent = `Saved: ${goal["saved_already"]} out of ${
+          goal["target_amount"]
+        } (${progress.toFixed(2)}%)`;
+        progressContainer.appendChild(progressText);
+
+        goalContent.appendChild(progressContainer);
+
+        // Add saved amount button
+        const addSavedAmountBtn = document.createElement("button");
+        addSavedAmountBtn.textContent = "Add saved Amount >";
+        addSavedAmountBtn.style.marginTop = "10px";
+        addSavedAmountBtn.style.color = "#6C9BCF";
+        addSavedAmountBtn.style.fontWeight = "bold";
+        addSavedAmountBtn.onclick = function () {
+          // Show modal
+          modal.style.display = "block";
+
+          // Handle "INSERT" button click
+          insertButton.onclick = function () {
+            const amountToAdd = amountInput.value;
+            if (
+              amountToAdd !== null &&
+              !isNaN(amountToAdd) &&
+              parseFloat(amountToAdd) >= 0
+            ) {
+              const newSavedAmount =
+                parseFloat(goal["saved_already"]) + parseFloat(amountToAdd);
+              fetch("http://52.50.239.63:8080/updateGoal", {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  goal_id: goal.goal_id,
+                  saved_already: newSavedAmount,
+                  goal_for: goal.goal_for,
+                  target_amount: goal.target_amount,
+                  desired_date: goal.desired_date,
+                  user_id: 8,
+                }),
+              })
+                .then((response) => {
+                  if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                  }
+                })
+                .then((data) => {
+                  // Update the progress bar and text in the UI
+                  goal["saved_already"] = newSavedAmount;
+                  progressBar.value = newSavedAmount;
+                  const progress =
+                    (newSavedAmount / goal["target_amount"]) * 100;
+                  progressText.textContent = `Saved: ${newSavedAmount} out of ${
+                    goal["target_amount"]
+                  } (${progress.toFixed(2)}%)`;
+                  modal.style.display = "none";
+                })
+                .catch((error) => {
+                  console.error(
+                    "There was a problem with updating the saved amount:",
+                    error
+                  );
+                });
+            } else {
+              console.log("Invalid input or user canceled the operation");
+            }
+          };
+        };
+        goalContent.appendChild(addSavedAmountBtn);
+
+        // Edit and delete buttons container
+        const buttonContainer = document.createElement("div");
+        buttonContainer.style.display = "flex";
+
+        // Edit icon
+        const editIcon = document.createElement("span");
+        editIcon.classList.add("material-icons-sharp");
+        editIcon.textContent = "edit";
+        editIcon.style.color = "#6C9BCF";
+        editIcon.style.cursor = "pointer";
+        editIcon.onclick = function () {
+          addGoalForm();
           editRecord = goal.goal_id;
         };
-        actionsCell.appendChild(editButton);
+        buttonContainer.appendChild(editIcon);
+
         // Delete icon
         const deleteIcon = document.createElement("span");
         deleteIcon.classList.add("material-icons-sharp");
@@ -1471,7 +1394,7 @@ function displayGoals() {
     });
 }
 
-function createGoalForm() {
+function addGoalForm() {
   const mainContainer = document.getElementById("dashboard-content");
   const formElements = [
     {
@@ -1640,7 +1563,7 @@ function SignIn() {
   let params = {
     client_id:
       "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
-    redirect_uri: "http://save-it.projects.bbdgrad.com",
+    redirect_uri: "http://127.0.0.1:5500",
     response_type: "token",
     scope: "https://www.googleapis.com/auth/userinfo.profile",
     include_granted_scopes: "true",
