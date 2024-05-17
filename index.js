@@ -314,6 +314,9 @@ document.addEventListener("DOMContentLoaded", function () {
 async function displayIncome() {
   await fetchAllIncome();
   const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; // Clear previous content
+
+  // Add "Add Income" button
   const addBtn = document.createElement("button");
   addBtn.id = "addIncome";
   addBtn.textContent = "Add Income";
@@ -324,74 +327,80 @@ async function displayIncome() {
     createIncomeForm();
   };
   addBtn.style.fontWeight = "bold";
-  mainContainer.replaceChildren(addBtn);
+  mainContainer.appendChild(addBtn);
 
-  // Create a table element
-  const table = document.createElement("table");
-  table.style.marginTop = "20px";
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.overflow = "scroll";
-  table.style.border = "2";
-  table.style.borderColor = "black";
+  const listContainer = document.createElement("div");
+  listContainer.style.marginTop = "20px";
+  listContainer.style.display = "flex";
+  listContainer.style.flexDirection = "column";
+  listContainer.style.gap = "10px";
 
-  // Create the table header
-  const headerRow = table.insertRow();
-  for (const key in incomeData[0]) {
-    if (Object.hasOwnProperty.call(incomeData[0], key) && key !== "userId") {
-      const headerCell = document.createElement("th");
-      headerCell.textContent = key.toUpperCase();
-      headerCell.style.height = "30px";
-      headerCell.style.textAlign = "center";
-      headerCell.style.fontSize = "15px";
-      headerRow.appendChild(headerCell);
-    }
-  }
-  const actionsHeader = document.createElement("th");
-  actionsHeader.textContent = "Actions";
-  actionsHeader.style.height = "30px";
-  actionsHeader.style.textAlign = "center";
-  actionsHeader.style.fontSize = "15px";
-  headerRow.appendChild(actionsHeader);
   incomeData.forEach((income) => {
-    const row = table.insertRow();
+    const itemContainer = document.createElement("div");
+    itemContainer.style.border = "1px solid black";
+    itemContainer.style.padding = "10px";
+    itemContainer.style.borderRadius = "5px";
+    itemContainer.style.display = "flex";
+    itemContainer.style.justifyContent = "space-between";
+    itemContainer.style.alignItems = "center";
+
+    const infoContainer = document.createElement("div");
     for (const key in income) {
-      if (Object.hasOwnProperty.call(income, key) && key !== "userId") {
-        const cell = row.insertCell();
-        cell.style.height = "30px";
-        cell.style.textAlign = "center";
-        cell.style.fontSize = "15px";
-        cell.style.fontWeight = "15px";
+      if (Object.hasOwnProperty.call(income, key) && key !== "userId" && key !== "incomeId") {
+        const infoItem = document.createElement("div");
+        infoItem.style.marginBottom = "5px";
+        infoItem.style.fontSize = "15px";
+        infoItem.style.fontWeight = "bold";
+
         if (key == "incomeDate") {
           const timestamp = income[key];
           const date = new Date(timestamp);
-          cell.textContent = date.toDateString();
+          infoItem.textContent = `${key.replace('_', ' ').toUpperCase()}: ${date.toDateString()}`;
         } else {
-          cell.textContent = income[key];
+          infoItem.textContent = `${key.replace('_', ' ').toUpperCase()}: ${income[key]}`;
         }
+
+        infoContainer.appendChild(infoItem);
       }
     }
-    const actionsCell = row.insertCell();
-    const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
-    editButton.style.backgroundColor = "blue";
-    editButton.onclick = function () {
+
+    itemContainer.appendChild(infoContainer);
+
+    const actionsContainer = document.createElement("div");
+    actionsContainer.style.display = "flex";
+    actionsContainer.style.gap = "10px";
+
+    // Edit icon
+    const editIcon = document.createElement("span");
+    editIcon.classList.add("material-icons-sharp");
+    editIcon.textContent = "edit";
+    editIcon.style.color = "#6C9BCF";
+    editIcon.style.cursor = "pointer";
+    editIcon.onclick = function () {
       createIncomeForm();
       editRecord = income.incomeId;
     };
-    actionsCell.appendChild(editButton);
+    actionsContainer.appendChild(editIcon);
 
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.style.backgroundColor = "red";
-    deleteButton.onclick = function () {
+    // Delete icon
+    const deleteIcon = document.createElement("span");
+    deleteIcon.classList.add("material-icons-sharp");
+    deleteIcon.textContent = "delete";
+    deleteIcon.style.color = "#FF0060";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.onclick = function () {
       deleteIncome(income.incomeId);
     };
-    actionsCell.style.textAlign = "center";
-    actionsCell.appendChild(deleteButton);
+    actionsContainer.appendChild(deleteIcon);
+
+    itemContainer.appendChild(actionsContainer);
+    listContainer.appendChild(itemContainer);
   });
-  mainContainer.appendChild(table);
+
+  mainContainer.appendChild(listContainer);
 }
+
+
 
 function createIncomeForm() {
   const mainContainer = document.getElementById("dashboard-content");
@@ -890,14 +899,14 @@ fetchBudgetCategory()
                 // Progress bar
                 const progressContainer = document.createElement("div");
                 progressContainer.style.width = "100%";
-                progressContainer.style.height = "20px";
+                progressContainer.style.height = "8px";
                 progressContainer.style.backgroundColor = "#f0f0f0";
                 progressContainer.style.borderRadius = "5px";
 
                 const progressBar = document.createElement("div");
                 const percentage = (budget.amount_spent / budget.amount) * 100;
                 progressBar.style.width = `${percentage}%`;
-                progressBar.style.height = "100%";
+                progressBar.style.height = "80%";
                 progressBar.style.backgroundColor = "green";
                 progressBar.style.borderRadius = "5px";
 
