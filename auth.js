@@ -19,15 +19,18 @@ async function getUserInfo(accessToken) {
 }
 async function getJwtToken(data) {
   try {
-    const response = await fetch("http://localhost:8080/login/auth", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: data.email,
-      }),
-    });
+    const response = await fetch(
+      "https://save-it.projects.bbdgrad.com/api/login/auth",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -37,8 +40,8 @@ async function getJwtToken(data) {
     console.log(verifiedUser.user[0]);
     localStorage.setItem("userId", verifiedUser.user[0].userId);
     localStorage.setItem("userName", verifiedUser.user[0].userName);
-    var url = new URL("http://127.0.0.1:5500");
-    window.location.href = "http://127.0.0.1:5500";
+    var url = new URL("https://save-it.projects.bbdgrad.com/web/");
+    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
     return token;
   } catch (error) {
     console.error("Error:", error);
@@ -55,9 +58,9 @@ function LogOut() {
       },
     }).then((data) => console.log(data));
     sessionStorage.clear();
-    var url = new URL("http://127.0.0.1:5500");
+    var url = new URL("https://save-it.projects.bbdgrad.com/web/");
     localStorage.clear();
-    window.location.href = "http://127.0.0.1:5500";
+    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
   } else {
     window.alert("Already Logged Out");
   }
@@ -72,7 +75,7 @@ function SignIn() {
   let params = {
     client_id:
       "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
-    redirect_uri: "http://127.0.0.1:5500/Index.html",
+    redirect_uri: "https://save-it.projects.bbdgrad.com/web//Index.html",
     response_type: "token",
     scope:
       "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",

@@ -48,13 +48,16 @@ window.onload = async function () {
 };
 
 async function fetchAllExpense() {
-  await fetch(`http://localhost:8080/getExpensesByUserId/${userId}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${userToken}`,
-      "Content-Type": "application/json",
-    },
-  })
+  await fetch(
+    `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -72,7 +75,16 @@ async function fetchAllExpense() {
     }, 1000);
 }
 async function fetchAllIncome() {
-  await fetch("https://save-it.projects.bbdgrad.com/api/getIncomeByUserId/8")
+  await fetch(
+    `https://save-it.projects.bbdgrad.com/api/getIncomeByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -89,7 +101,13 @@ async function fetchAllIncome() {
     });
 }
 async function fetchAllBudget() {
-  await fetch("https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/8")
+  await fetch("https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/8", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+      "Content-Type": "application/json",
+    },
+  })
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -105,7 +123,14 @@ async function fetchAllBudget() {
 async function fetchExpenseCategory() {
   try {
     const response = await fetch(
-      "https://save-it.projects.bbdgrad.com/api/getExpenseCategories"
+      "https://save-it.projects.bbdgrad.com/api/getExpenseCategories",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
     if (response.status === 204) {
@@ -145,7 +170,16 @@ darkMode.addEventListener("click", () => {
 });
 
 function generateExpenseChart() {
-  fetch("https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/8")
+  fetch(
+    `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => {
       if (response.status === 204) {
         return [];
@@ -177,8 +211,6 @@ function generateExpenseChart() {
           graphData[existingObjIndex][key] = count;
         }
       });
-
-      console.log(graphData);
 
       const labels = [];
       const amounts = [];
@@ -474,7 +506,14 @@ function createIncomeForm() {
 
   if (editRecord != null) {
     fetch(
-      `https://save-it.projects.bbdgrad.com/api/getIncomeById/${editRecord}`
+      `https://save-it.projects.bbdgrad.com/api/getIncomeById/${editRecord}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      }
     )
       .then((response) => {
         if (response.status === 204) {
@@ -512,7 +551,7 @@ function createIncomeForm() {
         income_description: formData.get("income_description"),
         income_date: formData.get("income_date"),
         income_amount: formData.get("income_amount"),
-        userId: 8,
+        userId: userId,
         incomeId: editRecord,
       };
     } else {
@@ -521,7 +560,7 @@ function createIncomeForm() {
         income_description: formData.get("income_description"),
         income_date: formData.get("income_date"),
         income_amount: formData.get("income_amount"),
-        userId: 8,
+        userId: userId,
       };
     }
     fetch(
@@ -531,6 +570,7 @@ function createIncomeForm() {
       {
         method: editRecord ? "PUT" : "POST",
         headers: {
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bodyData),
@@ -558,6 +598,10 @@ function deleteIncome(incomeId) {
   if (window.confirm("Do you want to delete?")) {
     fetch(`https://save-it.projects.bbdgrad.com/api/deleteIncome/${incomeId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
@@ -722,7 +766,13 @@ function createxpenseForm(id) {
 
   if (id != null) {
     console.log(id);
-    fetch(`https://save-it.projects.bbdgrad.com/api/getExpenseById/${id}`)
+    fetch(`https://save-it.projects.bbdgrad.com/api/getExpenseById/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => {
         if (response.status === 204) {
           return;
@@ -772,8 +822,8 @@ function createxpenseForm(id) {
     }
     fetch(
       id
-        ? "http://localhost:8080/updateExpense"
-        : "http://localhost:8080/addExpense",
+        ? "https://save-it.projects.bbdgrad.com/api/updateExpense"
+        : "https://save-it.projects.bbdgrad.com/api/addExpense",
       {
         method: id ? "PUT" : "POST",
         headers: {
@@ -808,6 +858,10 @@ function deleteExpense(expenseId) {
       `https://save-it.projects.bbdgrad.com/api/deleteExpense/${expenseId}`,
       {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
       }
     )
       .then((response) => response.json())
@@ -821,7 +875,14 @@ function deleteExpense(expenseId) {
 async function fetchBudgetCategory() {
   try {
     const response = await fetch(
-      "https://save-it.projects.bbdgrad.com/api/getBudgetCategories"
+      "https://save-it.projects.bbdgrad.com/api/getBudgetCategories",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
     if (response.status === 204) {
@@ -864,7 +925,16 @@ function displayBudget() {
   addBtn.style.fontWeight = "bold";
   mainContainer.appendChild(addBtn);
 
-  fetch("https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/8")
+  fetch(
+    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -1064,7 +1134,13 @@ function createBudgetForm(id) {
 
   if (id != null) {
     console.log(id);
-    fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`)
+    fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => {
         if (response.status === 204) {
           return;
@@ -1124,6 +1200,7 @@ function createBudgetForm(id) {
       {
         method: id ? "PUT" : "POST",
         headers: {
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bodyData),
@@ -1152,6 +1229,10 @@ function deleteBudget(budgetId) {
   if (window.confirm("Do you want to Delete?")) {
     fetch(`https://save-it.projects.bbdgrad.com/api/deleteBudget/${budgetId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
@@ -1254,7 +1335,13 @@ function displayGoals() {
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
 
-  fetch("https://save-it.projects.bbdgrad.com/api/getGoalByUserId/8")
+  fetch(`https://save-it.projects.bbdgrad.com/api/getGoalByUserId/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+      "Content-Type": "application/json",
+    },
+  })
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -1327,6 +1414,7 @@ function displayGoals() {
               fetch("https://save-it.projects.bbdgrad.com/api/updateGoal", {
                 method: "PUT",
                 headers: {
+                  Authorization: `Bearer ${userToken}`,
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
@@ -1465,7 +1553,13 @@ function addGoalForm() {
   });
 
   if (editRecord != null) {
-    fetch(`https://save-it.projects.bbdgrad.com/api/getGoalById/${goalId}`)
+    fetch(`https://save-it.projects.bbdgrad.com/api/getGoalById/${goalId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => {
         if (response.status === 204) {
           return;
@@ -1520,6 +1614,7 @@ function addGoalForm() {
       {
         method: editRecord ? "PUT" : "POST",
         headers: {
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bodyData),
@@ -1548,6 +1643,10 @@ function deleteGoal(goalId) {
   if (window.confirm("Do you want to delete?")) {
     fetch(`https://save-it.projects.bbdgrad.com/api/deleteGoal/${goalId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
