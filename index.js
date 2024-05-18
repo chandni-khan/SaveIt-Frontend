@@ -9,6 +9,9 @@ const budgetListItem = document.querySelector('a[data-action="budget"]');
 budgetListItem.addEventListener("click", displayBudget);
 const goalListItem = document.querySelector('a[data-action="goal"]');
 goalListItem.addEventListener("click", displayGoals);
+let userName = localStorage.getItem("userName");
+let userId = localStorage.getItem("userId");
+let userToken = sessionStorage.getItem("userToken");
 let expenseData = [];
 let incomeData = [];
 let budgetData = [];
@@ -20,12 +23,11 @@ let editGoalObject = null;
 const darkMode = document.querySelector(".dark-mode");
 let expenseAllCategory = [];
 let budgetAllCategory = [];
-let access_token = localStorage.getItem("authInfo");
 let graphData = [{}];
 let month = "Apr";
 
 window.onload = async function () {
-  if (access_token == null) {
+  if (userToken == null) {
     const mainContainer = document.getElementById("dashboard-content");
     const addBtn = document.createElement("button");
     addBtn.id = "login";
@@ -46,7 +48,13 @@ window.onload = async function () {
 };
 
 async function fetchAllExpense() {
-  await fetch("http://52.50.239.63:8080/getExpensesByUserId/8")
+  await fetch(`http://localhost:8080/getExpensesByUserId/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+      "Content-Type": "application/json",
+    },
+  })
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -64,7 +72,7 @@ async function fetchAllExpense() {
     }, 1000);
 }
 async function fetchAllIncome() {
-  await fetch("http://52.50.239.63:8080/getIncomeByUserId/8")
+  await fetch("https://save-it.projects.bbdgrad.com/api/getIncomeByUserId/8")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -81,7 +89,7 @@ async function fetchAllIncome() {
     });
 }
 async function fetchAllBudget() {
-  await fetch("http://52.50.239.63:8080/getBudgetByUserId/8")
+  await fetch("https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/8")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -97,7 +105,7 @@ async function fetchAllBudget() {
 async function fetchExpenseCategory() {
   try {
     const response = await fetch(
-      "http://52.50.239.63:8080/getExpenseCategories"
+      "https://save-it.projects.bbdgrad.com/api/getExpenseCategories"
     );
 
     if (response.status === 204) {
@@ -137,7 +145,7 @@ darkMode.addEventListener("click", () => {
 });
 
 function generateExpenseChart() {
-  fetch("http://52.50.239.63:8080/getExpensesByUserId/8")
+  fetch("https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/8")
     .then((response) => {
       if (response.status === 204) {
         return [];
@@ -465,7 +473,9 @@ function createIncomeForm() {
   });
 
   if (editRecord != null) {
-    fetch(`http://52.50.239.63:8080/getIncomeById/${editRecord}`)
+    fetch(
+      `https://save-it.projects.bbdgrad.com/api/getIncomeById/${editRecord}`
+    )
       .then((response) => {
         if (response.status === 204) {
           return;
@@ -516,8 +526,8 @@ function createIncomeForm() {
     }
     fetch(
       editRecord
-        ? "http://52.50.239.63:8080/updateIncome"
-        : "http://52.50.239.63:8080/addIncome",
+        ? "https://save-it.projects.bbdgrad.com/api/updateIncome"
+        : "https://save-it.projects.bbdgrad.com/api/addIncome",
       {
         method: editRecord ? "PUT" : "POST",
         headers: {
@@ -546,7 +556,7 @@ function createIncomeForm() {
 }
 function deleteIncome(incomeId) {
   if (window.confirm("Do you want to delete?")) {
-    fetch(`http://52.50.239.63:8080/deleteIncome/${incomeId}`, {
+    fetch(`https://save-it.projects.bbdgrad.com/api/deleteIncome/${incomeId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -712,7 +722,7 @@ function createxpenseForm(id) {
 
   if (id != null) {
     console.log(id);
-    fetch(`http://52.50.239.63:8080/getExpenseById/${id}`)
+    fetch(`https://save-it.projects.bbdgrad.com/api/getExpenseById/${id}`)
       .then((response) => {
         if (response.status === 204) {
           return;
@@ -747,7 +757,7 @@ function createxpenseForm(id) {
         expenseDescription: formData.get("expenseDescription"),
         spendDate: formData.get("spendDate"),
         amountSpend: formData.get("amountSpend"),
-        userId: 8,
+        userId: userId,
         expenseCategory: formData.get("expenseCategory"),
         expenseId: id,
       };
@@ -756,17 +766,18 @@ function createxpenseForm(id) {
         expenseDescription: formData.get("expenseDescription"),
         spendDate: formData.get("spendDate"),
         amountSpend: formData.get("amountSpend"),
-        userId: 8,
+        userId: userId,
         expenseCategory: formData.get("expenseCategory"),
       };
     }
     fetch(
       id
-        ? "http://52.50.239.63:8080/updateExpense"
-        : "http://52.50.239.63:8080/addExpense",
+        ? "http://localhost:8080/updateExpense"
+        : "http://localhost:8080/addExpense",
       {
         method: id ? "PUT" : "POST",
         headers: {
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bodyData),
@@ -793,9 +804,12 @@ function createxpenseForm(id) {
 
 function deleteExpense(expenseId) {
   if (window.confirm("Do you want to Delete?")) {
-    fetch(`http://52.50.239.63:8080/deleteExpense/${expenseId}`, {
-      method: "DELETE",
-    })
+    fetch(
+      `https://save-it.projects.bbdgrad.com/api/deleteExpense/${expenseId}`,
+      {
+        method: "DELETE",
+      }
+    )
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
     window.alert("deleted");
@@ -807,7 +821,7 @@ function deleteExpense(expenseId) {
 async function fetchBudgetCategory() {
   try {
     const response = await fetch(
-      "http://52.50.239.63:8080/getBudgetCategories"
+      "https://save-it.projects.bbdgrad.com/api/getBudgetCategories"
     );
 
     if (response.status === 204) {
@@ -850,7 +864,7 @@ function displayBudget() {
   addBtn.style.fontWeight = "bold";
   mainContainer.appendChild(addBtn);
 
-  fetch("http://52.50.239.63:8080/getBudgetByUserId/8")
+  fetch("https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/8")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -1050,7 +1064,7 @@ function createBudgetForm(id) {
 
   if (id != null) {
     console.log(id);
-    fetch(`http://52.50.239.63:8080/getBudgetById/${id}`)
+    fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`)
       .then((response) => {
         if (response.status === 204) {
           return;
@@ -1105,8 +1119,8 @@ function createBudgetForm(id) {
     }
     fetch(
       id
-        ? "http://52.50.239.63:8080/updateBudget"
-        : "http://52.50.239.63:8080/addBudget",
+        ? "https://save-it.projects.bbdgrad.com/api/updateBudget"
+        : "https://save-it.projects.bbdgrad.com/api/addBudget",
       {
         method: id ? "PUT" : "POST",
         headers: {
@@ -1136,7 +1150,7 @@ function createBudgetForm(id) {
 
 function deleteBudget(budgetId) {
   if (window.confirm("Do you want to Delete?")) {
-    fetch(`http://52.50.239.63:8080/deleteBudget/${budgetId}`, {
+    fetch(`https://save-it.projects.bbdgrad.com/api/deleteBudget/${budgetId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -1240,7 +1254,7 @@ function displayGoals() {
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
 
-  fetch("http://52.50.239.63:8080/getGoalByUserId/8")
+  fetch("https://save-it.projects.bbdgrad.com/api/getGoalByUserId/8")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -1310,7 +1324,7 @@ function displayGoals() {
             ) {
               const newSavedAmount =
                 parseFloat(goal["saved_already"]) + parseFloat(amountToAdd);
-              fetch("http://52.50.239.63:8080/updateGoal", {
+              fetch("https://save-it.projects.bbdgrad.com/api/updateGoal", {
                 method: "PUT",
                 headers: {
                   "Content-Type": "application/json",
@@ -1451,7 +1465,7 @@ function addGoalForm() {
   });
 
   if (editRecord != null) {
-    fetch(`http://52.50.239.63:8080/getGoalById/${goalId}`)
+    fetch(`https://save-it.projects.bbdgrad.com/api/getGoalById/${goalId}`)
       .then((response) => {
         if (response.status === 204) {
           return;
@@ -1501,8 +1515,8 @@ function addGoalForm() {
     }
     fetch(
       editRecord
-        ? "http://52.50.239.63:8080/updateGoal"
-        : "http://52.50.239.63:8080/createGoal",
+        ? "https://save-it.projects.bbdgrad.com/api/updateGoal"
+        : "https://save-it.projects.bbdgrad.com/api/createGoal",
       {
         method: editRecord ? "PUT" : "POST",
         headers: {
@@ -1532,7 +1546,7 @@ function addGoalForm() {
 
 function deleteGoal(goalId) {
   if (window.confirm("Do you want to delete?")) {
-    fetch(`http://52.50.239.63:8080/deleteGoal/${goalId}`, {
+    fetch(`https://save-it.projects.bbdgrad.com/api/deleteGoal/${goalId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -1553,32 +1567,3 @@ function displayReport() {
   generateExpenseChart();
 }
 // console.log("Deleting goal with ID:", goalId);
-
-function SignIn() {
-  let oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
-  let form = document.createElement("form");
-  form.setAttribute("method", "GET");
-  form.setAttribute("action", oauth2Endpoint);
-
-  let params = {
-    client_id:
-      "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
-    redirect_uri: "http://save-it.projects.bbdgrad.com",
-    response_type: "token",
-    scope: "https://www.googleapis.com/auth/userinfo.profile",
-    include_granted_scopes: "true",
-    state: "pass-through-value",
-  };
-
-  for (var p in params) {
-    let input = document.createElement("input");
-    input.setAttribute("type", "hidden");
-    input.setAttribute("name", p);
-    input.setAttribute("value", params[p]);
-    form.appendChild(input);
-  }
-
-  document.body.appendChild(form);
-
-  form.submit();
-}
