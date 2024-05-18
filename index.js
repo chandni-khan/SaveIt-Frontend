@@ -26,27 +26,6 @@ let budgetAllCategory = [];
 let graphData = [{}];
 let month = "Apr";
 
-window.onload = async function () {
-  if (userToken == null) {
-    const mainContainer = document.getElementById("dashboard-content");
-    const addBtn = document.createElement("button");
-    addBtn.id = "login";
-    addBtn.textContent = "Login";
-    addBtn.style.color = "white";
-    addBtn.style.backgroundColor = "green";
-    addBtn.style.height = "5rem";
-    addBtn.style.width = "15rem";
-    addBtn.style.margin = "10rem";
-    addBtn.onclick = () => {
-      SignIn();
-    };
-    addBtn.style.fontWeight = "bold";
-    mainContainer.replaceChildren(addBtn);
-  } else {
-    await createDashboard();
-  }
-};
-
 async function fetchAllExpense() {
   await fetch(
     `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
@@ -101,13 +80,16 @@ async function fetchAllIncome() {
     });
 }
 async function fetchAllBudget() {
-  await fetch("https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/8", {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${userToken}`,
-      "Content-Type": "application/json",
-    },
-  })
+  await fetch(
+    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
