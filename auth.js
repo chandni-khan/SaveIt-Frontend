@@ -75,7 +75,7 @@ function SignIn() {
   let params = {
     client_id:
       "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
-    redirect_uri: "https://save-it.projects.bbdgrad.com/web//Index.html",
+    redirect_uri: "https://save-it.projects.bbdgrad.com/web/",
     response_type: "token",
     scope:
       "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
