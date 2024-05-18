@@ -459,11 +459,11 @@ async function createDashboard() {
   generateExpenseChart();
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  document
-    .querySelector("a[onclick='createDashboard()']")
-    .addEventListener("click", Dashboard);
-});
+// document.addEventListener("DOMContentLoaded", function () {
+//   document
+//     .querySelector("a[onclick='createDashboard()']")
+//     .addEventListener("click", Dashboard);
+// });
 
 async function displayIncome() {
   await fetchAllIncome();
