@@ -65,8 +65,7 @@ function LogOut() {
     window.alert("Already Logged Out");
   }
 }
-
-export function SignIn() {
+function SignIn() {
   let oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
   let form = document.createElement("form");
   form.setAttribute("method", "GET");
