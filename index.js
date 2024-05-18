@@ -27,7 +27,7 @@ let graphData = [{}];
 let month = "Apr";
 
 window.onload = async function () {
-  if (userToken == null) {
+  if (userToken == null || sessionStorage.getItem("authToken") == null) {
     function createAndStyleElement(tag, textContent, styles) {
       const element = document.createElement(tag);
       element.textContent = textContent;
