@@ -36,10 +36,9 @@ async function getJwtToken(data) {
       if (!responseAddUser.ok) {
         throw new Error("Network response was not ok");
       }
+      showSuccessMessage("Operation completed successfully!");
       sessionStorage.clear();
       localStorage.clear();
-
-      showSuccessMessage("Operation completed successfully!Please login");
     } else {
       const response = await fetch(
         "https://save-it.projects.bbdgrad.com/api/login/auth",
@@ -66,7 +65,6 @@ async function getJwtToken(data) {
       var url = new URL("https://save-it.projects.bbdgrad.com/web/");
       window.location.href = "https://save-it.projects.bbdgrad.com/web/";
     }
-    return token;
   } catch (error) {
     console.error("Error:", error);
   }
