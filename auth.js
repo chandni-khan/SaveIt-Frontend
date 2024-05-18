@@ -18,27 +18,28 @@ async function getUserInfo(accessToken) {
     .catch((error) => console.error("Error fetching user info:", error));
 }
 async function getJwtToken(data) {
+  console.log("getJwtToken");
   try {
-    if (localStorage.getItem("newUser") == true) {
-      const responseAddUser = await fetch(
-        "https://save-it.projects.bbdgrad.com/api/addUser",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            emailId: data.email,
-            userName: data.name,
-          }),
+    if (localStorage.getItem("newUser")) {
+      await fetch("https://save-it.projects.bbdgrad.com/api/addUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emailId: data.email,
+          userName: data.name,
+        }),
+      }).then((response) => {
+        if (response.status == 409) {
+          showSuccessMessage("Already a user please login !!");
+          sessionStorage.clear();
+          localStorage.clear();
         }
-      );
-      if (!responseAddUser.ok) {
-        throw new Error("Network response was not ok");
-      }
-      showSuccessMessage("Operation completed successfully!");
-      sessionStorage.clear();
-      localStorage.clear();
+        if (response.ok) {
+          showSuccessMessage("User Created!!!");
+        }
+      });
     } else {
       const response = await fetch(
         "https://save-it.projects.bbdgrad.com/api/login/auth",
@@ -62,12 +63,13 @@ async function getJwtToken(data) {
       console.log(verifiedUser.user[0]);
       localStorage.setItem("userId", verifiedUser.user[0].userId);
       localStorage.setItem("userName", verifiedUser.user[0].userName);
-      var url = new URL("https://save-it.projects.bbdgrad.com/web/");
-      window.location.href = "https://save-it.projects.bbdgrad.com/web/";
     }
   } catch (error) {
     console.error("Error:", error);
   }
+  setTimeout(() => {
+    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
+  }, 1500);
 }
 
 function LogOut() {
