@@ -120,7 +120,8 @@ window.onload = async function () {
     signupBtn.onclick = SignUp;
 
     function SignUp() {
-      // Add your sign-up logic here
+      localStorage.setItem("newUser", true);
+      SignIn();
       console.log("Sign Up button clicked");
     }
 
@@ -281,6 +282,31 @@ menuBtn.addEventListener("click", () => {
 closeBtn.addEventListener("click", () => {
   sideMenu.style.display = "none";
 });
+
+// Get the main container element
+const successful = document.getElementById("main");
+
+// Function to create and show the success message
+function showSuccessMessage(message) {
+  const successMessage = document.createElement("div");
+  successMessage.textContent = message;
+  Object.assign(successMessage.style, {
+    backgroundColor: "#d4edda",
+    color: "#155724",
+    border: "1px solid #c3e6cb",
+    padding: "1rem",
+    borderRadius: "5px",
+    margin: "1rem 0",
+    textAlign: "center",
+    fontWeight: "bold",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  });
+
+  successful.appendChild(successMessage);
+  setTimeout(() => {
+    successful.removeChild(successMessage);
+  }, 2000);
+}
 
 darkMode.addEventListener("click", () => {
   document.body.classList.toggle("dark-mode-variables");
@@ -1729,7 +1755,7 @@ function addGoalForm() {
     fetch(
       editRecord
         ? "https://save-it.projects.bbdgrad.com/api/updateGoal"
-        : "https://save-it.projects.bbdgrad.com/api/createGoal",
+        : "https://save-it.projects.bbdgrad.com/api/addGoal",
       {
         method: editRecord ? "PUT" : "POST",
         headers: {

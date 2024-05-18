@@ -19,29 +19,53 @@ async function getUserInfo(accessToken) {
 }
 async function getJwtToken(data) {
   try {
-    const response = await fetch(
-      "https://save-it.projects.bbdgrad.com/api/login/auth",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: data.email,
-        }),
+    if (localStorage.getItem("newUser") == true) {
+      const responseAddUser = await fetch(
+        "https://save-it.projects.bbdgrad.com/api/addUser",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            emailId: data.email,
+            userName: data.name,
+          }),
+        }
+      );
+      if (!responseAddUser.ok) {
+        throw new Error("Network response was not ok");
       }
-    );
+      sessionStorage.clear();
+      localStorage.clear();
 
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
+      showSuccessMessage("Operation completed successfully!Please login");
+    } else {
+      const response = await fetch(
+        "https://save-it.projects.bbdgrad.com/api/login/auth",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: data.email,
+          }),
+        }
+      );
+      if (!response.ok) {
+        sessionStorage.clear();
+        localStorage.clear();
+        throw new Error("Network response was not ok");
+      }
+      const verifiedUser = await response.json();
+      sessionStorage.setItem("userToken", verifiedUser.token);
+      console.log(verifiedUser.user[0]);
+      localStorage.setItem("userId", verifiedUser.user[0].userId);
+      localStorage.setItem("userName", verifiedUser.user[0].userName);
+      var url = new URL("https://save-it.projects.bbdgrad.com/web/");
+      window.location.href = "https://save-it.projects.bbdgrad.com/web/";
     }
-    const verifiedUser = await response.json();
-    sessionStorage.setItem("userToken", verifiedUser.token);
-    console.log(verifiedUser.user[0]);
-    localStorage.setItem("userId", verifiedUser.user[0].userId);
-    localStorage.setItem("userName", verifiedUser.user[0].userName);
-    var url = new URL("https://save-it.projects.bbdgrad.com/web/");
-    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
     return token;
   } catch (error) {
     console.error("Error:", error);
