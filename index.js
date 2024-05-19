@@ -332,6 +332,29 @@ function showSuccessMessage(message) {
   }, 2000);
 }
 
+function showErrorMessage(message) {
+  const successMessage = document.createElement("div");
+  successMessage.textContent = message;
+  Object.assign(successMessage.style, {
+    backgroundColor: "red",
+    color: "white",
+    border: "1px solid #c3e6cb",
+    padding: "1rem",
+    borderRadius: "5px",
+    top: 0,
+    zIndex: 5,
+    margin: "0",
+    textAlign: "center",
+    fontWeight: "bold",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  });
+
+  successful.appendChild(successMessage);
+  setTimeout(() => {
+    successful.removeChild(successMessage);
+  }, 2000);
+}
+
 darkMode.addEventListener("click", () => {
   document.body.classList.toggle("dark-mode-variables");
   darkMode.querySelector("span:nth-child(1)").classList.toggle("active");
@@ -744,11 +767,11 @@ function createIncomeForm() {
       .then((data) => {
         console.log("Data received:", data);
         resetForm();
-        window.alert(editRecord ? "Updated Income" : "Added Income");
+        showSuccessMessage(editRecord ? "Updated Income" : "Added Income");
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
     createDashboard();
   });
@@ -764,15 +787,79 @@ function deleteIncome(incomeId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
   }
   console.log("Deleting income with ID:", incomeId);
 }
 
 async function displayExpense() {
-  await fetchAllExpense();
+  const data = false;
+  if (data) {
+    expenseData.forEach((expense) => {
+      const listItem = document.createElement("li");
+      listItem.style.border = "1px solid black";
+      listItem.style.padding = "10px";
+      listItem.style.borderRadius = "5px";
+      listItem.style.marginBottom = "10px";
+      listItem.style.display = "flex";
+      listItem.style.justifyContent = "space-between";
+
+      const expenseInfo = document.createElement("div");
+      for (const key in expense) {
+        if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
+          const item = document.createElement("div");
+          item.style.marginBottom = "5px";
+          if (key == "expenseCategory") {
+            expenseAllCategory.map((v) => {
+              if (v.expenseCategoryId == expense[key]) {
+                item.textContent =
+                  key.toUpperCase() + ": " + v.expenseCategoryName;
+              }
+            });
+          } else if (key == "expenseId") {
+            item.textContent = "";
+          } else if (key == "spendDate") {
+            const date = new Date(expense[key]);
+            item.textContent = key.toUpperCase() + ": " + date.toDateString();
+          } else {
+            item.textContent = key.toUpperCase() + ": " + expense[key];
+          }
+          expenseInfo.appendChild(item);
+        }
+      }
+
+      const actions = document.createElement("div");
+      actions.style.display = "flex";
+      actions.style.gap = "10px";
+
+      const editIcon = document.createElement("span");
+      editIcon.classList.add("material-icons-sharp");
+      editIcon.textContent = "edit";
+      editIcon.style.color = "#6C9BCF";
+      editIcon.style.cursor = "pointer";
+      editIcon.onclick = function () {
+        createxpenseForm(expense.expenseId);
+      };
+      actions.appendChild(editIcon);
+
+      const deleteIcon = document.createElement("span");
+      deleteIcon.classList.add("material-icons-sharp");
+      deleteIcon.textContent = "delete";
+      deleteIcon.style.color = "#FF0060";
+      deleteIcon.style.cursor = "pointer";
+      deleteIcon.onclick = function () {
+        deleteExpense(expense.expenseId);
+      };
+      actions.appendChild(deleteIcon);
+
+      listItem.appendChild(expenseInfo);
+      listItem.appendChild(actions);
+
+      listContainer.appendChild(listItem);
+    });
+  }
   const mainContainer = document.getElementById("dashboard-content");
-  mainContainer.innerHTML = ""; // Clear previous content
+  mainContainer.innerHTML = "";
 
   const addBtn = document.createElement("button");
   addBtn.id = "addData";
@@ -790,69 +877,6 @@ async function displayExpense() {
   listContainer.style.marginTop = "20px";
   listContainer.style.listStyleType = "none";
   listContainer.style.padding = "0";
-
-  expenseData.forEach((expense) => {
-    const listItem = document.createElement("li");
-    listItem.style.border = "1px solid black";
-    listItem.style.padding = "10px";
-    listItem.style.borderRadius = "5px";
-    listItem.style.marginBottom = "10px";
-    listItem.style.display = "flex";
-    listItem.style.justifyContent = "space-between";
-
-    const expenseInfo = document.createElement("div");
-    for (const key in expense) {
-      if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
-        const item = document.createElement("div");
-        item.style.marginBottom = "5px";
-        if (key == "expenseCategory") {
-          expenseAllCategory.map((v) => {
-            if (v.expenseCategoryId == expense[key]) {
-              item.textContent =
-                key.toUpperCase() + ": " + v.expenseCategoryName;
-            }
-          });
-        } else if (key == "expenseId") {
-          item.textContent = "";
-        } else if (key == "spendDate") {
-          const date = new Date(expense[key]);
-          item.textContent = key.toUpperCase() + ": " + date.toDateString();
-        } else {
-          item.textContent = key.toUpperCase() + ": " + expense[key];
-        }
-        expenseInfo.appendChild(item);
-      }
-    }
-
-    const actions = document.createElement("div");
-    actions.style.display = "flex";
-    actions.style.gap = "10px";
-
-    const editIcon = document.createElement("span");
-    editIcon.classList.add("material-icons-sharp");
-    editIcon.textContent = "edit";
-    editIcon.style.color = "#6C9BCF";
-    editIcon.style.cursor = "pointer";
-    editIcon.onclick = function () {
-      createxpenseForm(expense.expenseId);
-    };
-    actions.appendChild(editIcon);
-
-    const deleteIcon = document.createElement("span");
-    deleteIcon.classList.add("material-icons-sharp");
-    deleteIcon.textContent = "delete";
-    deleteIcon.style.color = "#FF0060";
-    deleteIcon.style.cursor = "pointer";
-    deleteIcon.onclick = function () {
-      deleteExpense(expense.expenseId);
-    };
-    actions.appendChild(deleteIcon);
-
-    listItem.appendChild(expenseInfo);
-    listItem.appendChild(actions);
-
-    listContainer.appendChild(listItem);
-  });
 
   mainContainer.appendChild(listContainer);
 }
@@ -1014,13 +1038,13 @@ function createxpenseForm(id) {
       })
       .then((data) => {
         setTimeout(() => {
-          window.alert(id ? "Updated Expense" : "Added Expense");
+          showSuccessMessage(id ? "Updated Expense" : "Added Expense");
           displayExpense();
         }, 500);
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
   });
 }
@@ -1039,7 +1063,7 @@ function deleteExpense(expenseId) {
     )
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
     displayExpense();
   }
   console.log("Deleting expense with ID:", expenseId);
@@ -1387,13 +1411,13 @@ function createBudgetForm(id) {
       })
       .then((data) => {
         setTimeout(() => {
-          window.alert(id ? "Updated Budget" : "Added Budget");
+          showSuccessMessage(id ? "Updated Budget" : "Added Budget");
           displayBudget();
         }, 1000);
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
   });
 }
@@ -1409,7 +1433,7 @@ function deleteBudget(budgetId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
     displayBudget();
   }
   console.log("Deleting budget with ID:", budgetId);
@@ -1802,11 +1826,11 @@ function addGoalForm() {
       .then((data) => {
         console.log("Data received:", data);
         resetForm();
-        window.alert(editRecord ? "Updated Goal" : "Added Goal");
+        showSuccessMessage(editRecord ? "Updated Goal" : "Added Goal");
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
     createDashboard();
   });
@@ -1823,7 +1847,7 @@ function deleteGoal(goalId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
   }
   console.log("Deleting goal with ID:", goalId);
 }
