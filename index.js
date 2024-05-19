@@ -796,9 +796,9 @@ function deleteIncome(incomeId) {
 }
 
 async function displayExpense() {
-  const data = await fetchAllExpense();
-  console.log("data0", data);
-  if (data) {
+  await fetchAllExpense();
+  console.log("data0", expenseData);
+  if (expenseData.length > 0) {
     expenseData.forEach((expense) => {
       const listItem = document.createElement("li");
       listItem.style.border = "1px solid black";
