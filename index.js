@@ -311,6 +311,31 @@ closeBtn.addEventListener("click", () => {
 const successful = document.getElementById("main");
 
 // Function to create and show the success message
+
+function showErrorMessage(message) {
+  const errorMessage = document.createElement("div");
+  errorMessage.textContent = message;
+  Object.assign(errorMessage.style, {
+    backgroundColor: "red",
+    color: "white",
+    border: "1px solid #c3e6cb",
+    padding: "1rem",
+    borderRadius: "5px",
+    position: "fixed",
+    top: "0",
+    width: "30rem",
+    zIndex: 1000,
+    margin: "0",
+    textAlign: "center",
+    fontWeight: "bold",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  });
+  document.body.appendChild(errorMessage);
+
+  setTimeout(() => {
+    document.body.removeChild(errorMessage);
+  }, 2000);
+}
 function showSuccessMessage(message) {
   const successMessage = document.createElement("div");
   successMessage.textContent = message;
@@ -320,7 +345,11 @@ function showSuccessMessage(message) {
     border: "1px solid #c3e6cb",
     padding: "1rem",
     borderRadius: "5px",
-    margin: "1rem 0",
+    position: "fixed",
+    top: "0",
+    width: "30rem",
+    zIndex: 1000,
+    margin: "0",
     textAlign: "center",
     fontWeight: "bold",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -748,7 +777,7 @@ function createIncomeForm() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
     createDashboard();
   });
@@ -1397,7 +1426,7 @@ function createBudgetForm(id) {
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
   });
 }
@@ -1810,7 +1839,7 @@ function addGoalForm() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
     createDashboard();
   });
