@@ -341,8 +341,11 @@ function showErrorMessage(message) {
     border: "1px solid #c3e6cb",
     padding: "1rem",
     borderRadius: "5px",
-    top: 0,
-    zIndex: 5,
+    position: "fixed", // Ensure it stays at the top
+    top: "0",
+    left: "0",
+    right: "0",
+    zIndex: 1000,
     margin: "0",
     textAlign: "center",
     fontWeight: "bold",
@@ -793,7 +796,7 @@ function deleteIncome(incomeId) {
 }
 
 async function displayExpense() {
-  const data = false;
+  const data = await fetchAllExpense();
   if (data) {
     expenseData.forEach((expense) => {
       const listItem = document.createElement("li");
