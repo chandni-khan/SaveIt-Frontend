@@ -744,7 +744,7 @@ function createIncomeForm() {
       .then((data) => {
         console.log("Data received:", data);
         resetForm();
-        window.alert(editRecord ? "Updated Income" : "Added Income");
+        showSuccessMessage(editRecord ? "Updated Income" : "Added Income");
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -764,7 +764,7 @@ function deleteIncome(incomeId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
   }
   console.log("Deleting income with ID:", incomeId);
 }
@@ -1018,13 +1018,13 @@ function createxpenseForm(id) {
       })
       .then((data) => {
         setTimeout(() => {
-          window.alert(id ? "Updated Expense" : "Added Expense");
+          showSuccessMessage(id ? "Updated Expense" : "Added Expense");
           displayExpense();
         }, 500);
       })
       .catch((error) => {
         console.error("Error:", error);
-        window.alert("An error occurred. Please try again later.");
+        showErrorMessage("An error occurred. Please try again later.");
       });
   });
 }
@@ -1043,7 +1043,7 @@ function deleteExpense(expenseId) {
     )
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
     displayExpense();
   }
   console.log("Deleting expense with ID:", expenseId);
@@ -1391,7 +1391,7 @@ function createBudgetForm(id) {
       })
       .then((data) => {
         setTimeout(() => {
-          window.alert(id ? "Updated Budget" : "Added Budget");
+          showSuccessMessage(id ? "Updated Budget" : "Added Budget");
           displayBudget();
         }, 1000);
       })
@@ -1413,7 +1413,7 @@ function deleteBudget(budgetId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
     displayBudget();
   }
   console.log("Deleting budget with ID:", budgetId);
@@ -1806,7 +1806,7 @@ function addGoalForm() {
       .then((data) => {
         console.log("Data received:", data);
         resetForm();
-        window.alert(editRecord ? "Updated Goal" : "Added Goal");
+        showSuccessMessage(editRecord ? "Updated Goal" : "Added Goal");
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -1827,7 +1827,7 @@ function deleteGoal(goalId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    window.alert("deleted");
+    showSuccessMessage("deleted");
   }
   console.log("Deleting goal with ID:", goalId);
 }
