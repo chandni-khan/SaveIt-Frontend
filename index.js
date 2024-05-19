@@ -332,32 +332,6 @@ function showSuccessMessage(message) {
   }, 2000);
 }
 
-function showErrorMessage(message) {
-  const successMessage = document.createElement("div");
-  successMessage.textContent = message;
-  Object.assign(successMessage.style, {
-    backgroundColor: "red",
-    color: "white",
-    border: "1px solid #c3e6cb",
-    padding: "1rem",
-    borderRadius: "5px",
-    position: "fixed", // Ensure it stays at the top
-    top: "0",
-    left: "0",
-    right: "0",
-    zIndex: 1000,
-    margin: "0",
-    textAlign: "center",
-    fontWeight: "bold",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  });
-
-  successful.appendChild(successMessage);
-  setTimeout(() => {
-    successful.removeChild(successMessage);
-  }, 2000);
-}
-
 darkMode.addEventListener("click", () => {
   document.body.classList.toggle("dark-mode-variables");
   darkMode.querySelector("span:nth-child(1)").classList.toggle("active");
@@ -770,11 +744,11 @@ function createIncomeForm() {
       .then((data) => {
         console.log("Data received:", data);
         resetForm();
-        showSuccessMessage(editRecord ? "Updated Income" : "Added Income");
+        window.alert(editRecord ? "Updated Income" : "Added Income");
       })
       .catch((error) => {
         console.error("Error:", error);
-        showErrorMessage("An error occurred. Please try again later.");
+        window.alert("An error occurred. Please try again later.");
       });
     createDashboard();
   });
@@ -790,17 +764,34 @@ function deleteIncome(incomeId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    showSuccessMessage("deleted");
+    window.alert("deleted");
   }
   console.log("Deleting income with ID:", incomeId);
 }
 
 async function displayExpense() {
   await fetchAllExpense();
-  const listItem = document.createElement("li");
-  console.log("data0", expenseData);
-  if (expenseData.length > 0) {
+  const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = "";
+  const addBtn = document.createElement("button");
+  addBtn.id = "addData";
+  addBtn.textContent = "Add Expense";
+  addBtn.style.color = "green";
+  addBtn.style.height = "30px";
+  addBtn.style.width = "100px";
+  addBtn.onclick = () => {
+    createxpenseForm((id = null));
+  };
+  addBtn.style.fontWeight = "bold";
+  mainContainer.appendChild(addBtn);
+  if (expenseData) {
+    const listContainer = document.createElement("ul");
+    listContainer.style.marginTop = "20px";
+    listContainer.style.listStyleType = "none";
+    listContainer.style.padding = "0";
+
     expenseData.forEach((expense) => {
+      const listItem = document.createElement("li");
       listItem.style.border = "1px solid black";
       listItem.style.padding = "10px";
       listItem.style.borderRadius = "5px";
@@ -861,28 +852,13 @@ async function displayExpense() {
 
       listContainer.appendChild(listItem);
     });
+
+    mainContainer.appendChild(listContainer);
+  } else {
+    const head = document.createElement("h1");
+    head.textContent = "No record to show";
+    mainContainer.appendChild(head);
   }
-  const mainContainer = document.getElementById("dashboard-content");
-  mainContainer.innerHTML = "";
-
-  const addBtn = document.createElement("button");
-  addBtn.id = "addData";
-  addBtn.textContent = "Add Expense";
-  addBtn.style.color = "green";
-  addBtn.style.height = "30px";
-  addBtn.style.width = "100px";
-  addBtn.onclick = () => {
-    createxpenseForm((id = null));
-  };
-  addBtn.style.fontWeight = "bold";
-  mainContainer.appendChild(addBtn);
-
-  const listContainer = document.createElement("ul");
-  listContainer.style.marginTop = "20px";
-  listContainer.style.listStyleType = "none";
-  listContainer.style.padding = "0";
-
-  mainContainer.appendChild(listContainer);
 }
 
 function createxpenseForm(id) {
@@ -1042,13 +1018,13 @@ function createxpenseForm(id) {
       })
       .then((data) => {
         setTimeout(() => {
-          showSuccessMessage(id ? "Updated Expense" : "Added Expense");
+          window.alert(id ? "Updated Expense" : "Added Expense");
           displayExpense();
         }, 500);
       })
       .catch((error) => {
         console.error("Error:", error);
-        showErrorMessage("An error occurred. Please try again later.");
+        window.alert("An error occurred. Please try again later.");
       });
   });
 }
@@ -1067,7 +1043,7 @@ function deleteExpense(expenseId) {
     )
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    showSuccessMessage("deleted");
+    window.alert("deleted");
     displayExpense();
   }
   console.log("Deleting expense with ID:", expenseId);
@@ -1415,13 +1391,13 @@ function createBudgetForm(id) {
       })
       .then((data) => {
         setTimeout(() => {
-          showSuccessMessage(id ? "Updated Budget" : "Added Budget");
+          window.alert(id ? "Updated Budget" : "Added Budget");
           displayBudget();
         }, 1000);
       })
       .catch((error) => {
         console.error("Error:", error);
-        showErrorMessage("An error occurred. Please try again later.");
+        window.alert("An error occurred. Please try again later.");
       });
   });
 }
@@ -1437,7 +1413,7 @@ function deleteBudget(budgetId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    showSuccessMessage("deleted");
+    window.alert("deleted");
     displayBudget();
   }
   console.log("Deleting budget with ID:", budgetId);
@@ -1830,11 +1806,11 @@ function addGoalForm() {
       .then((data) => {
         console.log("Data received:", data);
         resetForm();
-        showSuccessMessage(editRecord ? "Updated Goal" : "Added Goal");
+        window.alert(editRecord ? "Updated Goal" : "Added Goal");
       })
       .catch((error) => {
         console.error("Error:", error);
-        showErrorMessage("An error occurred. Please try again later.");
+        window.alert("An error occurred. Please try again later.");
       });
     createDashboard();
   });
@@ -1851,7 +1827,7 @@ function deleteGoal(goalId) {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
-    showSuccessMessage("deleted");
+    window.alert("deleted");
   }
   console.log("Deleting goal with ID:", goalId);
 }
