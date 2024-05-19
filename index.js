@@ -29,9 +29,24 @@ const darkMode = document.querySelector(".dark-mode");
 let expenseAllCategory = [];
 let budgetAllCategory = [];
 let graphData = [{}];
-let targetMonth = new Date().getMonth();
+let targetMonth = new Date().getMonth() + 1;
 let targetYear = new Date().getFullYear();
-
+const monthNames = [
+  "",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+let monthInString = getMonthName(new Date().getMonth());
 window.onload = async function () {
   const dashboardContent = document.getElementById("dashboard-content");
   dashboardContent.innerHTML = "";
@@ -165,6 +180,13 @@ window.onload = async function () {
     await createDashboard();
   }
 };
+
+function getMonthName(monthNumber) {
+  if (monthNumber < 1 || monthNumber > 12) {
+    throw new Error("Month number must be between 1 and 12");
+  }
+  return monthNames[monthNumber + 1];
+}
 
 async function fetchAllExpense() {
   await fetch(
@@ -331,7 +353,7 @@ function generateExpenseChart() {
     const key = category.expenseCategoryName;
     const count = expenseData.filter((expense) => {
       const date = new Date(expense.spendDate);
-      const month = date.getMonth();
+      const month = date.getMonth() + 1;
       const year = date.getFullYear();
       return (
         month === targetMonth &&
@@ -395,20 +417,32 @@ async function createDashboard() {
 
   const monthInput = document.createElement("input");
   monthInput.type = "month";
-  monthInput.id = "monthInput"; // Add an id for easier access
+  monthInput.id = "monthInput";
   dashboardContent.appendChild(monthInput);
+  const formattedMonth = `${targetYear}-${String(targetMonth).padStart(
+    2,
+    "0"
+  )}`;
+
+  document.getElementById("monthInput").value = formattedMonth;
 
   const findButton = document.createElement("button");
   findButton.textContent = "Find";
   findButton.style.backgroundColor = "blue";
   findButton.style.color = "white";
   findButton.style.width = "5rem";
+
   findButton.onclick = function () {
     const selectedMonth = document.getElementById("monthInput").value;
-    targetYear = parseInt(selectedMonth.split("-")[0]);
-    targetMonth = parseInt(selectedMonth.split("-")[1]);
-    generateExpenseChart();
+    const selectedYear = parseInt(selectedMonth.split("-")[0]);
+    const selectedMonthNum = parseInt(selectedMonth.split("-")[1]);
+    targetYear = selectedYear;
+    targetMonth = selectedMonthNum;
+    monthInString = getMonthName(selectedMonthNum - 1).toString();
+    createDashboard();
   };
+
+  dashboardContent.appendChild(findButton);
 
   dashboardContent.appendChild(findButton);
 
@@ -466,10 +500,8 @@ async function createDashboard() {
 
   const newUsersDiv = document.createElement("div");
   newUsersDiv.classList.add("new-users");
-  newUsersDiv.innerHTML =
-    "<h2>Report for Month</h2><canvas id='expenseChart'></canvas>";
+  newUsersDiv.innerHTML = `<h2>Report for ${monthInString}</h2><canvas id='expenseChart'></canvas>`;
   dashboardContent.appendChild(newUsersDiv);
-
   generateExpenseChart();
 }
 
