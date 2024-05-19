@@ -29,9 +29,12 @@ const darkMode = document.querySelector(".dark-mode");
 let expenseAllCategory = [];
 let budgetAllCategory = [];
 let graphData = [{}];
-let month = "Apr";
+let targetMonth = new Date().getMonth();
+let targetYear = new Date().getFullYear();
 
 window.onload = async function () {
+  const dashboardContent = document.getElementById("dashboard-content");
+  dashboardContent.innerHTML = "";
   if (userToken == null || sessionStorage.getItem("authToken") == null) {
     function createAndStyleElement(tag, textContent, styles) {
       const element = document.createElement(tag);
@@ -39,7 +42,6 @@ window.onload = async function () {
       Object.assign(element.style, styles);
       return element;
     }
-
     const mainContainer = document.getElementById("main");
     mainContainer.innerHTML = "";
 
@@ -315,90 +317,65 @@ darkMode.addEventListener("click", () => {
 });
 
 function generateExpenseChart() {
-  fetch(
-    `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
+  const canvas = document.getElementById("expenseChart");
+  const ctx = canvas.getContext("2d");
+
+  if (
+    window.expenseChart !== undefined &&
+    window.expenseChart instanceof Chart
+  ) {
+    window.expenseChart.destroy();
+  }
+
+  const graphData = expenseAllCategory.map((category) => {
+    const key = category.expenseCategoryName;
+    const count = expenseData.filter((expense) => {
+      const date = new Date(expense.spendDate);
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      return (
+        month === targetMonth &&
+        year === targetYear &&
+        expense.expenseCategory === category.expenseCategoryId
+      );
+    }).length;
+
+    return { [key]: count };
+  });
+
+  const labels = [];
+  const amounts = [];
+  console.log("graph", graphData);
+  graphData.forEach((expense) => {
+    const category = Object.keys(expense)[0];
+    const count = Object.values(expense)[0];
+
+    labels.push(category);
+    amounts.push(count);
+  });
+
+  window.expenseChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Amount Spent",
+          data: amounts,
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          borderColor: "rgba(54, 162, 235, 1)",
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
       },
-    }
-  )
-    .then((response) => {
-      if (response.status === 204) {
-        return [];
-      } else if (response.status !== 200) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      let graphData = [];
-
-      expenseAllCategory.forEach((category) => {
-        let key = category.expenseCategoryName;
-        let obj = { [key]: 0 };
-        graphData.push(obj);
-      });
-      expenseAllCategory.forEach((category) => {
-        let count = 0;
-        data.forEach((expenseData) => {
-          if (expenseData.expenseCategory === category.expenseCategoryId) {
-            count++;
-          }
-        });
-        let key = category.expenseCategoryName;
-        let existingObjIndex = graphData.findIndex((obj) =>
-          obj.hasOwnProperty(key)
-        );
-        if (existingObjIndex !== -1) {
-          graphData[existingObjIndex][key] = count;
-        }
-      });
-
-      const labels = [];
-      const amounts = [];
-
-      graphData.forEach((expense) => {
-        const category = Object.keys(expense)[0];
-        const count = Object.values(expense)[0];
-
-        labels.push(category);
-        amounts.push(count);
-      });
-
-      // Outputting the extracted data
-      console.log("Labels:", labels);
-      console.log("Amounts:", amounts);
-
-      const ctx = document.getElementById("expenseChart").getContext("2d");
-      const expenseChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "Amount Spent",
-              data: amounts,
-              backgroundColor: "rgba(54, 162, 235, 0.2)",
-              borderColor: "rgba(54, 162, 235, 1)",
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-            },
-          },
-        },
-      });
-    })
-    .catch((error) => {
-      console.error("There was a problem with the fetch operation:", error);
-    });
+    },
+  });
 }
 
 async function createDashboard() {
@@ -412,6 +389,10 @@ async function createDashboard() {
   dashboardTitle.textContent = "Dashboard";
   dashboardContent.appendChild(dashboardTitle);
 
+  const currentDateDiv = document.createElement("div");
+  currentDateDiv.id = "currentDate";
+  dashboardContent.appendChild(currentDateDiv);
+
   const monthInput = document.createElement("input");
   monthInput.type = "month";
   monthInput.id = "monthInput"; // Add an id for easier access
@@ -424,9 +405,11 @@ async function createDashboard() {
   findButton.style.width = "5rem";
   findButton.onclick = function () {
     const selectedMonth = document.getElementById("monthInput").value;
-    const selectedYear = selectedMonth.split("-")[0];
-    const selectedMonthValue = selectedMonth.split("-")[1];
+    targetYear = parseInt(selectedMonth.split("-")[0]);
+    targetMonth = parseInt(selectedMonth.split("-")[1]);
+    generateExpenseChart();
   };
+
   dashboardContent.appendChild(findButton);
 
   const analyseDiv = document.createElement("div");
@@ -540,7 +523,6 @@ async function displayIncome() {
         infoItem.style.marginBottom = "5px";
         infoItem.style.fontSize = "15px";
         infoItem.style.fontWeight = "bold";
-
         if (key == "incomeDate") {
           const timestamp = income[key];
           const date = new Date(timestamp);
@@ -791,7 +773,21 @@ async function displayExpense() {
       if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
         const item = document.createElement("div");
         item.style.marginBottom = "5px";
-        item.textContent = key.toUpperCase() + ": " + expense[key];
+        if (key == "expenseCategory") {
+          expenseAllCategory.map((v) => {
+            if (v.expenseCategoryId == expense[key]) {
+              item.textContent =
+                key.toUpperCase() + ": " + v.expenseCategoryName;
+            }
+          });
+        } else if (key == "expenseId") {
+          item.textContent = "";
+        } else if (key == "spendDate") {
+          const date = new Date(expense[key]);
+          item.textContent = key.toUpperCase() + ": " + date.toDateString();
+        } else {
+          item.textContent = key.toUpperCase() + ": " + expense[key];
+        }
         expenseInfo.appendChild(item);
       }
     }
