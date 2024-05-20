@@ -909,7 +909,7 @@ function createxpenseForm(id) {
       type: "input",
       inputType: "number",
       name: "amountSpend",
-      labelText: "AmountSpend:",
+      labelText: "Amount Spend:",
     },
     {
       type: "input",
@@ -925,12 +925,64 @@ function createxpenseForm(id) {
     },
   ];
 
+  // Add CSS styles
+  const style = document.createElement("style");
+  style.textContent = `
+    .expense-form-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .expense-form {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .form-control:focus {
+      border-color: #5b9bd5;
+      box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
+      outline: none;
+    }
+    .submit-button {
+      background-color: #5b9bd5;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .submit-button:hover {
+      background-color: #4a8ccc;
+    }
+  `;
+  document.head.appendChild(style);
+
   const formContainer = document.createElement("div");
-  formContainer.classList.add("expense-form-container"); // New class
+  formContainer.classList.add("expense-form-container");
 
   const form = document.createElement("form");
   form.id = "addExpenseForm";
-  form.classList.add("expense-form"); // New class
+  form.classList.add("expense-form");
 
   formElements.forEach((element) => {
     const formGroup = document.createElement("div");
@@ -938,40 +990,41 @@ function createxpenseForm(id) {
 
     const label = document.createElement("label");
     label.textContent = element.labelText;
-    label.classList.add("form-label"); // New class
+    label.classList.add("form-label");
     formGroup.appendChild(label);
-    if (element.name == "expenseCategory") {
-      console.log("expenseAllCategory", expenseAllCategory);
+
+    if (element.name === "expenseCategory") {
       const expenseCategorySelect = document.createElement("select");
       expenseCategorySelect.id = "expenseCategory";
       expenseCategorySelect.name = "expenseCategory";
       expenseCategorySelect.required = true;
-      expenseAllCategory?.map((expenseCategoryItem) => {
+      expenseCategorySelect.classList.add("form-control");
+
+      expenseAllCategory?.forEach((expenseCategoryItem) => {
         const option = document.createElement("option");
         option.value = expenseCategoryItem.expenseCategoryId;
         option.textContent = expenseCategoryItem.expenseCategoryName;
         expenseCategorySelect.appendChild(option);
-        expenseCategorySelect.type = element.inputType;
-        expenseCategorySelect.name = element.name;
-        expenseCategorySelect.id = element.name;
-        expenseCategorySelect.required = true;
-        expenseCategorySelect.classList.add("form-control"); // New class
-        formGroup.appendChild(expenseCategorySelect);
       });
+
+      formGroup.appendChild(expenseCategorySelect);
     } else {
       const input = document.createElement("input");
       input.type = element.inputType;
       input.name = element.name;
       input.id = element.name;
       input.required = true;
-      input.classList.add("form-control"); // New class
+      input.classList.add("form-control");
+      if (element.inputType === "submit") {
+        input.value = element.value;
+        input.classList.add("submit-button");
+      }
       formGroup.appendChild(input);
     }
     form.appendChild(formGroup);
   });
 
   if (id != null) {
-    console.log(id);
     fetch(`https://save-it.projects.bbdgrad.com/api/getExpenseById/${id}`, {
       method: "GET",
       headers: {
@@ -994,16 +1047,17 @@ function createxpenseForm(id) {
         document.getElementsByName("amountSpend")[0].value = data.amountSpend;
         document.getElementsByName("expenseCategory")[0].value =
           data.expenseCategory;
-        form.elements["addExpense"].name = "Update Expense"; // Update submit button text
+        document.getElementsByName("addExpense")[0].value = "Update Expense"; // Update submit button text
         id = data.expenseId;
-        console.log("Editing expense with ID:", id);
       })
       .catch((e) => {
         console.log("error", e);
       });
   }
+
   formContainer.appendChild(form);
   mainContainer.replaceChildren(formContainer);
+
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     const formData = new FormData(this);
@@ -1043,9 +1097,9 @@ function createxpenseForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response;
+        return response.json();
       })
-      .then((data) => {
+      .then(() => {
         setTimeout(() => {
           showSuccessMessage(id ? "Updated Expense" : "Added Expense");
           displayExpense();
@@ -1057,6 +1111,7 @@ function createxpenseForm(id) {
       });
   });
 }
+
 
 function deleteExpense(expenseId) {
   if (window.confirm("Do you want to Delete?")) {
