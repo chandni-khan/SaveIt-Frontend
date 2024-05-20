@@ -181,6 +181,41 @@ window.onload = async function () {
   }
 };
 
+async function fetchIncomeCategory() {
+  try {
+    const response = await fetch(
+      "https://save-it.projects.bbdgrad.com/api/getIncomeCategories",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 204) {
+      console.log("No expenses found");
+      return 0;
+    } else if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching Income category:", error);
+    return 0;
+  }
+}
+
+fetchIncomeCategory()
+  .then((data) => {
+    incomeAllCategory = data;
+  })
+  .catch((error) => {
+    console.error("Error getting total income:", error);
+  });
+
 function getMonthName(monthNumber) {
   if (monthNumber < 1 || monthNumber > 12) {
     throw new Error("Month number must be between 1 and 12");
@@ -207,8 +242,14 @@ async function fetchAllExpense() {
     })
     .then((data) => {
       expenseData = data;
-
-      const totalAmount = expenseData.reduce(
+      let expenseTotalDate = [];
+      data.map((v) => {
+        let month = new Date(v.spendDate).getMonth() + 1;
+        if (targetMonth == parseInt(month)) {
+          expenseTotalDate.push(v);
+        }
+      });
+      const totalAmount = expenseTotalDate.reduce(
         (acc, expense) => acc + expense.amountSpend,
         0
       );
@@ -234,7 +275,14 @@ async function fetchAllIncome() {
     })
     .then((data) => {
       incomeData = data;
-      const totalAmount = data.reduce(
+      let incomeTotalDate = [];
+      data.map((v) => {
+        let month = new Date(v.incomeDate).getMonth() + 1;
+        if (targetMonth == parseInt(month)) {
+          incomeTotalDate.push(v);
+        }
+      });
+      const totalAmount = incomeTotalDate.reduce(
         (acc, income) => acc + income.incomeAmount,
         0
       );
@@ -260,7 +308,17 @@ async function fetchAllBudget() {
     })
     .then((data) => {
       budgetData = data;
-      const totalAmount = data.reduce((acc, budget) => acc + budget.amount, 0);
+      let budgetTotalDate = [];
+      data.map((v) => {
+        let startmonth = new Date(v.start_date).getMonth() + 1;
+        if (targetMonth == parseInt(startmonth)) {
+          budgetTotalDate.push(v);
+        }
+      });
+      const totalAmount = budgetTotalDate.reduce(
+        (acc, budget) => acc + budget.amount,
+        0
+      );
       totalBudget = totalAmount;
     });
 }
@@ -517,6 +575,10 @@ async function createDashboard() {
   const searchesInfoDiv = document.createElement("div");
   searchesInfoDiv.classList.add("info");
   searchesInfoDiv.innerHTML = `<h3>Total Budget</h3><h1>Rs.${totalBudget}</h1>`;
+  if (totalExpense > totalBudget) {
+    searchesInfoDiv.style.color = "red";
+    searchesInfoDiv.innerHTML = `<h1>Out of Budget</h1>`;
+  }
   searchesStatusDiv.appendChild(searchesInfoDiv);
   searchesDiv.appendChild(searchesStatusDiv);
 
@@ -590,6 +652,14 @@ async function displayIncome() {
           infoItem.textContent = `${key
             .replace("_", " ")
             .toUpperCase()}: ${date.toDateString()}`;
+        } else if (key == "incomeCategory") {
+          console.log("incomeCategory");
+          incomeAllCategory.map((v) => {
+            if (v.incomeCategoryId == income[key]) {
+              infoItem.textContent =
+                key.toUpperCase() + ": " + v.incomeCategoryName;
+            }
+          });
         } else {
           infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
             income[key]
@@ -833,11 +903,16 @@ async function displayExpense() {
         if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
           const item = document.createElement("div");
           item.style.marginBottom = "5px";
+          item.style.fontSize = "15px";
+          item.style.fontWeight = "bold";
+
           if (key == "expenseCategory") {
             expenseAllCategory.map((v) => {
               if (v.expenseCategoryId == expense[key]) {
                 item.textContent =
-                  key.toUpperCase() + ": " + v.expenseCategoryName;
+                  key.replace("_", " ").toUpperCase() +
+                  ": " +
+                  v.expenseCategoryName;
               }
             });
           } else if (key == "expenseId") {
@@ -1116,9 +1191,8 @@ fetchBudgetCategory()
 
 function displayBudget() {
   const mainContainer = document.getElementById("dashboard-content");
-  mainContainer.innerHTML = ""; // Clear previous content
+  mainContainer.innerHTML = "";
 
-  // Add "Create Budget" button
   const addBtn = document.createElement("button");
   addBtn.id = "addBudget";
   addBtn.textContent = "Create Budget";
@@ -1177,6 +1251,17 @@ function displayBudget() {
               infoItem.textContent = `${key
                 .replace("_", " ")
                 .toUpperCase()}: ${date.toDateString()}`;
+            } else if (key == "budget_id") {
+              infoItem.textContent = "";
+            } else if (key == "budget_category") {
+              budgetAllCategory.map((v) => {
+                if (v.budgetCategoryId == budget[key]) {
+                  infoItem.textContent =
+                    key.replace("_", " ").toUpperCase() +
+                    ": " +
+                    v.budgetCategoryName;
+                }
+              });
             } else {
               infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
                 budget[key]
@@ -1192,7 +1277,6 @@ function displayBudget() {
         categoryItem.style.marginBottom = "5px";
         categoryItem.style.fontSize = "15px";
         categoryItem.style.fontWeight = "bold";
-        categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
         infoContainer.appendChild(categoryItem);
 
         // Progress bar
