@@ -551,78 +551,79 @@ function deleteIncome(incomeId) {
 }
 
 async function displayExpense() {
-    await fetchAllExpense();
-    const mainContainer = document.getElementById("dashboard-content");
-    mainContainer.innerHTML = ""; // Clear previous content
-  
-    const addBtn = document.createElement("button");
-    addBtn.id = "addData";
-    addBtn.textContent = "Add Expense";
-    addBtn.style.color = "green";
-    addBtn.style.height = "30px";
-    addBtn.style.width = "100px";
-    addBtn.onclick = () => {
-      createxpenseForm((id = null));
-    };
-    addBtn.style.fontWeight = "bold";
-    mainContainer.appendChild(addBtn);
-  
-    const listContainer = document.createElement("ul");
-    listContainer.style.marginTop = "20px";
-    listContainer.style.listStyleType = "none";
-    listContainer.style.padding = "0";
-  
-    expenseData.forEach((expense) => {
-      const listItem = document.createElement("li");
-      listItem.style.border = "1px solid black";
-      listItem.style.padding = "10px";
-      listItem.style.borderRadius = "5px";
-      listItem.style.marginBottom = "10px";
-      listItem.style.display = "flex";
-      listItem.style.justifyContent = "space-between";
-  
-      const expenseInfo = document.createElement("div");
-      for (const key in expense) {
-        if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
-          const item = document.createElement("div");
-          item.style.marginBottom = "5px";
-          item.textContent = key.toUpperCase() + ": " + expense[key];
-          expenseInfo.appendChild(item);
-        }
+  await fetchAllExpense();
+  const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; // Clear previous content
+
+  const addBtn = document.createElement("button");
+  addBtn.id = "addData";
+  addBtn.textContent = "Add Expense";
+  addBtn.style.color = "green";
+  addBtn.style.height = "30px";
+  addBtn.style.width = "100px";
+  addBtn.onclick = () => {
+    createxpenseForm(null);
+  };
+  addBtn.style.fontWeight = "bold";
+  mainContainer.appendChild(addBtn);
+
+  const listContainer = document.createElement("ul");
+  listContainer.style.marginTop = "20px";
+  listContainer.style.listStyleType = "none";
+  listContainer.style.padding = "0";
+
+  expenseData.forEach((expense) => {
+    const listItem = document.createElement("li");
+    listItem.style.border = "1px solid black";
+    listItem.style.padding = "10px";
+    listItem.style.borderRadius = "5px";
+    listItem.style.marginBottom = "10px";
+    listItem.style.display = "flex";
+    listItem.style.justifyContent = "space-between";
+
+    const expenseInfo = document.createElement("div");
+    for (const key in expense) {
+      if (Object.hasOwnProperty.call(expense, key) && key !== "userId" && key !== "expenseId") {
+        const item = document.createElement("div");
+        item.style.marginBottom = "5px";
+        item.textContent = key.toUpperCase() + ": " + expense[key];
+        expenseInfo.appendChild(item);
       }
-  
-      const actions = document.createElement("div");
-      actions.style.display = "flex";
-      actions.style.gap = "10px";
-  
-      const editIcon = document.createElement("span");
-      editIcon.classList.add("material-icons-sharp");
-      editIcon.textContent = "edit";
-      editIcon.style.color = "#6C9BCF";
-      editIcon.style.cursor = "pointer";
-      editIcon.onclick = function () {
-        createxpenseForm(expense.expenseId);
-      };
-      actions.appendChild(editIcon);
-  
-      const deleteIcon = document.createElement("span");
-      deleteIcon.classList.add("material-icons-sharp");
-      deleteIcon.textContent = "delete";
-      deleteIcon.style.color = "#FF0060";
-      deleteIcon.style.cursor = "pointer";
-      deleteIcon.onclick = function () {
-        deleteExpense(expense.expenseId);
-      };
-      actions.appendChild(deleteIcon);
-  
-      listItem.appendChild(expenseInfo);
-      listItem.appendChild(actions);
-  
-      listContainer.appendChild(listItem);
-    });
-  
-    mainContainer.appendChild(listContainer);
-  }
+    }
+
+    const actions = document.createElement("div");
+    actions.style.display = "flex";
+    actions.style.gap = "10px";
+
+    const editIcon = document.createElement("span");
+    editIcon.classList.add("material-icons-sharp");
+    editIcon.textContent = "edit";
+    editIcon.style.color = "#6C9BCF";
+    editIcon.style.cursor = "pointer";
+    editIcon.onclick = function () {
+      createxpenseForm(expense.expenseId);
+    };
+    actions.appendChild(editIcon);
+
+    const deleteIcon = document.createElement("span");
+    deleteIcon.classList.add("material-icons-sharp");
+    deleteIcon.textContent = "delete";
+    deleteIcon.style.color = "#FF0060";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.onclick = function () {
+      deleteExpense(expense.expenseId);
+    };
+    actions.appendChild(deleteIcon);
+
+    listItem.appendChild(expenseInfo);
+    listItem.appendChild(actions);
+
+    listContainer.appendChild(listItem);
+  });
+
+  mainContainer.appendChild(listContainer);
+}
+
   
 
 function createxpenseForm(id) {
@@ -831,7 +832,7 @@ fetchBudgetCategory()
   function displayBudget() {
     const mainContainer = document.getElementById("dashboard-content");
     mainContainer.innerHTML = ""; // Clear previous content
-
+  
     // Add "Create Budget" button
     const addBtn = document.createElement("button");
     addBtn.id = "addBudget";
@@ -840,118 +841,119 @@ fetchBudgetCategory()
     addBtn.style.height = "30px";
     addBtn.style.width = "100px";
     addBtn.onclick = () => {
-        createBudgetForm();
+      createBudgetForm();
     };
     addBtn.style.fontWeight = "bold";
     mainContainer.appendChild(addBtn);
-
+  
     fetch('http://52.50.239.63:8080/getBudgetByUserId/8')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        const listContainer = document.createElement("div");
+        listContainer.style.marginTop = "20px";
+        listContainer.style.display = "flex";
+        listContainer.style.flexDirection = "column";
+        listContainer.style.gap = "10px";
+  
+        data.forEach(budget => {
+          const itemContainer = document.createElement("div");
+          itemContainer.style.border = "1px solid black";
+          itemContainer.style.padding = "10px";
+          itemContainer.style.borderRadius = "5px";
+          itemContainer.style.display = "flex";
+          itemContainer.style.justifyContent = "space-between";
+          itemContainer.style.alignItems = "center";
+  
+          const infoContainer = document.createElement("div");
+          for (const key in budget) {
+            if (Object.hasOwnProperty.call(budget, key) && key !== "user_id" && key !== "budget_id") {
+              const infoItem = document.createElement("div");
+              infoItem.style.marginBottom = "5px";
+              infoItem.style.fontSize = "15px";
+              infoItem.style.fontWeight = "bold";
+  
+              if (key === "start_date" || key === "end_date") {
+                const timestamp = budget[key];
+                const date = new Date(timestamp);
+                infoItem.textContent = `${key.replace('_', ' ').toUpperCase()}: ${date.toDateString()}`;
+              } else {
+                infoItem.textContent = `${key.replace('_', ' ').toUpperCase()}: ${budget[key]}`;
+              }
+  
+              infoContainer.appendChild(infoItem);
             }
-            return response.json();
-        })
-        .then(data => {
-            const listContainer = document.createElement("div");
-            listContainer.style.marginTop = "20px";
-            listContainer.style.display = "flex";
-            listContainer.style.flexDirection = "column";
-            listContainer.style.gap = "10px";
-
-            data.forEach(budget => {
-                const itemContainer = document.createElement("div");
-                itemContainer.style.border = "1px solid black";
-                itemContainer.style.padding = "10px";
-                itemContainer.style.borderRadius = "5px";
-                itemContainer.style.display = "flex";
-                itemContainer.style.justifyContent = "space-between";
-                itemContainer.style.alignItems = "center";
-
-                const infoContainer = document.createElement("div");
-                for (const key in budget) {
-                    if (Object.hasOwnProperty.call(budget, key) && key !== "user_id") {
-                        const infoItem = document.createElement("div");
-                        infoItem.style.marginBottom = "5px";
-                        infoItem.style.fontSize = "15px";
-                        infoItem.style.fontWeight = "bold";
-
-                        if (key == "start_date" || key == "end_date") {
-                            const timestamp = budget[key];
-                            const date = new Date(timestamp);
-                            infoItem.textContent = `${key.replace('_', ' ').toUpperCase()}: ${date.toDateString()}`;
-                        } else {
-                            infoItem.textContent = `${key.replace('_', ' ').toUpperCase()}: ${budget[key]}`;
-                        }
-
-                        infoContainer.appendChild(infoItem);
-                    }
-                }
-
-                // Display category
-                const categoryItem = document.createElement("div");
-                categoryItem.style.marginBottom = "5px";
-                categoryItem.style.fontSize = "15px";
-                categoryItem.style.fontWeight = "bold";
-                categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
-                infoContainer.appendChild(categoryItem);
-
-                // Progress bar
-                const progressContainer = document.createElement("div");
-                progressContainer.style.width = "100%";
-                progressContainer.style.height = "8px";
-                progressContainer.style.backgroundColor = "#f0f0f0";
-                progressContainer.style.borderRadius = "5px";
-
-                const progressBar = document.createElement("div");
-                const percentage = (budget.amount_spent / budget.amount) * 100;
-                progressBar.style.width = `${percentage}%`;
-                progressBar.style.height = "80%";
-                progressBar.style.backgroundColor = "green";
-                progressBar.style.borderRadius = "5px";
-
-                progressContainer.appendChild(progressBar);
-                infoContainer.appendChild(progressContainer);
-
-                itemContainer.appendChild(infoContainer);
-
-                const actionsContainer = document.createElement("div");
-                actionsContainer.style.display = "flex";
-                actionsContainer.style.gap = "10px";
-
-                // Edit icon
-                const editIcon = document.createElement("span");
-                editIcon.classList.add("material-icons-sharp");
-                editIcon.textContent = "edit";
-                editIcon.style.color = "#6C9BCF";
-                editIcon.style.cursor = "pointer";
-                editIcon.onclick = function () {
-                    createBudgetForm();
-                    editRecord = budget.budget_id;
-                };
-                actionsContainer.appendChild(editIcon);
-
-                // Delete icon
-                const deleteIcon = document.createElement("span");
-                deleteIcon.classList.add("material-icons-sharp");
-                deleteIcon.textContent = "delete";
-                deleteIcon.style.color = "#FF0060";
-                deleteIcon.style.cursor = "pointer";
-                deleteIcon.onclick = function () {
-                    deleteBudget(budget.budget_id);
-                };
-                actionsContainer.appendChild(deleteIcon);
-
-                itemContainer.appendChild(actionsContainer);
-                listContainer.appendChild(itemContainer);
-            });
-
-            mainContainer.appendChild(listContainer);
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
+          }
+  
+          // Display category
+          const categoryItem = document.createElement("div");
+          categoryItem.style.marginBottom = "5px";
+          categoryItem.style.fontSize = "15px";
+          categoryItem.style.fontWeight = "bold";
+          categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
+          infoContainer.appendChild(categoryItem);
+  
+          // Progress bar
+          const progressContainer = document.createElement("div");
+          progressContainer.style.width = "100%";
+          progressContainer.style.height = "8px";
+          progressContainer.style.backgroundColor = "#f0f0f0";
+          progressContainer.style.borderRadius = "5px";
+  
+          const progressBar = document.createElement("div");
+          const percentage = (budget.amount_spent / budget.amount) * 100;
+          progressBar.style.width = `${percentage}%`;
+          progressBar.style.height = "80%";
+          progressBar.style.backgroundColor = "green";
+          progressBar.style.borderRadius = "5px";
+  
+          progressContainer.appendChild(progressBar);
+          infoContainer.appendChild(progressContainer);
+  
+          itemContainer.appendChild(infoContainer);
+  
+          const actionsContainer = document.createElement("div");
+          actionsContainer.style.display = "flex";
+          actionsContainer.style.gap = "10px";
+  
+          // Edit icon
+          const editIcon = document.createElement("span");
+          editIcon.classList.add("material-icons-sharp");
+          editIcon.textContent = "edit";
+          editIcon.style.color = "#6C9BCF";
+          editIcon.style.cursor = "pointer";
+          editIcon.onclick = function () {
+            createBudgetForm();
+            editRecord = budget.budget_id;
+          };
+          actionsContainer.appendChild(editIcon);
+  
+          // Delete icon
+          const deleteIcon = document.createElement("span");
+          deleteIcon.classList.add("material-icons-sharp");
+          deleteIcon.textContent = "delete";
+          deleteIcon.style.color = "#FF0060";
+          deleteIcon.style.cursor = "pointer";
+          deleteIcon.onclick = function () {
+            deleteBudget(budget.budget_id);
+          };
+          actionsContainer.appendChild(deleteIcon);
+  
+          itemContainer.appendChild(actionsContainer);
+          listContainer.appendChild(itemContainer);
         });
-}
+  
+        mainContainer.appendChild(listContainer);
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+  }
+  
 
 
 
