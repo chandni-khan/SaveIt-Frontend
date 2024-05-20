@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             # Stop existing Node.js server
-            PID=$(sudo lsof -t -i:80)
+            PID=$(sudo lsof -t -i:5500)
             if [ ! -z "$PID" ]; then
               sudo kill -9 $PID
             fi
