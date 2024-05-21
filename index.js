@@ -41,6 +41,7 @@ editRecordIncome = null;
 let editGoalObject = null;
 let expenseAllCategory = [];
 let budgetAllCategory = [];
+let incomeAllCategory = [];
 let graphData = [{}];
 let targetMonth = new Date().getMonth() + 1;
 let targetYear = new Date().getFullYear();
@@ -199,6 +200,7 @@ window.onload = async function () {
           throw new Error(`Network response was not ok: ${response.status}`);
         }
         const data = await response.json();
+        incomeAllCategory = data;
         return data;
       } catch (error) {
         console.error("Error fetching Income category:", error);
