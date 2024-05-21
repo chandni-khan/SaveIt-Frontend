@@ -426,7 +426,7 @@ main .new-users .user-list .user img{
     overflow: hidden;
 }
 
-.right-section .user-profile{
+.user-profile{
     display: flex;
     justify-content: center;
     text-align: center;
@@ -437,20 +437,21 @@ main .new-users .user-list .user img{
     box-shadow: var(--box-shadow);
     cursor: pointer;
     transition: all 0.3s ease;
+    height: 300px;
+ 
 }
-
-.right-section .user-profile:hover{
+.user-profile:hover{
     box-shadow: none;
 }
 
-.right-section .user-profile img{
+.user-profile img{
     width: 11rem;
-    height: auto;
+    /* height: auto; */
     margin-bottom: 0.8rem;
     border-radius: 50%;
 }
 
-.right-section .user-profile h2{
+.user-profile h2{
     margin-bottom: 0.2rem;
 }
   
@@ -525,4 +526,239 @@ progress::-moz-progress-bar {
     border-radius: 10px;
 }
 
+
+@media screen and (max-width: 768px) {
+    .user-profile{
+        display: none;
+    }
+    main{
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+      grid-template-columns: auto; /* Change to a single column layout */
+    }
+   .user-profile{
+    display: none;
+  }
+  
+    .right-section .nav button {
+      display: block; /* Show the menu button */
+    }
+  }
+  
+  /* For larger screens */
+  @media screen and (min-width: 992px) {
+    .container {
+      grid-template-columns: 12rem auto 23rem; /* Adjust column widths */
+    }
+  }
+.main1{
+    display: flex;
+    justify-content: space-between;
+    padding: 30px;
+}
+.right-section{
+    float: inline-end;
+}
+
+
+/* For smaller screens */
+@media screen and (max-width: 768px) {
+    .user-profile {
+        display: none; /* Hide the user profile section on smaller screens */
+    }
+    aside{
+        width: 40%;
+    }
+   #cards-container{
+        width: 100%;
+        gap:0rem !important;
+    }
+
+    .right-section .nav button {
+        display: block; /* Show the menu button */
+    }
+
+    .main1 {
+        flex-direction: column; /* Stack elements vertically */
+    }
+}
+
+/* For larger screens */
+/* @media screen and (min-width: 992px) {
+    .container {
+        grid-template-columns: 12rem auto 23rem; /* Adjust column widths */
+        @media screen and (max-width: 1200px) {
+            .container{
+                width: 95%;
+                grid-template-columns: 7rem auto 23rem;
+            }
+        
+            aside .logo h2{
+                display: none;
+            }
+        
+            aside .sidebar h3{
+                display: none;
+            }
+        
+            aside .sidebar a{
+                width: 5.6rem;
+            }
+        
+            aside .sidebar a:last-child{
+                position: relative;
+                margin-top: 1.8rem;
+            }
+        
+            main .analyse{
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        
+            main .new-users .user-list .user{
+                flex-basis: 40%;
+            }
+        
+            main .recent-orders {
+                width: 94%;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                margin: 2rem 0 0 0.8rem;
+            }
+        
+            main .recent-orders table{
+                width: 83vw;
+            }
+        
+            main table thead tr th:last-child,
+            main table thead tr th:first-child{
+                display: none;
+            }
+        
+            main table tbody tr td:last-child,
+            main table tbody tr td:first-child{
+                display: none;
+            }
+        
+        }
+        
+        @media screen and (max-width: 768px) {
+            .container{
+                width: 100%;
+                grid-template-columns: 1fr;
+                padding: 0 var(--padding-1);
+            }
+        
+            aside{
+                position: fixed;
+                background-color: var(--color-white);
+                width: 15rem;
+                z-index: 3;
+                box-shadow: 1rem 3rem 4rem var(--color-light);
+                height: 100vh;
+                left: -100%;
+                display: none;
+                animation: showMenu 0.4s ease forwards;
+            }
+        
+            @keyframes showMenu {
+               to{
+                left: 0;
+               } 
+            }
+        
+            aside .logo{
+                margin-left: 1rem;
+            }
+        
+            aside .logo h2{
+                display: inline;
+            }
+        
+            aside .sidebar h3{
+                display: inline;
+            }
+        
+            aside .sidebar a{
+                width: 100%;
+                height: 3.4rem;
+            }
+        
+            aside .sidebar a:last-child{
+                position: absolute;
+                bottom: 5rem;
+            }
+        
+            aside .toggle .close{
+                display: inline-block;
+                cursor: pointer;
+            }
+        
+            main{
+                padding: 0 1rem;
+            }
+        
+            main .new-users .user-list .user{
+                flex-basis: 35%;
+            }
+        
+            main .recent-orders{
+                position: relative;
+                margin: 3rem 0 0 0;
+                width: 100%;
+            }
+        
+            main .recent-orders table{
+                width: 100%;
+                margin: 0;
+            }
+        
+            .right-section{
+                width: 94%;
+                margin: 0 auto 4rem;
+            }
+        
+            .right-section .nav{
+                position: fixed;
+                top: 0;
+                left: 0;
+                align-items: center;
+                background-color: var(--color-white);
+                padding: 0 var(--padding-1);
+                height: 4.6rem;
+                width: 100%;
+                z-index: 2;
+                box-shadow: 0 1rem 1rem var(--color-light);
+                margin: 0;
+            }
+        
+            .right-section .nav .dark-mode{
+                width: 4.4rem;
+                position: absolute;
+                left: 66%;
+            }
+        
+            .right-section .profile .info{
+                display: none;
+            }
+        
+            .right-section .nav button{
+                display: inline-block;
+                background-color: transparent;
+                cursor: pointer;
+                color: var(--color-dark);
+                position: absolute;
+                left: 1rem;
+            }
+        
+            .right-section .nav button span{
+                font-size: 2rem;
+            }
+        
+        }
 
