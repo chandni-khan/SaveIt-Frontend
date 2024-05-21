@@ -20,7 +20,67 @@
     --padding-1: 1.2rem;
 
     --box-shadow: 0 2rem 3rem var(--color-light);
+    --primary-color: #5b9bd5;
+    --secondary-color: #4a8ccc;
+    --background-color: #f9f9f9;
+    --border-color: #ddd;
+    --border-radius: 0.5rem;
+    --padding: 1rem;
+    --margin-bottom: 1rem;
+    --input-padding: 0.625rem;
+    --input-border-radius: 0.25rem;
+    --box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
+    --font-size: 1rem;
+    --font-weight-bold: 700;
+    --font-weight-normal: 400;
+    --submit-button-font-size: 1rem;
 }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--margin-bottom);
+  }
+  .form-label {
+    margin-bottom: 0.3125rem;
+    font-weight: var(--font-weight-bold);
+  }
+  .form-control {
+    padding: var(--input-padding);
+    border: 1px solid var(--border-color);
+    border-radius: var(--input-border-radius);
+    box-sizing: border-box;
+    font-size: var(--font-size);
+  }
+  .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0.3125rem rgba(91, 155, 213, 0.5);
+    outline: none;
+  }
+  .submit-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--input-border-radius);
+    font-size: var(--submit-button-font-size);
+    font-weight: var(--font-weight-bold);
+    align-self: flex-start;
+    transition: background-color 0.3s ease;
+  }
+  .submit-button:hover {
+    background-color: var(--secondary-color);
+  }
+  @media (max-width: 31.25rem) {
+    .income-form {
+      padding: 0.9375rem;
+    }
+    .submit-button {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
 
 .dark-mode-variables{
     --color-background: #181a1e;
@@ -393,20 +453,6 @@ main .new-users .user-list .user img{
 .right-section .user-profile h2{
     margin-bottom: 0.2rem;
 }
-
-.expense-form-container {
-    margin: 90px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 500px 
-  }
-  
-  .expense-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
   
   .form-label {
     font-weight: bold;

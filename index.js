@@ -24,6 +24,7 @@ let totalExpense = 0;
 let totalIncome = 0;
 let totalBudget = 0;
 let editRecord = null;
+editRecordIncome = null;
 let editGoalObject = null;
 const darkMode = document.querySelector(".dark-mode");
 let expenseAllCategory = [];
@@ -683,8 +684,8 @@ async function displayIncome() {
     editIcon.style.color = "#6C9BCF";
     editIcon.style.cursor = "pointer";
     editIcon.onclick = function () {
+      editRecordIncome = income.incomeId;
       createIncomeForm();
-      editRecord = income.incomeId;
     };
     actionsContainer.appendChild(editIcon);
 
@@ -706,42 +707,120 @@ async function displayIncome() {
   mainContainer.appendChild(listContainer);
 }
 
-function createIncomeForm() {
+async function createIncomeForm() {
   const mainContainer = document.getElementById("dashboard-content");
   const formElements = [
     {
       type: "input",
       inputType: "text",
-      name: "income_category",
-      labelText: "Income Category:",
+      name: "incomeCategory",
+      labelText: "Category:",
     },
     {
       type: "input",
       inputType: "text",
-      name: "income_description",
-      labelText: "Income Description:",
+      name: "incomeDescription",
+      labelText: "Description:",
     },
     {
       type: "input",
       inputType: "date",
-      name: "income_date",
-      labelText: "Income Date:",
+      name: "incomeDate",
+      labelText: "Date:",
     },
     {
       type: "input",
       inputType: "number",
-      name: "income_amount",
-      labelText: "Income Amount:",
+      name: "incomeAmount",
+      labelText: "Amount:",
     },
-    { type: "input", inputType: "submit", name: "addIncome" },
+    {
+      type: "input",
+      inputType: "submit",
+      name: "addIncome",
+      value: "Add Income",
+    },
   ];
 
+  const style = document.createElement("style");
+  style.textContent = `
+    .income-form-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--padding);
+      box-sizing: border-box;
+      margin-top: 2rem;
+    }
+    .income-form {
+      background-color: var(--background-color);
+      padding: var(--padding);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      width: 100%;
+      max-width: 31.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: var(--margin-bottom);
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: var(--margin-bottom);
+    }
+    .form-label {
+      margin-bottom: 0.3125rem;
+      font-weight: var(--font-weight-bold);
+    }
+    .form-control {
+      padding: var(--input-padding);
+      border: 1px solid var(--border-color);
+      border-radius: var(--input-border-radius);
+      box-sizing: border-box;
+      font-size: var(--font-size);
+    }
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0.3125rem rgba(91, 155, 213, 0.5);
+      outline: none;
+    }
+    .submit-button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--input-border-radius);
+      font-size: var(--submit-button-font-size);
+      font-weight: var(--font-weight-bold);
+      align-self: flex-start;
+      transition: background-color 0.3s ease;
+    }
+    .submit-button:hover {
+      background-color: var(--secondary-color);
+    }
+    @media (max-width: 31.25rem) {
+      .income-form {
+        padding: 0.9375rem;
+      }
+      .submit-button {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
   const formContainer = document.createElement("div");
-  formContainer.classList.add("income-form-container"); // New class
+  formContainer.classList.add("income-form-container");
 
   const form = document.createElement("form");
   form.id = "addIncomeForm";
-  form.classList.add("income-form"); // New class
+  form.classList.add("income-form");
+
+  const head = document.createElement("h1");
+  head.textContent = "Income";
+  form.appendChild(head);
 
   formElements.forEach((element) => {
     const formGroup = document.createElement("div");
@@ -749,7 +828,7 @@ function createIncomeForm() {
 
     const label = document.createElement("label");
     label.textContent = element.labelText;
-    label.classList.add("form-label"); // New class
+    label.classList.add("form-label");
     formGroup.appendChild(label);
 
     const input = document.createElement("input");
@@ -757,14 +836,14 @@ function createIncomeForm() {
     input.name = element.name;
     input.id = element.name;
     input.required = true;
-    input.classList.add("form-control"); // New class
+    input.classList.add("form-control");
     formGroup.appendChild(input);
     form.appendChild(formGroup);
   });
 
-  if (editRecord != null) {
-    fetch(
-      `https://save-it.projects.bbdgrad.com/api/getIncomeById/${editRecord}`,
+  if (editRecordIncome != null) {
+    await fetch(
+      `https://save-it.projects.bbdgrad.com/api/getIncomeById/${editRecordIncome}`,
       {
         method: "GET",
         headers: {
@@ -782,12 +861,12 @@ function createIncomeForm() {
         return response.json();
       })
       .then((data) => {
-        document.getElementsByName("income_category")[0].value =
+        document.getElementsByName("incomeCategory")[0].value =
           data.income_category;
-        document.getElementsByName("income_description")[0].value =
+        document.getElementsByName("incomeDescription")[0].value =
           data.income_description;
-        document.getElementsByName("income_date")[0].value = data.income_date;
-        document.getElementsByName("income_amount")[0].value =
+        document.getElementsByName("incomeDate")[0].value = data.income_date;
+        document.getElementsByName("incomeAmount")[0].value =
           data.income_amount;
         form.elements["addIncome"].value = "Update Income"; // Update submit button text
         editRecord = data.incomeId;
@@ -799,25 +878,26 @@ function createIncomeForm() {
   }
   formContainer.appendChild(form);
   mainContainer.replaceChildren(formContainer);
+
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     const formData = new FormData(this);
     let bodyData = {};
-    if (editRecord) {
+    if (editRecordIncome) {
       bodyData = {
-        income_category: formData.get("income_category"),
-        income_description: formData.get("income_description"),
-        income_date: formData.get("income_date"),
-        income_amount: formData.get("income_amount"),
+        incomeCategory: formData.get("incomeCategory"),
+        incomeDescription: formData.get("incomeDescription"),
+        incomeDate: formData.get("incomeDate"),
+        incomeAmount: formData.get("incomeAmount"),
         userId: userId,
-        incomeId: editRecord,
+        incomeId: editRecordIncome,
       };
     } else {
       bodyData = {
-        income_category: formData.get("income_category"),
-        income_description: formData.get("income_description"),
-        income_date: formData.get("income_date"),
-        income_amount: formData.get("income_amount"),
+        incomeCategory: formData.get("incomeCategory"),
+        incomeDescription: formData.get("incomeDescription"),
+        incomeDate: formData.get("incomeDate"),
+        incomeAmount: formData.get("incomeAmount"),
         userId: userId,
       };
     }
@@ -835,14 +915,13 @@ function createIncomeForm() {
       }
     )
       .then((response) => {
+        console.log("Data received:", response);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response;
+        return response.json();
       })
       .then((data) => {
-        console.log("Data received:", data);
-        resetForm();
         showSuccessMessage(editRecord ? "Updated Income" : "Added Income");
       })
       .catch((error) => {
@@ -852,6 +931,7 @@ function createIncomeForm() {
     createDashboard();
   });
 }
+
 function deleteIncome(incomeId) {
   if (window.confirm("Do you want to delete?")) {
     fetch(`https://save-it.projects.bbdgrad.com/api/deleteIncome/${incomeId}`, {
@@ -984,7 +1064,7 @@ function createxpenseForm(id) {
       type: "input",
       inputType: "number",
       name: "amountSpend",
-      labelText: "Amount Spend:",
+      labelText: "Spend:",
     },
     {
       type: "input",
@@ -1000,54 +1080,69 @@ function createxpenseForm(id) {
     },
   ];
 
-  // Add CSS styles
   const style = document.createElement("style");
   style.textContent = `
+  
     .expense-form-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-top: 20px;
+     margin-top: 2rem;
+      padding: var(--padding);
     }
     .expense-form {
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background-color: var(--background-color);
+      padding: var(--padding);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
       width: 100%;
-      max-width: 500px;
+      max-width: 31.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: var(--margin-bottom);
     }
     .form-group {
-      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: var(--margin-bottom);
     }
     .form-label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
+      margin-bottom: 0.3125rem;
+      font-weight: var(--font-weight-bold);
     }
     .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      box-sizing: border-box;
+      padding: var(--input-padding);
+      border-radius: var(--input-border-radius);
+      font-size: var(--font-size);
     }
     .form-control:focus {
-      border-color: #5b9bd5;
-      box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0.3125rem rgba(91, 155, 213, 0.5);
       outline: none;
     }
     .submit-button {
-      background-color: #5b9bd5;
+      background-color: var(--primary-color);
       color: white;
       border: none;
       cursor: pointer;
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-size: 16px;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--input-border-radius);
+      font-size: var(--submit-button-font-size);
+      font-weight: var(--font-weight-bold);
+      align-self: flex-start;
+      transition: background-color 0.3s ease;
     }
     .submit-button:hover {
-      background-color: #4a8ccc;
+      background-color: var(--secondary-color);
+    }
+    @media (max-width: 31.25rem) {
+      .expense-form {
+        padding: 0.9375rem;
+      }
+      .submit-button {
+        width: 100%;
+        text-align: center;
+      }
     }
   `;
   document.head.appendChild(style);
@@ -1075,7 +1170,7 @@ function createxpenseForm(id) {
       expenseCategorySelect.required = true;
       expenseCategorySelect.classList.add("form-control");
 
-      expenseAllCategory?.forEach((expenseCategoryItem) => {
+      expenseAllCategory?.map((expenseCategoryItem) => {
         const option = document.createElement("option");
         option.value = expenseCategoryItem.expenseCategoryId;
         option.textContent = expenseCategoryItem.expenseCategoryName;
@@ -1090,10 +1185,12 @@ function createxpenseForm(id) {
       input.id = element.name;
       input.required = true;
       input.classList.add("form-control");
+
       if (element.inputType === "submit") {
         input.value = element.value;
         input.classList.add("submit-button");
       }
+
       formGroup.appendChild(input);
     }
     form.appendChild(formGroup);
@@ -1122,7 +1219,7 @@ function createxpenseForm(id) {
         document.getElementsByName("amountSpend")[0].value = data.amountSpend;
         document.getElementsByName("expenseCategory")[0].value =
           data.expenseCategory;
-        document.getElementsByName("addExpense")[0].value = "Update Expense"; // Update submit button text
+        form.elements["addExpense"].value = "Update Expense"; // Update submit button text
         id = data.expenseId;
       })
       .catch((e) => {
@@ -1172,9 +1269,9 @@ function createxpenseForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
+        return response;
       })
-      .then(() => {
+      .then((data) => {
         setTimeout(() => {
           showSuccessMessage(id ? "Updated Expense" : "Added Expense");
           displayExpense();
@@ -1186,7 +1283,6 @@ function createxpenseForm(id) {
       });
   });
 }
-
 
 function deleteExpense(expenseId) {
   if (window.confirm("Do you want to Delete?")) {
@@ -1433,11 +1529,11 @@ function createBudgetForm(id) {
   ];
 
   const formContainer = document.createElement("div");
-  formContainer.classList.add("budget-form-container"); // New class
+  formContainer.classList.add("budget-form-container");
 
   const form = document.createElement("form");
   form.id = "addBudgetForm";
-  form.classList.add("budget-form"); // New class
+  form.classList.add("budget-form");
 
   formElements.forEach((element) => {
     const formGroup = document.createElement("div");
@@ -1445,7 +1541,7 @@ function createBudgetForm(id) {
 
     const label = document.createElement("label");
     label.textContent = element.labelText;
-    label.classList.add("form-label"); // New class
+    label.classList.add("form-label");
     formGroup.appendChild(label);
     if (element.name == "budget_category_id") {
       console.log("budgetAllCategory", budgetAllCategory);
@@ -1462,7 +1558,7 @@ function createBudgetForm(id) {
         budgetCategorySelect.name = element.name;
         budgetCategorySelect.id = element.name;
         budgetCategorySelect.required = true;
-        budgetCategorySelect.classList.add("form-control"); // New class
+        budgetCategorySelect.classList.add("form-control");
         formGroup.appendChild(budgetCategorySelect);
       });
     } else {
@@ -1471,7 +1567,7 @@ function createBudgetForm(id) {
       input.name = element.name;
       input.id = element.name;
       input.required = true;
-      input.classList.add("form-control"); // New class
+      input.classList.add("form-control");
       formGroup.appendChild(input);
     }
     form.appendChild(formGroup);
@@ -1872,11 +1968,11 @@ function addGoalForm() {
   ];
 
   const formContainer = document.createElement("div");
-  formContainer.classList.add("goal-form-container"); // New class
+  formContainer.classList.add("goal-form-container");
 
   const form = document.createElement("form");
   form.id = "GoalForm";
-  form.classList.add("goal-form"); // New class
+  form.classList.add("goal-form");
 
   formElements.forEach((element) => {
     const formGroup = document.createElement("div");
@@ -1884,7 +1980,7 @@ function addGoalForm() {
 
     const label = document.createElement("label");
     label.textContent = element.labelText;
-    label.classList.add("form-label"); // New class
+    label.classList.add("form-label");
     formGroup.appendChild(label);
 
     const input = document.createElement("input");
@@ -1892,7 +1988,7 @@ function addGoalForm() {
     input.name = element.name;
     input.id = element.name;
     input.required = true;
-    input.classList.add("form-control"); // New class
+    input.classList.add("form-control");
     formGroup.appendChild(input);
     form.appendChild(formGroup);
   });
