@@ -659,10 +659,11 @@ async function displayIncome() {
           infoItem.textContent = `${key
             .replace("_", " ")
             .toUpperCase()}: ${date.toDateString()}`;
-        } else if (key == "incomeCategory") {
+        } else if (key == "incomeCategory" && incomeAllCategory.length > 0) {
           console.log("incomeCategory");
           incomeAllCategory.map((v) => {
             if (v.incomeCategoryId == income[key]) {
+              console.log("incomeCategoryName", v.incomeCategoryName);
               infoItem.textContent =
                 key.toUpperCase() + ": " + v.incomeCategoryName;
             }
