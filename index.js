@@ -1,18 +1,18 @@
-const sideMenu = document.querySelector('aside');
-const menuBtn = document.getElementById('menu-btn'); 
-const darkMode = document.querySelector('.dark-mode');
- 
-menuBtn.addEventListener('click', () => {
-    if (sideMenu.style.display === 'block') {
-        sideMenu.style.display = 'none';
-    } else {
-        sideMenu.style.display = 'block';
-    }
+const sideMenu = document.querySelector("aside");
+const menuBtn = document.getElementById("menu-btn");
+const darkMode = document.querySelector(".dark-mode");
+
+menuBtn.addEventListener("click", () => {
+  if (sideMenu.style.display === "block") {
+    sideMenu.style.display = "none";
+  } else {
+    sideMenu.style.display = "block";
+  }
 });
-darkMode.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode-variables');
-    darkMode.querySelector('span:nth-child(1)').classList.toggle('active');
-    darkMode.querySelector('span:nth-child(2)').classList.toggle('active');
+darkMode.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode-variables");
+  darkMode.querySelector("span:nth-child(1)").classList.toggle("active");
+  darkMode.querySelector("span:nth-child(2)").classList.toggle("active");
 });
 const incomeListItem = document.querySelector('a[data-action="income"]');
 incomeListItem.addEventListener("click", displayIncome);
@@ -29,19 +29,18 @@ userProfileImage.src = userImage;
 const userNameOnDashboard = document.getElementById("username");
 userNameOnDashboard.textContent = userName;
 let userId = localStorage.getItem("userId");
-// let userToken = sessionStorage.getItem("userToken");
+let userToken = sessionStorage.getItem("userToken");
 let expenseData = [];
 let incomeData = [];
 let budgetData = [];
 let totalExpense = 0;
 let totalIncome = 0;
-let totalBudget = 0; 
+let totalBudget = 0;
 let editRecord = null;
 editRecordIncome = null;
 let editGoalObject = null;
 let expenseAllCategory = [];
 let budgetAllCategory = [];
-let userToken="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjaGFuZGFuaWhhYmlia2hhbkBnbWFpbC5jb20iLCJleHAiOjE3MTcxMzQ5MDl9.CoIcNKbmLXDBa8wVf_sUFtUCKMRiYrRMDzDVce_diG8";
 let graphData = [{}];
 let targetMonth = new Date().getMonth() + 1;
 let targetYear = new Date().getFullYear();
@@ -61,12 +60,11 @@ const monthNames = [
   "December",
 ];
 let monthInString = getMonthName(new Date().getMonth());
+
 window.onload = async function () {
-  localStorage.setItem("userId",8);
   const dashboardContent = document.getElementById("dashboard-content");
   dashboardContent.innerHTML = "";
-  console.log("token",userToken,sessionStorage.getItem("authToken"))
-  if (false) {
+  if (userToken == null || sessionStorage.getItem("authToken") == null) {
     function createAndStyleElement(tag, textContent, styles) {
       const element = document.createElement(tag);
       element.textContent = textContent;
@@ -181,6 +179,40 @@ window.onload = async function () {
       box-sizing: border-box;
     `;
 
+    async function fetchIncomeCategory() {
+      try {
+        const response = await fetch(
+          "https://save-it.projects.bbdgrad.com/api/getIncomeCategories",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.status === 204) {
+          console.log("No expenses found");
+          return 0;
+        } else if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Error fetching Income category:", error);
+        return 0;
+      }
+    }
+
+    fetchIncomeCategory()
+      .then((data) => {
+        incomeAllCategory = data;
+      })
+      .catch((error) => {
+        console.error("Error getting total income:", error);
+      });
     // Add hover effects for buttons
     const buttons = [loginBtn, signupBtn];
     buttons.forEach((button) => {
@@ -223,8 +255,14 @@ async function fetchAllExpense() {
     })
     .then((data) => {
       expenseData = data;
-
-      const totalAmount = expenseData.reduce(
+      let expenseTotalDate = [];
+      data.map((v) => {
+        let month = new Date(v.spendDate).getMonth() + 1;
+        if (targetMonth == parseInt(month)) {
+          expenseTotalDate.push(v);
+        }
+      });
+      const totalAmount = expenseTotalDate.reduce(
         (acc, expense) => acc + expense.amountSpend,
         0
       );
@@ -250,7 +288,14 @@ async function fetchAllIncome() {
     })
     .then((data) => {
       incomeData = data;
-      const totalAmount = data.reduce(
+      let incomeTotalDate = [];
+      data.map((v) => {
+        let month = new Date(v.incomeDate).getMonth() + 1;
+        if (targetMonth == parseInt(month)) {
+          incomeTotalDate.push(v);
+        }
+      });
+      const totalAmount = incomeTotalDate.reduce(
         (acc, income) => acc + income.incomeAmount,
         0
       );
@@ -276,7 +321,18 @@ async function fetchAllBudget() {
     })
     .then((data) => {
       budgetData = data;
-      const totalAmount = data.reduce((acc, budget) => acc + budget.amount, 0);
+
+      let budgetTotalDate = [];
+      data.map((v) => {
+        let startmonth = new Date(v.start_date).getMonth() + 1;
+        if (targetMonth == parseInt(startmonth)) {
+          budgetTotalDate.push(v);
+        }
+      });
+      const totalAmount = budgetTotalDate.reduce(
+        (acc, budget) => acc + budget.amount,
+        0
+      );
       totalBudget = totalAmount;
     });
 }
@@ -315,10 +371,14 @@ fetchExpenseCategory()
     console.error("Error getting total Expense:", error);
   });
 
-// Get the main container element
-const successful = document.getElementById("main");
+menuBtn.addEventListener("click", () => {
+  sideMenu.style.display = "block";
+});
 
-// Function to create and show the success message
+closeBtn.addEventListener("click", () => {
+  sideMenu.style.display = "none";
+});
+const successful = document.getElementById("main");
 
 function showErrorMessage(message) {
   const errorMessage = document.createElement("div");
@@ -368,8 +428,6 @@ function showSuccessMessage(message) {
     successful.removeChild(successMessage);
   }, 2000);
 }
-
-
 
 function generateExpenseChart() {
   const canvas = document.getElementById("expenseChart");
@@ -520,7 +578,12 @@ async function createDashboard() {
   searchesStatusDiv.classList.add("status");
   const searchesInfoDiv = document.createElement("div");
   searchesInfoDiv.classList.add("info");
+
   searchesInfoDiv.innerHTML = `<h3>Total Budget</h3><h1>Rs.${totalBudget}</h1>`;
+  if (totalExpense > totalBudget) {
+    searchesInfoDiv.style.color = "red";
+    searchesInfoDiv.innerHTML = `<h1>Out of Budget</h1>`;
+  }
   searchesStatusDiv.appendChild(searchesInfoDiv);
   searchesDiv.appendChild(searchesStatusDiv);
 
@@ -594,6 +657,14 @@ async function displayIncome() {
           infoItem.textContent = `${key
             .replace("_", " ")
             .toUpperCase()}: ${date.toDateString()}`;
+        } else if (key == "incomeCategory") {
+          console.log("incomeCategory");
+          incomeAllCategory.map((v) => {
+            if (v.incomeCategoryId == income[key]) {
+              infoItem.textContent =
+                key.toUpperCase() + ": " + v.incomeCategoryName;
+            }
+          });
         } else {
           infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
             income[key]
@@ -916,11 +987,15 @@ async function displayExpense() {
         if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
           const item = document.createElement("div");
           item.style.marginBottom = "5px";
+          item.style.fontSize = "15px";
+          item.style.fontWeight = "bold";
           if (key == "expenseCategory") {
             expenseAllCategory.map((v) => {
               if (v.expenseCategoryId == expense[key]) {
                 item.textContent =
-                  key.toUpperCase() + ": " + v.expenseCategoryName;
+                  key.replace("_", " ").toUpperCase() +
+                  ": " +
+                  v.expenseCategoryName;
               }
             });
           } else if (key == "expenseId") {
@@ -1268,184 +1343,184 @@ fetchBudgetCategory()
     console.error("Error getting total Budget:", error);
   });
 
-// function displayBudget() {
-//   const mainContainer = document.getElementById("dashboard-content");
-//   mainContainer.innerHTML = ""; // Clear previous content
+function displayBudget() {
+  const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; // Clear previous content
 
-//   // Add "Create Budget" button
-//   const addBtn = document.createElement("button");
-//   addBtn.id = "addBudget";
-//   addBtn.textContent = "Create Budget";
-//   addBtn.style.color = "green";
-//   addBtn.style.height = "30px";
-//   addBtn.style.width = "100px";
-//   addBtn.onclick = () => {
-//     createBudgetForm();
-//   };
-//   addBtn.style.fontWeight = "bold";
-//   mainContainer.appendChild(addBtn);
+  // Add "Create Budget" button
+  const addBtn = document.createElement("button");
+  addBtn.id = "addBudget";
+  addBtn.textContent = "Create Budget";
+  addBtn.style.color = "green";
+  addBtn.style.height = "30px";
+  addBtn.style.width = "100px";
+  addBtn.onclick = () => {
+    createBudgetForm();
+  };
+  addBtn.style.fontWeight = "bold";
+  mainContainer.appendChild(addBtn);
 
-//   fetch(
-//     `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
-//     {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${userToken}`,
-//         "Content-Type": "application/json",
-//       },
-//     }
-//   )
-//     .then((response) => {
-//       if (!response.ok) {
-//         throw new Error("Network response was not ok");
-//       }
-//       return response.json();
-//     })
-//     .then((data) => {
-//       const listContainer = document.createElement("div");
-//       listContainer.style.marginTop = "20px";
-//       listContainer.style.display = "flex";
-//       listContainer.style.flexDirection = "column";
-//       listContainer.style.gap = "10px";
+  fetch(
+    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      const listContainer = document.createElement("div");
+      listContainer.style.marginTop = "20px";
+      listContainer.style.display = "flex";
+      listContainer.style.flexDirection = "column";
+      listContainer.style.gap = "10px";
 
-//       data.forEach((budget) => {
-//         const itemContainer = document.createElement("div");
-//         itemContainer.style.border = "1px solid black";
-//         itemContainer.style.padding = "10px";
-//         itemContainer.style.borderRadius = "5px";
-//         itemContainer.style.display = "flex";
-//         itemContainer.style.justifyContent = "space-between";
-//         itemContainer.style.alignItems = "center";
+      data.forEach((budget) => {
+        const itemContainer = document.createElement("div");
+        itemContainer.style.border = "1px solid black";
+        itemContainer.style.padding = "10px";
+        itemContainer.style.borderRadius = "5px";
+        itemContainer.style.display = "flex";
+        itemContainer.style.justifyContent = "space-between";
+        itemContainer.style.alignItems = "center";
 
-//         const infoContainer = document.createElement("div");
-//         for (const key in budget) {
-//           if (Object.hasOwnProperty.call(budget, key) && key !== "user_id") {
-//             const infoItem = document.createElement("div");
-//             infoItem.style.marginBottom = "5px";
-//             infoItem.style.fontSize = "15px";
-//             infoItem.style.fontWeight = "bold";
+        const infoContainer = document.createElement("div");
+        for (const key in budget) {
+          if (Object.hasOwnProperty.call(budget, key) && key !== "user_id") {
+            const infoItem = document.createElement("div");
+            infoItem.style.marginBottom = "5px";
+            infoItem.style.fontSize = "15px";
+            infoItem.style.fontWeight = "bold";
 
-//             if (key == "start_date" || key == "end_date") {
-//               const timestamp = budget[key];
-//               const date = new Date(timestamp);
-//               infoItem.textContent = `${key
-//                 .replace("_", " ")
-//                 .toUpperCase()}: ${date.toDateString()}`;
-//             } else {
-//               infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
-//                 budget[key]
-//               }`;
-//             }
+            if (key == "start_date" || key == "end_date") {
+              const timestamp = budget[key];
+              const date = new Date(timestamp);
+              infoItem.textContent = `${key
+                .replace("_", " ")
+                .toUpperCase()}: ${date.toDateString()}`;
+            } else {
+              infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
+                budget[key]
+              }`;
+            }
 
-//             infoContainer.appendChild(infoItem);
-//           }
-//         }
+            infoContainer.appendChild(infoItem);
+          }
+        }
 
-//         // Display category
-//         const categoryItem = document.createElement("div");
-//         categoryItem.style.marginBottom = "5px";
-//         categoryItem.style.fontSize = "15px";
-//         categoryItem.style.fontWeight = "bold";
-//         categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
-//         infoContainer.appendChild(categoryItem);
+        // Display category
+        const categoryItem = document.createElement("div");
+        categoryItem.style.marginBottom = "5px";
+        categoryItem.style.fontSize = "15px";
+        categoryItem.style.fontWeight = "bold";
+        categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
+        infoContainer.appendChild(categoryItem);
 
-//         // Progress bar
-//         const progressContainer = document.createElement("div");
-//         progressContainer.style.width = "100%";
-//         progressContainer.style.height = "8px";
-//         progressContainer.style.backgroundColor = "#f0f0f0";
-//         progressContainer.style.borderRadius = "5px";
+        // Progress bar
+        const progressContainer = document.createElement("div");
+        progressContainer.style.width = "100%";
+        progressContainer.style.height = "8px";
+        progressContainer.style.backgroundColor = "#f0f0f0";
+        progressContainer.style.borderRadius = "5px";
 
-//         const progressBar = document.createElement("div");
-//         const percentage = (budget.amount_spent / budget.amount) * 100;
-//         progressBar.style.width = `${percentage}%`;
-//         progressBar.style.height = "80%";
-//         progressBar.style.backgroundColor = "green";
-//         progressBar.style.borderRadius = "5px";
+        const progressBar = document.createElement("div");
+        const percentage = (budget.amount_spent / budget.amount) * 100;
+        progressBar.style.width = `${percentage}%`;
+        progressBar.style.height = "80%";
+        progressBar.style.backgroundColor = "green";
+        progressBar.style.borderRadius = "5px";
 
-//         progressContainer.appendChild(progressBar);
-//         infoContainer.appendChild(progressContainer);
+        progressContainer.appendChild(progressBar);
+        infoContainer.appendChild(progressContainer);
 
-//         itemContainer.appendChild(infoContainer);
+        itemContainer.appendChild(infoContainer);
 
-//         const actionsContainer = document.createElement("div");
-//         actionsContainer.style.display = "flex";
-//         actionsContainer.style.gap = "10px";
+        const actionsContainer = document.createElement("div");
+        actionsContainer.style.display = "flex";
+        actionsContainer.style.gap = "10px";
 
-//         // Edit icon
-//         const editIcon = document.createElement("span");
-//         editIcon.classList.add("material-icons-sharp");
-//         editIcon.textContent = "edit";
-//         editIcon.style.color = "#6C9BCF";
-//         editIcon.style.cursor = "pointer";
-//         editIcon.onclick = function () {
-//           createBudgetForm();
-//           editRecord = budget.budget_id;
-//         };
-//         actionsContainer.appendChild(editIcon);
+        // Edit icon
+        const editIcon = document.createElement("span");
+        editIcon.classList.add("material-icons-sharp");
+        editIcon.textContent = "edit";
+        editIcon.style.color = "#6C9BCF";
+        editIcon.style.cursor = "pointer";
+        editIcon.onclick = function () {
+          createBudgetForm();
+          editRecord = budget.budget_id;
+        };
+        actionsContainer.appendChild(editIcon);
 
-//         // Delete icon
-//         const deleteIcon = document.createElement("span");
-//         deleteIcon.classList.add("material-icons-sharp");
-//         deleteIcon.textContent = "delete";
-//         deleteIcon.style.color = "#FF0060";
-//         deleteIcon.style.cursor = "pointer";
-//         deleteIcon.onclick = function () {
-//           deleteBudget(budget.budget_id);
-//         };
-//         actionsContainer.appendChild(deleteIcon);
+        // Delete icon
+        const deleteIcon = document.createElement("span");
+        deleteIcon.classList.add("material-icons-sharp");
+        deleteIcon.textContent = "delete";
+        deleteIcon.style.color = "#FF0060";
+        deleteIcon.style.cursor = "pointer";
+        deleteIcon.onclick = function () {
+          deleteBudget(budget.budget_id);
+        };
+        actionsContainer.appendChild(deleteIcon);
 
-//         itemContainer.appendChild(actionsContainer);
-//         listContainer.appendChild(itemContainer);
-//       });
+        itemContainer.appendChild(actionsContainer);
+        listContainer.appendChild(itemContainer);
+      });
 
-//       mainContainer.appendChild(listContainer);
-//     })
-//     .catch((error) => {
-//       console.error("There was a problem with the fetch operation:", error);
-//     });
-// }
+      mainContainer.appendChild(listContainer);
+    })
+    .catch((error) => {
+      console.error("There was a problem with the fetch operation:", error);
+    });
+}
 
-// function createBudgetForm(id) {
-//   const mainContainer = document.getElementById("dashboard-content");
-//   const formElements = [
-//     {
-//       type: "input",
-//       inputType: "number",
-//       name: "budget_category_id",
-//       labelText: "Category:",
-//     },
-//     {
-//       type: "input",
-//       inputType: "number",
-//       name: "amount",
-//       labelText: "Amount:",
-//     },
-//     {
-//       type: "input",
-//       inputType: "date",
-//       name: "start_date",
-//       labelText: "Start Date:",
-//     },
-//     {
-//       type: "input",
-//       inputType: "date",
-//       name: "end_date",
-//       labelText: "End Date:",
-//     },
-//     {
-//       type: "input",
-//       inputType: "text",
-//       name: "budget_description",
-//       labelText: "Description:",
-//     },
-//     {
-//       type: "input",
-//       inputType: "submit",
-//       name: "addBudget",
-//       value: "Add Budget",
-//     },
-//   ];
+function createBudgetForm(id) {
+  const mainContainer = document.getElementById("dashboard-content");
+  const formElements = [
+    {
+      type: "input",
+      inputType: "number",
+      name: "budget_category_id",
+      labelText: "Category:",
+    },
+    {
+      type: "input",
+      inputType: "number",
+      name: "amount",
+      labelText: "Amount:",
+    },
+    {
+      type: "input",
+      inputType: "date",
+      name: "start_date",
+      labelText: "Start Date:",
+    },
+    {
+      type: "input",
+      inputType: "date",
+      name: "end_date",
+      labelText: "End Date:",
+    },
+    {
+      type: "input",
+      inputType: "text",
+      name: "budget_description",
+      labelText: "Description:",
+    },
+    {
+      type: "input",
+      inputType: "submit",
+      name: "addBudget",
+      value: "Add Budget",
+    },
+  ];
 
   const formContainer = document.createElement("div");
   formContainer.classList.add("budget-form-container");
@@ -1454,153 +1529,152 @@ fetchBudgetCategory()
   form.id = "addBudgetForm";
   form.classList.add("budget-form");
 
-//   formElements.forEach((element) => {
-//     const formGroup = document.createElement("div");
-//     formGroup.classList.add("form-group");
+  //   formElements.forEach((element) => {
+  //     const formGroup = document.createElement("div");
+  //     formGroup.classList.add("form-group");
 
-    const label = document.createElement("label");
-    label.textContent = element.labelText;
-    label.classList.add("form-label");
-    formGroup.appendChild(label);
-    if (element.name == "budget_category_id") {
-      console.log("budgetAllCategory", budgetAllCategory);
-      const budgetCategorySelect = document.createElement("select");
-      budgetCategorySelect.id = "budgetCategory";
-      budgetCategorySelect.name = "budget_category_id";
+  const label = document.createElement("label");
+  label.textContent = element.labelText;
+  label.classList.add("form-label");
+  formGroup.appendChild(label);
+  if (element.name == "budget_category_id") {
+    console.log("budgetAllCategory", budgetAllCategory);
+    const budgetCategorySelect = document.createElement("select");
+    budgetCategorySelect.id = "budgetCategory";
+    budgetCategorySelect.name = "budget_category_id";
+    budgetCategorySelect.required = true;
+    budgetAllCategory?.map((budgetCategoryItem) => {
+      const option = document.createElement("option");
+      option.value = budgetCategoryItem.budgetCategoryId;
+      option.textContent = budgetCategoryItem.budgetCategoryName;
+      budgetCategorySelect.appendChild(option);
+      budgetCategorySelect.type = element.inputType;
+      budgetCategorySelect.name = element.name;
+      budgetCategorySelect.id = element.name;
       budgetCategorySelect.required = true;
-      budgetAllCategory?.map((budgetCategoryItem) => {
-        const option = document.createElement("option");
-        option.value = budgetCategoryItem.budgetCategoryId;
-        option.textContent = budgetCategoryItem.budgetCategoryName;
-        budgetCategorySelect.appendChild(option);
-        budgetCategorySelect.type = element.inputType;
-        budgetCategorySelect.name = element.name;
-        budgetCategorySelect.id = element.name;
-        budgetCategorySelect.required = true;
-        budgetCategorySelect.classList.add("form-control");
-        formGroup.appendChild(budgetCategorySelect);
-      });
-    } else {
-      const input = document.createElement("input");
-      input.type = element.inputType;
-      input.name = element.name;
-      input.id = element.name;
-      input.required = true;
-      input.classList.add("form-control");
-      formGroup.appendChild(input);
+      budgetCategorySelect.classList.add("form-control");
+      formGroup.appendChild(budgetCategorySelect);
+    });
+  } else {
+    const input = document.createElement("input");
+    input.type = element.inputType;
+    input.name = element.name;
+    input.id = element.name;
+    input.required = true;
+    input.classList.add("form-control");
+    formGroup.appendChild(input);
+  }
+  form.appendChild(formGroup);
+}
+
+if (id != null) {
+  console.log(id);
+  fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (response.status === 204) {
+        return;
+      } else if (response.status !== 200) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      document.getElementsByName("budget_category_id")[0].value =
+        data.budget_category_id;
+      document.getElementsByName("amount")[0].value = data.amount;
+      document.getElementsByName("start_date")[0].value =
+        data.start_date.split("T")[0];
+      document.getElementsByName("end_date")[0].value =
+        data.end_date.split("T")[0];
+      document.getElementsByName("budget_description")[0].value =
+        data.budget_description;
+      form.elements["addBudget"].name = "Update Budget"; // Update submit button text
+      id = data.budget_id;
+      console.log("Editing budget with ID:", id);
+    })
+    .catch((e) => {
+      console.log("error", e);
+    });
+}
+formContainer.appendChild(form);
+mainContainer.replaceChildren(formContainer);
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+  const formData = new FormData(this);
+  let bodyData = {};
+  if (id) {
+    bodyData = {
+      budget_category_id: formData.get("budget_category_id"),
+      amount: formData.get("amount"),
+      start_date: formData.get("start_date"),
+      end_date: formData.get("end_date"),
+      budget_description: formData.get("budget_description"),
+      user_id: 8,
+      budget_id: id,
+    };
+  } else {
+    bodyData = {
+      budget_category_id: formData.get("budget_category_id"),
+      amount: formData.get("amount"),
+      start_date: formData.get("start_date"),
+      end_date: formData.get("end_date"),
+      budget_description: formData.get("budget_description"),
+      user_id: 8,
+    };
+  }
+  fetch(
+    id
+      ? "https://save-it.projects.bbdgrad.com/api/updateBudget"
+      : "https://save-it.projects.bbdgrad.com/api/addBudget",
+    {
+      method: id ? "PUT" : "POST",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bodyData),
     }
-    form.appendChild(formGroup);
-  });
+  )
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      // return response;
+    })
+    .then((data) => {
+      setTimeout(() => {
+        showSuccessMessage(id ? "Updated Budget" : "Added Budget");
+        displayBudget();
+      }, 1000);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      showErrorMessage("An error occurred. Please try again later.");
+    });
+});
 
-//   if (id != null) {
-//     console.log(id);
-//     fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`, {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${userToken}`,
-//         "Content-Type": "application/json",
-//       },
-//     })
-//       .then((response) => {
-//         if (response.status === 204) {
-//           return;
-//         } else if (response.status !== 200) {
-//           throw new Error("Network response was not ok");
-//         }
-//         return response.json();
-//       })
-//       .then((data) => {
-//         document.getElementsByName("budget_category_id")[0].value =
-//           data.budget_category_id;
-//         document.getElementsByName("amount")[0].value = data.amount;
-//         document.getElementsByName("start_date")[0].value =
-//           data.start_date.split("T")[0];
-//         document.getElementsByName("end_date")[0].value =
-//           data.end_date.split("T")[0];
-//         document.getElementsByName("budget_description")[0].value =
-//           data.budget_description;
-//         form.elements["addBudget"].name = "Update Budget"; // Update submit button text
-//         id = data.budget_id;
-//         console.log("Editing budget with ID:", id);
-//       })
-//       .catch((e) => {
-//         console.log("error", e);
-//       });
-//   }
-//   formContainer.appendChild(form);
-//   mainContainer.replaceChildren(formContainer);
-//   form.addEventListener("submit", function (event) {
-//     event.preventDefault();
-//     const formData = new FormData(this);
-//     let bodyData = {};
-//     if (id) {
-//       bodyData = {
-//         budget_category_id: formData.get("budget_category_id"),
-//         amount: formData.get("amount"),
-//         start_date: formData.get("start_date"),
-//         end_date: formData.get("end_date"),
-//         budget_description: formData.get("budget_description"),
-//         user_id: 8,
-//         budget_id: id,
-//       };
-//     } else {
-//       bodyData = {
-//         budget_category_id: formData.get("budget_category_id"),
-//         amount: formData.get("amount"),
-//         start_date: formData.get("start_date"),
-//         end_date: formData.get("end_date"),
-//         budget_description: formData.get("budget_description"),
-//         user_id: 8,
-//       };
-//     }
-//     fetch(
-//       id
-//         ? "https://save-it.projects.bbdgrad.com/api/updateBudget"
-//         : "https://save-it.projects.bbdgrad.com/api/addBudget",
-//       {
-//         method: id ? "PUT" : "POST",
-//         headers: {
-//           Authorization: `Bearer ${userToken}`,
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(bodyData),
-//       }
-//     )
-//       .then((response) => {
-//         if (!response.ok) {
-//           throw new Error("Network response was not ok");
-//         }
-//         // return response;
-//       })
-//       .then((data) => {
-//         setTimeout(() => {
-//           showSuccessMessage(id ? "Updated Budget" : "Added Budget");
-//           displayBudget();
-//         }, 1000);
-//       })
-//       .catch((error) => {
-//         console.error("Error:", error);
-//         showErrorMessage("An error occurred. Please try again later.");
-//       });
-//   });
-// }
-
-// function deleteBudget(budgetId) {
-//   if (window.confirm("Do you want to Delete?")) {
-//     fetch(`https://save-it.projects.bbdgrad.com/api/deleteBudget/${budgetId}`, {
-//       method: "DELETE",
-//       headers: {
-//         Authorization: `Bearer ${userToken}`,
-//         "Content-Type": "application/json",
-//       },
-//     })
-//       .then((response) => response.json())
-//       .catch((error) => console.error("Error:", error));
-//     showSuccessMessage("deleted");
-//     displayBudget();
-//   }
-//   console.log("Deleting budget with ID:", budgetId);
-// }
+function deleteBudget(budgetId) {
+  if (window.confirm("Do you want to Delete?")) {
+    fetch(`https://save-it.projects.bbdgrad.com/api/deleteBudget/${budgetId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .catch((error) => console.error("Error:", error));
+    showSuccessMessage("deleted");
+    displayBudget();
+  }
+  console.log("Deleting budget with ID:", budgetId);
+}
 
 function displayGoals() {
   const mainContainer = document.getElementById("dashboard-content");
