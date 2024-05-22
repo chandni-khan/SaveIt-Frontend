@@ -92,7 +92,8 @@ async function displayIncome() {
     mainContainer.appendChild(head);
   }
 }
-  function createIncomeForm(id) {
+
+function createIncomeForm(id) {
     const mainContainer = document.getElementById("dashboard-content");
     const formElements = [
       {
@@ -237,12 +238,9 @@ async function displayIncome() {
         showErrorMessage("An error occurred. Please try again later.");
       });
     });
-  }
-  
-  
+}
 
-
-  function deleteIncome(incomeId) {
+function deleteIncome(incomeId) {
     if (window.confirm("Do you want to delete?")) {
       fetch(`https://save-it.projects.bbdgrad.com/api/deleteIncome/${incomeId}`, {
         method: "DELETE",
@@ -268,5 +266,5 @@ async function displayIncome() {
         });
     }
     console.log("Deleting income with ID:", incomeId);
-  }
+}
   

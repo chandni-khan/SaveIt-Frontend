@@ -68,7 +68,7 @@ async function getJwtToken(data) {
     console.error("Error:", error);
   }
   setTimeout(() => {
-    window.location.href = "http://127.0.0.1:5500/Index.html";
+    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
   }, 1500);
 }
 
@@ -82,9 +82,9 @@ function LogOut() {
       },
     }).then((data) => console.log(data));
     sessionStorage.clear();
-    var url = new URL("http://127.0.0.1:5500/Index.html");
+    var url = new URL("https://save-it.projects.bbdgrad.com/web/");
     localStorage.clear();
-    window.location.href = "http://127.0.0.1:5500/Index.html";
+    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
   } else {
     window.alert("Already Logged Out");
   }
@@ -98,7 +98,7 @@ function SignIn() {
   let params = {
     client_id:
       "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
-    redirect_uri: "http://127.0.0.1:5500/Index.html",
+    redirect_uri: "https://save-it.projects.bbdgrad.com/web/",
     response_type: "token",
     scope:
       "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
