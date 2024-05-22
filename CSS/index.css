@@ -778,3 +778,7 @@ progress::-moz-progress-bar {
             flex-direction: column;
             justify-content: space-between;
           }
+
+.after-login{
+    display: none;
+}
