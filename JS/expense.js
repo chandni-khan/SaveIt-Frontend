@@ -1,98 +1,94 @@
 async function displayExpense() {
-    await fetchAllExpense();
-    const mainContainer = document.getElementById("dashboard-content");
-    mainContainer.innerHTML = "";
-    const addBtn = document.createElement("button");
-    addBtn.id = "addData";
-    addBtn.textContent = "Add Expense";
-    addBtn.style.color = "green";
-    addBtn.style.height = "30px";
-    addBtn.style.width = "100px";
-    addBtn.onclick = () => {
-      createxpenseForm((id = null));
-    };
-    addBtn.style.fontWeight = "bold";
-    mainContainer.appendChild(addBtn);
-    if (expenseData) {
-      const listContainer = document.createElement("ul");
-      listContainer.style.marginTop = "20px";
-      listContainer.style.listStyleType = "none";
-      listContainer.style.padding = "0";
-  
-      expenseData.forEach((expense) => {
-        const listItem = document.createElement("li");
-        listItem.style.border = "1px solid black";
-        listItem.style.padding = "10px";
-        listItem.style.borderRadius = "5px";
-        listItem.style.marginBottom = "10px";
-        listItem.style.display = "flex";
-        listItem.style.justifyContent = "space-between";
-  
-        const expenseInfo = document.createElement("div");
-        for (const key in expense) {
-          if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
-            const item = document.createElement("div");
-            item.style.marginBottom = "5px";
-            item.style.fontSize = "15px";
-            item.style.fontWeight = "bold";
-            if (key == "expenseCategory") {
-              expenseAllCategory.map((v) => {
-                if (v.expenseCategoryId == expense[key]) {
-                  item.textContent =
-                    key.replace("_", " ").toUpperCase() +
-                    ": " +
-                    v.expenseCategoryName;
-                }
-              });
-            } else if (key == "expenseId") {
-              item.textContent = "";
-            } else if (key == "spendDate") {
-              const date = new Date(expense[key]);
-              item.textContent = key.toUpperCase() + ": " + date.toDateString();
-            } else {
-              item.textContent = key.toUpperCase() + ": " + expense[key];
-            }
-            expenseInfo.appendChild(item);
+  await fetchAllExpense();
+  const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = "";
+
+  const addBtn = document.createElement("button");
+  addBtn.id = "addData";
+  addBtn.textContent = "Add Expense";
+  addBtn.style.color = "green";
+  addBtn.style.height = "30px";
+  addBtn.style.width = "100px";
+  addBtn.style.fontWeight = "bold";
+  addBtn.onclick = () => {
+    createxpenseForm(null);
+  };
+  mainContainer.appendChild(addBtn);
+ 
+  if (expenseData) {
+    const gridContainer = document.createElement("div");
+    gridContainer.classList.add("grid-container");
+ 
+    expenseData.forEach((expense) => {
+      const gridItem = document.createElement("div");
+      gridItem.classList.add("grid-item");
+ 
+      // Expense content container
+      const expenseContent = document.createElement("div");
+ 
+      for (const key in expense) {
+        if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
+          const item = document.createElement("div");
+          item.style.marginBottom = "5px";
+          item.style.fontSize = "15px";
+          item.style.fontWeight = "bold";
+ 
+          if (key === "expenseCategory") {
+            expenseAllCategory.map((v) => {
+              if (v.expenseCategoryId === expense[key]) {
+                item.textContent = `${key.replace("_", " ").toUpperCase()}: ${v.expenseCategoryName}`;
+              }
+            });
+          } else if (key === "expenseId") {
+            item.textContent = "";
+          } else if (key === "spendDate") {
+            const date = new Date(expense[key]);
+            item.textContent = `${key.toUpperCase()}: ${date.toDateString()}`;
+          } else {
+            item.textContent = `${key.toUpperCase()}: ${expense[key]}`;
           }
+          expenseContent.appendChild(item);
         }
-  
-        const actions = document.createElement("div");
-        actions.style.display = "flex";
-        actions.style.gap = "10px";
-  
-        const editIcon = document.createElement("span");
-        editIcon.classList.add("material-icons-sharp");
-        editIcon.textContent = "edit";
-        editIcon.style.color = "#6C9BCF";
-        editIcon.style.cursor = "pointer";
-        editIcon.onclick = function () {
-          createxpenseForm(expense.expenseId);
-        };
-        actions.appendChild(editIcon);
-  
-        const deleteIcon = document.createElement("span");
-        deleteIcon.classList.add("material-icons-sharp");
-        deleteIcon.textContent = "delete";
-        deleteIcon.style.color = "#FF0060";
-        deleteIcon.style.cursor = "pointer";
-        deleteIcon.onclick = function () {
-          deleteExpense(expense.expenseId);
-        };
-        actions.appendChild(deleteIcon);
-  
-        listItem.appendChild(expenseInfo);
-        listItem.appendChild(actions);
-  
-        listContainer.appendChild(listItem);
-      });
-  
-      mainContainer.appendChild(listContainer);
-    } else {
-      const head = document.createElement("h1");
-      head.textContent = "No record to show";
-      mainContainer.appendChild(head);
-    }
+      }
+ 
+      const actionsContainer = document.createElement("div");
+      actionsContainer.style.display = "flex";
+      actionsContainer.style.gap = "10px";
+ 
+      // Edit icon
+      const editIcon = document.createElement("span");
+      editIcon.classList.add("material-icons-sharp");
+      editIcon.textContent = "edit";
+      editIcon.style.color = "#6C9BCF";
+      editIcon.style.cursor = "pointer";
+      editIcon.onclick = function () {
+        createxpenseForm(expense.expenseId);
+      };
+      actionsContainer.appendChild(editIcon);
+ 
+      // Delete icon
+      const deleteIcon = document.createElement("span");
+      deleteIcon.classList.add("material-icons-sharp");
+      deleteIcon.textContent = "delete";
+      deleteIcon.style.color = "#FF0060";
+      deleteIcon.style.cursor = "pointer";
+      deleteIcon.onclick = function () {
+        deleteExpense(expense.expenseId);
+      };
+      actionsContainer.appendChild(deleteIcon);
+ 
+      gridItem.appendChild(expenseContent);
+      gridItem.appendChild(actionsContainer);
+      gridContainer.appendChild(gridItem);
+    });
+ 
+    mainContainer.appendChild(gridContainer);
+  } else {
+    const head = document.createElement("h1");
+    head.textContent = "No record to show";
+    mainContainer.appendChild(head);
   }
+}
   
   function createxpenseForm(id) {
     const mainContainer = document.getElementById("dashboard-content");

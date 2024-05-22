@@ -1,142 +1,142 @@
 function displayBudget() {
-    const mainContainer = document.getElementById("dashboard-content");
-    mainContainer.innerHTML = "";
-    console.log("budget_category",budgetAllCategory);
-    const addBtn = document.createElement("button");
-    addBtn.id = "addBudget";
-    addBtn.textContent = "Create Budget";
-    addBtn.style.color = "green";
-    addBtn.style.height = "30px";
-    addBtn.style.width = "100px";
-    addBtn.onclick = () => {
-      createBudgetForm();
-    };
-    addBtn.style.fontWeight = "bold";
-    mainContainer.appendChild(addBtn);
-  
-    fetch(
-      `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          "Content-Type": "application/json",
-        },
+  const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; 
+  const addBtn = document.createElement("button");
+  addBtn.id = "addBudget";
+  addBtn.textContent = "Create Budget";
+  addBtn.style.color = "green";
+  addBtn.style.height = "30px";
+  addBtn.style.width = "100px";
+  addBtn.style.fontWeight = "bold";
+  addBtn.onclick = () => {
+    createBudgetForm();
+  };
+  mainContainer.appendChild(addBtn);
+
+  fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const listContainer = document.createElement("div");
-        listContainer.style.marginTop = "20px";
-        listContainer.style.display = "flex";
-        listContainer.style.flexDirection = "column";
-        listContainer.style.gap = "10px";
-  
-        data.forEach((budget) => {
-          const itemContainer = document.createElement("div");
-          itemContainer.style.border = "1px solid black";
-          itemContainer.style.padding = "10px";
-          itemContainer.style.borderRadius = "5px";
-          itemContainer.style.display = "flex";
-          itemContainer.style.justifyContent = "space-between";
-          itemContainer.style.alignItems = "center";
-  
-          const infoContainer = document.createElement("div");
-          for (const key in budget) {
-            if (Object.hasOwnProperty.call(budget, key) && key !== "user_id") {
-              const infoItem = document.createElement("div");
-              infoItem.style.marginBottom = "5px";
-              infoItem.style.fontSize = "15px";
-              infoItem.style.fontWeight = "bold";
-              if (key == "start_date" || key == "end_date") {
-                const timestamp = budget[key];
-                const date = new Date(timestamp);
-                infoItem.textContent = `${key
-                  .replace("_", " ")
-                  .toUpperCase()}: ${date.toDateString()}`;
-              }else if(key=="budget_id"){
-                infoItem.textContent ="";
-              }else if(key=="budget_category"){
-               
-                budgetAllCategory.map((v) => {
-                  if (v.budgetCategoryId == budget[key]) {
-                    infoItem.textContent =
-                      key.replace("_", " ").toUpperCase() +
-                      ": " +
-                      v.budgetCategoryName;
-                  }
-                });
-              }    
-              else {
-                infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
-                  budget[key]
-                }`;
-              }
-  
-              infoContainer.appendChild(infoItem);
+      return response.json();
+    })
+    .then((data) => {
+      // Create a container with CSS Grid
+      const gridContainer = document.createElement("div");
+      gridContainer.classList.add("grid-container");
+
+      data.forEach((budget) => {
+        const gridItem = document.createElement("div");
+        gridItem.classList.add("grid-item");
+
+        // Budget content container
+        const budgetContent = document.createElement("div");
+
+        for (const key in budget) {
+          if (Object.hasOwnProperty.call(budget, key) && key !== "user_id") {
+            const infoItem = document.createElement("div");
+            infoItem.style.marginBottom = "5px";
+            infoItem.style.fontSize = "15px";
+            infoItem.style.fontWeight = "bold";
+            if (key == "start_date" || key == "end_date") {
+              const timestamp = budget[key];
+              const date = new Date(timestamp);
+              infoItem.textContent = `${key
+                .replace("_", " ")
+                .toUpperCase()}: ${date.toDateString()}`;
+            }else if(key=="budget_id"){
+              infoItem.textContent ="";
+            }else if(key=="budget_category"){
+             
+              budgetAllCategory.map((v) => {
+                if (v.budgetCategoryId == budget[key]) {
+                  infoItem.textContent =
+                    key.replace("_", " ").toUpperCase() +
+                    ": " +
+                    v.budgetCategoryName;
+                }
+              });
+            }    
+            else {
+              infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
+                budget[key]
+              }`;
             }
+
+            budgetContent.appendChild(infoItem);
           }
-  
-  
-  
-          const progressContainer = document.createElement("div");
-          progressContainer.style.width = "100%";
-          progressContainer.style.height = "8px";
-          progressContainer.style.backgroundColor = "#f0f0f0";
-          progressContainer.style.borderRadius = "5px";
-  
-          const progressBar = document.createElement("div");
-          const percentage = (budget.amount_spent / budget.amount) * 100;
-          progressBar.style.width = `${percentage}%`;
-          progressBar.style.height = "80%";
-          progressBar.style.backgroundColor = "green";
-          progressBar.style.borderRadius = "5px";
-  
-          progressContainer.appendChild(progressBar);
-          infoContainer.appendChild(progressContainer);
-  
-          itemContainer.appendChild(infoContainer);
-  
-          const actionsContainer = document.createElement("div");
-          actionsContainer.style.display = "flex";
-          actionsContainer.style.gap = "10px";
-  
-          const editIcon = document.createElement("span");
-          editIcon.classList.add("material-icons-sharp");
-          editIcon.textContent = "edit";
-          editIcon.style.color = "#6C9BCF";
-          editIcon.style.cursor = "pointer";
-          editIcon.onclick = function () {
-            createBudgetForm(budget.budget_id);
-          };
-          actionsContainer.appendChild(editIcon);
-  
-          // Delete icon
-          const deleteIcon = document.createElement("span");
-          deleteIcon.classList.add("material-icons-sharp");
-          deleteIcon.textContent = "delete";
-          deleteIcon.style.color = "#FF0060";
-          deleteIcon.style.cursor = "pointer";
-          deleteIcon.onclick = function () {
-            deleteBudget(budget.budget_id);
-          };
-          actionsContainer.appendChild(deleteIcon);
-  
-          itemContainer.appendChild(actionsContainer);
-          listContainer.appendChild(itemContainer);
-        });
-  
-        mainContainer.appendChild(listContainer);
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
+        }
+
+        // Display category
+        // const categoryItem = document.createElement("div");
+        // categoryItem.style.marginBottom = "5px";
+        // categoryItem.style.fontSize = "15px";
+        // categoryItem.style.fontWeight = "bold";
+        // categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
+        // budgetContent.appendChild(categoryItem);
+
+        // Progress bar
+        const progressContainer = document.createElement("div");
+        progressContainer.style.width = "100%";
+        progressContainer.style.height = "8px";
+        progressContainer.style.backgroundColor = "#f0f0f0";
+        progressContainer.style.borderRadius = "5px";
+
+        const progressBar = document.createElement("div");
+        const percentage = (budget.amount_spent / budget.amount) * 100;
+        progressBar.style.width = `${percentage}%`;
+        progressBar.style.height = "80%";
+        progressBar.style.backgroundColor = "green";
+        progressBar.style.borderRadius = "5px";
+
+        progressContainer.appendChild(progressBar);
+        budgetContent.appendChild(progressContainer);
+
+        gridItem.appendChild(budgetContent);
+
+        const actionsContainer = document.createElement("div");
+        actionsContainer.style.display = "flex";
+        actionsContainer.style.gap = "10px";
+
+        const editIcon = document.createElement("span");
+        editIcon.classList.add("material-icons-sharp");
+        editIcon.textContent = "edit";
+        editIcon.style.color = "#6C9BCF";
+        editIcon.style.cursor = "pointer";
+        editIcon.onclick = function () {
+          editRecord = budget.budget_id;
+          createBudgetForm(budget.budget_id);
+        };
+        actionsContainer.appendChild(editIcon);
+
+        // Delete icon
+        const deleteIcon = document.createElement("span");
+        deleteIcon.classList.add("material-icons-sharp");
+        deleteIcon.textContent = "delete";
+        deleteIcon.style.color = "#FF0060";
+        deleteIcon.style.cursor = "pointer";
+        deleteIcon.onclick = function () {
+          deleteBudget(budget.budget_id);
+        };
+        actionsContainer.appendChild(deleteIcon);
+
+        gridItem.appendChild(actionsContainer);
+        gridContainer.appendChild(gridItem);
       });
-  }
+
+      mainContainer.appendChild(gridContainer);
+    })
+    .catch((error) => {
+      console.error("There was a problem with the fetch operation:", error);
+    });
+}
+
   
   function createBudgetForm(id) {
     const mainContainer = document.getElementById("dashboard-content");

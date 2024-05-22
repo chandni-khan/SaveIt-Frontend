@@ -762,3 +762,19 @@ progress::-moz-progress-bar {
         
         }
 
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px; /* Adjust the gap as needed */
+            margin-top: 20px;
+          }
+         
+          .grid-item {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }

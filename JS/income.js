@@ -1,84 +1,74 @@
 async function displayIncome() {
-    await fetchAllIncome();
-    const mainContainer = document.getElementById("dashboard-content");
-    mainContainer.innerHTML = "";
-    const addBtn = document.createElement("button");
-    addBtn.id = "addIncome";
-    addBtn.textContent = "Add Income";
-    addBtn.style.color = "green";
-    addBtn.style.height = "30px";
-    addBtn.style.width = "100px";
-    addBtn.onclick = () => {
-      createIncomeForm();
-    };
-    addBtn.style.fontWeight = "bold";
-    mainContainer.appendChild(addBtn);
-  
-    const listContainer = document.createElement("div");
-    listContainer.style.marginTop = "20px";
-    listContainer.style.display = "flex";
-    listContainer.style.flexDirection = "column";
-    listContainer.style.gap = "10px";
-  
+  await fetchAllIncome();
+  const mainContainer = document.getElementById("dashboard-content");
+  mainContainer.innerHTML = ""; 
+ 
+
+  const addBtn = document.createElement("button");
+  addBtn.id = "addIncome";
+  addBtn.textContent = "Add Income";
+  addBtn.style.color = "green";
+  addBtn.style.height = "30px";
+  addBtn.style.width = "100px";
+  addBtn.onclick = () => {
+    createIncomeForm();
+  };
+  addBtn.style.fontWeight = "bold";
+  mainContainer.appendChild(addBtn);
+ 
+  if (incomeData.length > 0) {
+    const gridContainer = document.createElement("div");
+    gridContainer.classList.add("grid-container");
+ 
     incomeData.forEach((income) => {
-      const itemContainer = document.createElement("div");
-      itemContainer.style.border = "1px solid black";
-      itemContainer.style.padding = "10px";
-      itemContainer.style.borderRadius = "5px";
-      itemContainer.style.display = "flex";
-      itemContainer.style.justifyContent = "space-between";
-      itemContainer.style.alignItems = "center";
-  
-      const infoContainer = document.createElement("div");
+      const gridItem = document.createElement("div");
+      gridItem.classList.add("grid-item");
+ 
+      const incomeContent = document.createElement("div");
+ 
       for (const key in income) {
         if (
           Object.hasOwnProperty.call(income, key) &&
           key !== "userId" &&
           key !== "incomeId"
         ) {
-          const infoItem = document.createElement("div");
-          infoItem.style.marginBottom = "5px";
-          infoItem.style.fontSize = "15px";
-          infoItem.style.fontWeight = "bold";
-          if (key == "incomeDate") {
+          const item = document.createElement("div");
+          item.style.marginBottom = "5px";
+          item.style.fontSize = "15px";
+          item.style.fontWeight = "bold";
+ 
+          if (key === "incomeDate") {
             const timestamp = income[key];
             const date = new Date(timestamp);
-            infoItem.textContent = `${key
-              .replace("_", " ")
-              .toUpperCase()}: ${date.toDateString()}`;
-          } else if (key == "incomeCategory" && incomeAllCategory.length > 0) {
+            item.textContent = `${key.replace("_", " ").toUpperCase()}: ${date.toDateString()}`;
+          } else if (key === "incomeCategory") {
             incomeAllCategory.map((v) => {
-              if (v.incomeCategoryId == income[key]) {
-                infoItem.textContent =
-                  key.toUpperCase() + ": " + v.incomeCategoryName;
+              if (v.incomeCategoryId === income[key]) {
+                item.textContent = `${key.replace("_", " ").toUpperCase()}: ${v.incomeCategoryName}`;
               }
             });
           } else {
-            infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
-              income[key]
-            }`;
+            item.textContent = `${key.replace("_", " ").toUpperCase()}: ${income[key]}`;
           }
-  
-          infoContainer.appendChild(infoItem);
+          incomeContent.appendChild(item);
         }
       }
-  
-      itemContainer.appendChild(infoContainer);
-  
+ 
       const actionsContainer = document.createElement("div");
       actionsContainer.style.display = "flex";
       actionsContainer.style.gap = "10px";
-  
+
       const editIcon = document.createElement("span");
       editIcon.classList.add("material-icons-sharp");
       editIcon.textContent = "edit";
       editIcon.style.color = "#6C9BCF";
       editIcon.style.cursor = "pointer";
       editIcon.onclick = function () {
-          // id = income.incomeId;
-          createIncomeForm(income.incomeId);
+        createIncomeForm(income.incomeId);
+        
       };
       actionsContainer.appendChild(editIcon);
+ 
 
       const deleteIcon = document.createElement("span");
       deleteIcon.classList.add("material-icons-sharp");
@@ -89,14 +79,19 @@ async function displayIncome() {
         deleteIncome(income.incomeId);
       };
       actionsContainer.appendChild(deleteIcon);
-  
-      itemContainer.appendChild(actionsContainer);
-      listContainer.appendChild(itemContainer);
+ 
+      gridItem.appendChild(incomeContent);
+      gridItem.appendChild(actionsContainer);
+      gridContainer.appendChild(gridItem);
     });
-  
-    mainContainer.appendChild(listContainer);
+ 
+    mainContainer.appendChild(gridContainer);
+  } else {
+    const head = document.createElement("h1");
+    head.textContent = "No record to show";
+    mainContainer.appendChild(head);
   }
-  
+}
   function createIncomeForm(id) {
     const mainContainer = document.getElementById("dashboard-content");
     const formElements = [
