@@ -266,6 +266,42 @@ fetchIncomeCategory()
     console.error("Error getting total income:", error);
   });
 
+  async function fetchBudgetCategory() {
+    try {
+      const response = await fetch(
+        "https://save-it.projects.bbdgrad.com/api/getBudgetCategories",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (response.status === 204) {
+        console.log("No budget categories found");
+        return 0;
+      } else if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching budget categories:", error);
+      return 0;
+    }
+  }
+  
+  fetchBudgetCategory()
+    .then((data) => {
+      console.log("data", data);
+      budgetAllCategory = data;
+    })
+    .catch((error) => {
+      console.error("Error getting total Budget:", error);
+    });
+
 function getMonthName(monthNumber) {
   if (monthNumber < 1 || monthNumber > 12) {
     throw new Error("Month number must be between 1 and 12");
@@ -1250,47 +1286,12 @@ function deleteExpense(expenseId) {
   console.log("Deleting expense with ID:", expenseId);
 }
 
-async function fetchBudgetCategory() {
-  try {
-    const response = await fetch(
-      "https://save-it.projects.bbdgrad.com/api/getBudgetCategories",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
 
-    if (response.status === 204) {
-      console.log("No budget categories found");
-      return 0;
-    } else if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching budget categories:", error);
-    return 0;
-  }
-}
-
-fetchBudgetCategory()
-  .then((data) => {
-    console.log("data", data);
-    budgetAllCategory = data;
-  })
-  .catch((error) => {
-    console.error("Error getting total Budget:", error);
-  });
 
 function displayBudget() {
   const mainContainer = document.getElementById("dashboard-content");
-  mainContainer.innerHTML = ""; // Clear previous content
-
-  // Add "Create Budget" button
+  mainContainer.innerHTML = "";
+  console.log("budget_category",budgetAllCategory);
   const addBtn = document.createElement("button");
   addBtn.id = "addBudget";
   addBtn.textContent = "Create Budget";
@@ -1342,14 +1343,26 @@ function displayBudget() {
             infoItem.style.marginBottom = "5px";
             infoItem.style.fontSize = "15px";
             infoItem.style.fontWeight = "bold";
-
             if (key == "start_date" || key == "end_date") {
               const timestamp = budget[key];
               const date = new Date(timestamp);
               infoItem.textContent = `${key
                 .replace("_", " ")
                 .toUpperCase()}: ${date.toDateString()}`;
-            } else {
+            }else if(key=="budget_id"){
+              infoItem.textContent ="";
+            }else if(key=="budget_category"){
+             
+              budgetAllCategory.map((v) => {
+                if (v.budgetCategoryId == budget[key]) {
+                  infoItem.textContent =
+                    key.replace("_", " ").toUpperCase() +
+                    ": " +
+                    v.budgetCategoryName;
+                }
+              });
+            }    
+            else {
               infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
                 budget[key]
               }`;
@@ -1359,15 +1372,14 @@ function displayBudget() {
           }
         }
 
-        // Display category
-        const categoryItem = document.createElement("div");
-        categoryItem.style.marginBottom = "5px";
-        categoryItem.style.fontSize = "15px";
-        categoryItem.style.fontWeight = "bold";
-        categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
-        infoContainer.appendChild(categoryItem);
+        // const categoryItem = document.createElement("div");
+        // categoryItem.style.marginBottom = "5px";
+        // categoryItem.style.fontSize = "15px";
+        // categoryItem.style.fontWeight = "bold";
+        // categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
+        // infoContainer.appendChild(categoryItem);
 
-        // Progress bar
+
         const progressContainer = document.createElement("div");
         progressContainer.style.width = "100%";
         progressContainer.style.height = "8px";
@@ -1472,9 +1484,9 @@ function createBudgetForm(id) {
   form.id = "addBudgetForm";
   form.classList.add("budget-form");
 
-  //   formElements.forEach((element) => {
-  //     const formGroup = document.createElement("div");
-  //     formGroup.classList.add("form-group");
+    formElements.forEach((element) => {
+      const formGroup = document.createElement("div");
+      formGroup.classList.add("form-group");
 
   const label = document.createElement("label");
   label.textContent = element.labelText;
@@ -1509,7 +1521,8 @@ function createBudgetForm(id) {
   }
   form.appendChild(formGroup);
 }
-
+)
+mainContainer.replaceChildren(form)
 if (id != null) {
   console.log(id);
   fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`, {
@@ -1601,6 +1614,7 @@ form.addEventListener("submit", function (event) {
       showErrorMessage("An error occurred. Please try again later.");
     });
 });
+}
 
 function deleteBudget(budgetId) {
   if (window.confirm("Do you want to Delete?")) {
