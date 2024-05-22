@@ -2,6 +2,8 @@ const sideMenu = document.querySelector("aside");
 const menuBtn = document.getElementById("menu-btn");
 const darkMode = document.querySelector(".dark-mode");
 const closeBtn=document.getElementById("close-btn")
+const asidename=document.getElementsByClassName("asidename")[0]
+const rightSection=document.getElementsByClassName("right-section")[0]
 
 menuBtn.addEventListener("click", () => {
   if (sideMenu.style.display === "block") {
@@ -220,7 +222,12 @@ window.onload = async function () {
       });
     });
   } else {
+    const elements = document.querySelectorAll(".after-login");
+    elements.forEach(element => {
+      element.style.display='block';
+    });
     await createDashboard();
+
   }
 };
 
