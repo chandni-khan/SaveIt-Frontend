@@ -1,9 +1,9 @@
 async function displayIncome() {
+  TurnOnLoader()
   await fetchAllIncome();
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = ""; 
  
-
   const addBtn = document.createElement("button");
   addBtn.id = "addIncome";
   addBtn.textContent = "Add Income";
@@ -17,6 +17,7 @@ async function displayIncome() {
   mainContainer.appendChild(addBtn);
  
   if (incomeData.length > 0) {
+    TurnOffLoader()
     const gridContainer = document.createElement("div");
     gridContainer.classList.add("grid-container");
  
@@ -166,6 +167,7 @@ function createIncomeForm(id) {
     });
   
     if (id != null) {
+      TurnOnLoader()
       fetch(`https://save-it.projects.bbdgrad.com/api/getIncomeById/${id}`, {
         method: "GET",
         headers: {
@@ -177,6 +179,7 @@ function createIncomeForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
         return response.json();
       })
       .then((data) => {
@@ -199,6 +202,7 @@ function createIncomeForm(id) {
   
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+      TurnOnLoader()
       const formData = new FormData(this);
       const bodyData = {
         incomeCategory: formData.get("incomeCategory"),
@@ -226,6 +230,7 @@ function createIncomeForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
         return response.text();
       })
       .then((message) => {

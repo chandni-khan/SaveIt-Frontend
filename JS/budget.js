@@ -1,6 +1,6 @@
 function displayBudget() {
   const mainContainer = document.getElementById("dashboard-content");
-  mainContainer.innerHTML = ""; 
+  mainContainer.innerHTML = "";
   const addBtn = document.createElement("button");
   addBtn.id = "addBudget";
   addBtn.textContent = "Create Budget";
@@ -12,14 +12,17 @@ function displayBudget() {
     createBudgetForm();
   };
   mainContainer.appendChild(addBtn);
-
-  fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${userToken}`,
-      "Content-Type": "application/json",
-    },
-  })
+  TurnOnLoader();
+  fetch(
+    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -27,7 +30,7 @@ function displayBudget() {
       return response.json();
     })
     .then((data) => {
-      // Create a container with CSS Grid
+      TurnOffLoader();
       const gridContainer = document.createElement("div");
       gridContainer.classList.add("grid-container");
 
@@ -35,7 +38,6 @@ function displayBudget() {
         const gridItem = document.createElement("div");
         gridItem.classList.add("grid-item");
 
-        // Budget content container
         const budgetContent = document.createElement("div");
 
         for (const key in budget) {
@@ -50,10 +52,9 @@ function displayBudget() {
               infoItem.textContent = `${key
                 .replace("_", " ")
                 .toUpperCase()}: ${date.toDateString()}`;
-            }else if(key=="budget_id"){
-              infoItem.textContent ="";
-            }else if(key=="budget_category"){
-             
+            } else if (key == "budget_id") {
+              infoItem.textContent = "";
+            } else if (key == "budget_category") {
               budgetAllCategory.map((v) => {
                 if (v.budgetCategoryId == budget[key]) {
                   infoItem.textContent =
@@ -62,8 +63,7 @@ function displayBudget() {
                     v.budgetCategoryName;
                 }
               });
-            }    
-            else {
+            } else {
               infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
                 budget[key]
               }`;
@@ -73,15 +73,6 @@ function displayBudget() {
           }
         }
 
-        // Display category
-        // const categoryItem = document.createElement("div");
-        // categoryItem.style.marginBottom = "5px";
-        // categoryItem.style.fontSize = "15px";
-        // categoryItem.style.fontWeight = "bold";
-        // categoryItem.textContent = `CATEGORY: ${budget.budget_category}`;
-        // budgetContent.appendChild(categoryItem);
-
-        // Progress bar
         const progressContainer = document.createElement("div");
         progressContainer.style.width = "100%";
         progressContainer.style.height = "8px";
@@ -137,59 +128,58 @@ function displayBudget() {
     });
 }
 
-  
-  function createBudgetForm(id) {
-    const mainContainer = document.getElementById("dashboard-content");
-    const formElements = [
-      {
-        type: "input",
-        inputType: "number",
-        name: "budget_category",
-        labelText: "Category:",
-      },
-      {
-        type: "input",
-        inputType: "number",
-        name: "amount",
-        labelText: "Amount:",
-      },
-      {
-        type: "input",
-        inputType: "date",
-        name: "start_date",
-        labelText: "Start Date:",
-      },
-      {
-        type: "input",
-        inputType: "date",
-        name: "end_date",
-        labelText: "End Date:",
-      },
-      {
-        type: "input",
-        inputType: "text",
-        name: "budget_description",
-        labelText: "Description:",
-      },
-      {
-        type: "input",
-        inputType: "submit",
-        name: "addBudget",
-        value: "Add Budget",
-      },
-    ];
-  
-    const formContainer = document.createElement("div");
-    formContainer.classList.add("budget-form-container"); // New class
-  
-    const form = document.createElement("form");
-    form.id = "addBudgetForm";
-    form.classList.add("budget-form");
-  
-      formElements.forEach((element) => {
-        const formGroup = document.createElement("div");
-        formGroup.classList.add("form-group");
-  
+function createBudgetForm(id) {
+  const mainContainer = document.getElementById("dashboard-content");
+  const formElements = [
+    {
+      type: "input",
+      inputType: "number",
+      name: "budget_category",
+      labelText: "Category:",
+    },
+    {
+      type: "input",
+      inputType: "number",
+      name: "amount",
+      labelText: "Amount:",
+    },
+    {
+      type: "input",
+      inputType: "date",
+      name: "start_date",
+      labelText: "Start Date:",
+    },
+    {
+      type: "input",
+      inputType: "date",
+      name: "end_date",
+      labelText: "End Date:",
+    },
+    {
+      type: "input",
+      inputType: "text",
+      name: "budget_description",
+      labelText: "Description:",
+    },
+    {
+      type: "input",
+      inputType: "submit",
+      name: "addBudget",
+      value: "Add Budget",
+    },
+  ];
+
+  const formContainer = document.createElement("div");
+  formContainer.classList.add("budget-form-container"); // New class
+
+  const form = document.createElement("form");
+  form.id = "addBudgetForm";
+  form.classList.add("budget-form");
+
+  formElements.forEach((element) => {
+    const formGroup = document.createElement("div");
+    formGroup.classList.add("form-group");
+
     const label = document.createElement("label");
     label.textContent = element.labelText;
     label.classList.add("form-label");
@@ -221,11 +211,10 @@ function displayBudget() {
       formGroup.appendChild(input);
     }
     form.appendChild(formGroup);
-  }
-  )
-  mainContainer.replaceChildren(form)
+  });
+  mainContainer.replaceChildren(form);
   if (id != null) {
-    console.log(id);
+    TurnOnLoader();
     fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`, {
       method: "GET",
       headers: {
@@ -242,16 +231,13 @@ function displayBudget() {
         return response.json();
       })
       .then((data) => {
+        TurnOffLoader();
         document.getElementsByName("budget_category")[0].value =
           data.budget_category;
         document.getElementsByName("amount")[0].value = data.amount;
-        // document.getElementsByName("start_date")[0].value =
-        //   data.start_date.split("T")[0];
-        // document.getElementsByName("end_date")[0].value =
-        //   data.end_date.split("T")[0];
         document.getElementsByName("budget_description")[0].value =
           data.budget_description;
-        form.elements["addBudget"].name = "Update Budget"; // Update submit button text
+        form.elements["addBudget"].name = "Update Budget";
         id = data.budget_id;
       })
       .catch((e) => {
@@ -262,6 +248,7 @@ function displayBudget() {
   mainContainer.replaceChildren(formContainer);
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+    TurnOnLoader()
     const formData = new FormData(this);
     let bodyData = {};
     if (id) {
@@ -301,6 +288,7 @@ function displayBudget() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
       })
       .then((data) => {
         setTimeout(() => {
@@ -313,33 +301,32 @@ function displayBudget() {
         showErrorMessage("An error occurred. Please try again later.");
       });
   });
-  }
-  function deleteBudget(budgetId) {
-    if (window.confirm("Do you want to Delete?")) {
-      fetch(`https://save-it.projects.bbdgrad.com/api/deleteBudget/${budgetId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          "Content-Type": "application/json",
-        },
+}
+function deleteBudget(budgetId) {
+  if (window.confirm("Do you want to Delete?")) {
+    fetch(`https://save-it.projects.bbdgrad.com/api/deleteBudget/${budgetId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.text(); 
-        })
-        .then((message) => {
-          console.log("Delete response message:", message); 
-          showSuccessMessage("Deleted Successfully");
-          displayBudget(); 
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          showErrorMessage("An error occurred. Please try again later.");
-        });
-  
-      console.log("Deleting budget with ID:", budgetId);
-    }
+      .then((message) => {
+        console.log("Delete response message:", message);
+        showSuccessMessage("Deleted Successfully");
+        displayBudget();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        showErrorMessage("An error occurred. Please try again later.");
+      });
+
+    console.log("Deleting budget with ID:", budgetId);
   }
-  
+}

@@ -8,8 +8,9 @@ function displayGoals() {
     addBtn.onclick = () => {
       addGoalForm();
     };
+
     mainContainer.appendChild(addBtn);
-   
+    TurnOnLoader()
     // Add heading
     const heading = document.createElement("h1");
     heading.textContent = "Goals";
@@ -103,6 +104,7 @@ function displayGoals() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
         return response.json();
       })
       .then((data) => {
@@ -387,6 +389,7 @@ function displayGoals() {
     // Add form submission event listener
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+      TurnOnLoader()
       const formData = new FormData(this);
       const bodyData = {
         goal_for: formData.get("goal_for"),
@@ -408,6 +411,7 @@ function displayGoals() {
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
+          TurnOffLoader()
           return response.json();
         })
         .then(() => {
