@@ -320,7 +320,9 @@ async function fetchAllIncome() {
     }
   )
     .then((response) => {
+      TurnOffLoader()
       if (!response.ok) {
+        TurnOffLoader()
         throw new Error("Network response was not ok");
       }
       return response.json();
@@ -340,6 +342,7 @@ async function fetchAllIncome() {
       );
       totalIncome = totalAmount;
     });
+    TurnOffLoader()
 }
 async function fetchAllBudget() {
   await fetch(
