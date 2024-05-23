@@ -103,7 +103,9 @@ async function displayExpense() {
     });
 
     mainContainer.appendChild(gridContainer);
+    TurnOffLoader()
   } else {
+    TurnOffLoader()
     const head = document.createElement("h1");
     head.textContent = "No record to show";
     mainContainer.appendChild(head);
