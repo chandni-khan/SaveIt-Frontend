@@ -1,5 +1,5 @@
 async function displayExpense() {
-  TurnOnLoader()
+  TurnOffLoader()
   await fetchAllExpense();
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";

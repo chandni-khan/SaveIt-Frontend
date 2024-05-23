@@ -276,6 +276,7 @@ function getMonthName(monthNumber) {
 }
 
 async function fetchAllExpense() {
+  TurnOffLoader()
   await fetch(
     `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
     {
@@ -288,6 +289,7 @@ async function fetchAllExpense() {
   )
     .then((response) => {
       if (!response.ok) {
+        TurnOffLoader()
         throw new Error("Network response was not ok");
       }
       return response.json();
