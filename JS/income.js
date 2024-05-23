@@ -1,4 +1,5 @@
 async function displayIncome() {
+  TurnOnLoader()
   await fetchAllIncome();
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
@@ -32,6 +33,7 @@ async function displayIncome() {
   mainContainer.appendChild(headerContainer);
 
   if (incomeData.length > 0) {
+    TurnOffLoader()
     const gridContainer = document.createElement("div");
     gridContainer.classList.add("grid-container");
 
@@ -247,6 +249,7 @@ function createIncomeForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
         return response.json();
       })
       .then((data) => {
@@ -269,6 +272,7 @@ function createIncomeForm(id) {
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+      TurnOnLoader()
     const formData = new FormData(this);
     const bodyData = {
       incomeCategory: formData.get("incomeCategory"),
@@ -296,6 +300,7 @@ function createIncomeForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
         return response.text();
       })
       .then((message) => {
@@ -314,7 +319,7 @@ function createIncomeForm(id) {
   
 
 
-  function deleteIncome(incomeId) {
+function deleteIncome(incomeId) {
     if (window.confirm("Do you want to delete?")) {
       fetch(`https://save-it.projects.bbdgrad.com/api/deleteIncome/${incomeId}`, {
         method: "DELETE",
@@ -340,5 +345,5 @@ function createIncomeForm(id) {
         });
     }
     console.log("Deleting income with ID:", incomeId);
-  }
+}
   

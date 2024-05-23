@@ -11,9 +11,10 @@
   </head>
 
   <body>
-    <div id="main">
+    <div id="main" >
+      <div class="loader" style="display: none;">Loading...</div>
       <div class="container" id="body">
-        <aside>
+        <aside class="after-login">
           <div class="toggle">
             <div class="logo">
               <h2>SAVE<span class="danger">IT</span></h2>
@@ -52,7 +53,7 @@
           </div>
         </aside>
         <main id="dashboard-content"></main>
-        <div class="right-section">
+        <div class="right-section after-login">
           <div class="nav">
             <button id="menu-btn">
               <span class="material-icons-sharp"> menu </span>
@@ -81,7 +82,6 @@
         </div>
       </div>
     </div>
-  
     <script>
       window.addEventListener("load", function () {
         let params = new URLSearchParams(window.location.hash.substring(1));

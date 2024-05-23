@@ -2,6 +2,8 @@ const sideMenu = document.querySelector("aside");
 const menuBtn = document.getElementById("menu-btn");
 const darkMode = document.querySelector(".dark-mode");
 const closeBtn=document.getElementById("close-btn")
+const asidename=document.getElementsByClassName("asidename")[0]
+const rightSection=document.getElementsByClassName("right-section")[0]
 
 menuBtn.addEventListener("click", () => {
   if (sideMenu.style.display === "block") {
@@ -172,43 +174,6 @@ window.onload = async function () {
       padding: 1rem;
       box-sizing: border-box;
     `;
-
-    async function fetchIncomeCategory() {
-      try {
-        const response = await fetch(
-          "https://save-it.projects.bbdgrad.com/api/getIncomeCategories",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.status === 204) {
-          console.log("No expenses found");
-          return 0;
-        } else if (!response.ok) {
-          throw new Error(`Network response was not ok: ${response.status}`);
-        }
-        const data = await response.json();
-        incomeAllCategory = data;
-        return data;
-      } catch (error) {
-        console.error("Error fetching Income category:", error);
-        return 0;
-      }
-    }
-
-    fetchIncomeCategory()
-      .then((data) => {
-        incomeAllCategory = data;
-      })
-      .catch((error) => {
-        console.error("Error getting total income:", error);
-      });
-
     const buttons = [loginBtn, signupBtn];
     buttons.forEach((button) => {
       button.addEventListener("mouseenter", () => {
@@ -220,7 +185,15 @@ window.onload = async function () {
       });
     });
   } else {
+    
+    const elements = document.querySelectorAll(".after-login");
+    elements.forEach(element => {
+      element.style.display='block';
+    });
+    TurnOnLoader()
     await createDashboard();
+    TurnOffLoader()
+
   }
 };
 
@@ -495,6 +468,7 @@ function showSuccessMessage(message) {
   }, 2000);
 }
 
+
 function generateExpenseChart() {
   const canvas = document.getElementById("expenseChart");
   const ctx = canvas.getContext("2d");
@@ -610,9 +584,11 @@ async function createDashboard() {
   styleSheet.innerText = styles;
   document.head.appendChild(styleSheet);
 
+  TurnOnLoader()
   await fetchAllExpense();
   await fetchAllIncome();
   await fetchAllBudget();
+  TurnOffLoader()
   const dashboardContent = document.getElementById("dashboard-content");
   dashboardContent.innerHTML = "";
 

@@ -67,14 +67,17 @@ function displayBudget() {
   headerContainer.appendChild(buttonContainer);
 
   mainContainer.appendChild(headerContainer);
-
-  fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${userToken}`,
-      "Content-Type": "application/json",
-    },
-  })
+  TurnOnLoader();
+  fetch(
+    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -87,6 +90,7 @@ function displayBudget() {
         0
       );
 
+      TurnOffLoader();
       const gridContainer = document.createElement("div");
       gridContainer.classList.add("grid-container");
 
@@ -347,7 +351,10 @@ function createBudgetForm(id) {
     form.appendChild(formGroup);
   });
 
+  
+  mainContainer.replaceChildren(form);
   if (id != null) {
+    TurnOnLoader();
     fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`, {
       method: "GET",
       headers: {
@@ -364,6 +371,9 @@ function createBudgetForm(id) {
         return response.json();
       })
       .then((data) => {
+        TurnOffLoader();
+        document.getElementsByName("budget_category")[0].value =
+          data.budget_category;
         document.getElementsByName("budget_category")[0].value = data.budget_category;
         document.getElementsByName("amount")[0].value = data.amount;
         document.getElementsByName("start_date")[0].value = data.start_date.split("T")[0];
@@ -382,6 +392,7 @@ function createBudgetForm(id) {
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+    TurnOnLoader()
     const formData = new FormData(this);
     let bodyData = {};
     if (id) {
@@ -421,6 +432,7 @@ function createBudgetForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
         return response.text();
       })
       .then((message) => {
@@ -436,6 +448,36 @@ function createBudgetForm(id) {
       });
   });
 }
+function deleteBudget(budgetId) {
+  if (window.confirm("Do you want to Delete?")) {
+    fetch(`https://save-it.projects.bbdgrad.com/api/deleteBudget/${budgetId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
+      })
+      .then((message) => {
+        console.log("Delete response message:", message);
+        showSuccessMessage("Deleted Successfully");
+        displayBudget();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        showErrorMessage("An error occurred. Please try again later.");
+      });
+
+    console.log("Deleting budget with ID:", budgetId);
+  }
+}
+
+
 
   function deleteBudget(budgetId) {
     if (window.confirm("Do you want to Delete?")) {

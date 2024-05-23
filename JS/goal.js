@@ -8,8 +8,10 @@ function displayGoals() {
     addBtn.onclick = () => {
       addGoalForm();
     };
+
     mainContainer.appendChild(addBtn);
-   
+    TurnOnLoader()
+    // Add heading
     const heading = document.createElement("h1");
     heading.textContent = "Goals";
     mainContainer.appendChild(heading);
@@ -99,13 +101,15 @@ function displayGoals() {
       },
     })
       .then((response) => {
+        TurnOffLoader()
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+       
         return response.json();
       })
       .then((data) => {
-       
+
         const gridContainer = document.createElement("div");
         gridContainer.classList.add("grid-container");
    
@@ -113,13 +117,13 @@ function displayGoals() {
           const gridItem = document.createElement("div");
           gridItem.classList.add("grid-item");
    
+   
           const goalContent = document.createElement("div");
    
           const title = document.createElement("h2");
           title.textContent = goal["goal_for"];
           goalContent.appendChild(title);
    
-     
           const progressContainer = document.createElement("div");
           progressContainer.classList.add("progress-container");
    
@@ -180,6 +184,7 @@ function displayGoals() {
                     }),
                   })
                     .then((response) => {
+                      TurnOffLoader()
                       if (!response.ok) {
                         throw new Error("Network response was not ok");
                       }
@@ -230,6 +235,7 @@ function displayGoals() {
           } else {
             editIcon.onclick = function () {
               addGoalForm();
+              editGoal(goal.goal_id)
               editRecord = goal.goal_id;
             };
           }
@@ -257,7 +263,30 @@ function displayGoals() {
         console.error("There was a problem with the fetch operation:", error);
       });
   }
-  function addGoalForm() {
+
+  function editGoal(goalId) {
+    fetch(`https://save-it.projects.bbdgrad.com/api/getGoalById/${goalId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((goalData) => {
+        addGoalForm(goalData);
+      })
+      .catch((error) => {
+        showErrorMessage("Error occurred while fetching goal data. Please try again later!");
+      });
+  }
+  
+  function addGoalForm(goalData = null) {
     const mainContainer = document.getElementById("dashboard-content");
     const formElements = [
       {
@@ -338,45 +367,51 @@ function displayGoals() {
       }
     `;
     document.head.appendChild(style);
-   
+  
     const formContainer = document.createElement("div");
     formContainer.classList.add("goal-form-container");
-   
+  
     const form = document.createElement("form");
     form.id = "GoalForm";
     form.classList.add("goal-form");
-   
+  
     formElements.forEach((element) => {
       const formGroup = document.createElement("div");
       formGroup.classList.add("form-group");
-   
+  
       const label = document.createElement("label");
       label.textContent = element.labelText;
       label.classList.add("form-label");
       formGroup.appendChild(label);
-   
+  
       const input = document.createElement("input");
       input.type = element.inputType;
       input.name = element.name;
       input.id = element.name;
       input.required = true;
       input.classList.add("form-control");
+  
+      if (goalData && goalData[element.name] !== undefined) {
+        input.value = goalData[element.name];
+      }
+  
       if (element.inputType === "submit") {
-        input.value = element.value;
+        input.value = goalData ? "Update Goal" : "Add Goal";
         input.classList.add("submit-button");
       }
       formGroup.appendChild(input);
       form.appendChild(formGroup);
     });
-   
+  
     // Replace existing content with the goal form
     mainContainer.replaceChildren(formContainer);
-   
+  
     formContainer.appendChild(form);
-   
+  
     // Add form submission event listener
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+     
       const formData = new FormData(this);
       const bodyData = {
         goal_for: formData.get("goal_for"),
@@ -385,31 +420,46 @@ function displayGoals() {
         saved_already: formData.get("saved_already"),
         user_id: 8, // You may need to update this based on your requirements
       };
-   
-      fetch("https://save-it.projects.bbdgrad.com/api/addGoal", {
-        method: "POST",
+  
+      let url = "https://save-it.projects.bbdgrad.com/api/addGoal";
+      let method = "POST";
+  
+      if (goalData) {
+        url = `https://save-it.projects.bbdgrad.com/api/updateGoal`;
+        method = "PUT";
+      }
+      
+      fetch(url, {
+        method: method,
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(bodyData),
+        body: JSON.stringify({ ...bodyData, goal_id:goalData.goal_id }),
       })
         .then((response) => {
+          TurnOffLoader();
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
-          return response.json();
+          return response.text(); 
         })
-        .then(() => {
-         showSuccessMessage(response.text());
-          console.log("Goal added successfully!");
-          createDashboard(); 
+        .then((responseText) => {
+          if (goalData) {
+            showSuccessMessage("Goal updated successfully!");
+          } else {
+            showSuccessMessage("Goal added successfully!");
+          }
+          displayGoals();
         })
         .catch((error) => {
-         showErrorMessage("Error occured please try again later!!!")
+          TurnOffLoader();
+          showErrorMessage("Error occurred. Please try again later!");
+          console.error(error);
         });
     });
   }
+  
   function deleteGoal(goalId) {
     if (window.confirm("Do you want to delete?")) {
       fetch(`https://save-it.projects.bbdgrad.com/api/deleteGoal/${goalId}`, {

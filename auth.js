@@ -18,8 +18,8 @@ async function getUserInfo(accessToken) {
     .catch((error) => console.error("Error fetching user info:", error));
 }
 async function getJwtToken(data) {
-  console.log("getJwtToken");
   try {
+
     if (localStorage.getItem("newUser")) {
       await fetch("https://save-it.projects.bbdgrad.com/api/addUser", {
         method: "POST",
@@ -38,9 +38,11 @@ async function getJwtToken(data) {
         }
         if (response.ok) {
           showSuccessMessage("User Created!!!");
+         
         }
       });
     } else {
+
       const response = await fetch(
         "https://save-it.projects.bbdgrad.com/api/login/auth",
         {
@@ -58,18 +60,19 @@ async function getJwtToken(data) {
         localStorage.clear();
         throw new Error("Network response was not ok");
       }
+   
       const verifiedUser = await response.json();
       sessionStorage.setItem("userToken", verifiedUser.token);
       console.log(verifiedUser.user[0]);
       localStorage.setItem("userId", verifiedUser.user[0].userId);
       localStorage.setItem("userName", verifiedUser.user[0].userName);
+      TurnOffLoader()
     }
   } catch (error) {
     console.error("Error:", error);
   }
-  setTimeout(() => {
-    window.location.href = "http://127.0.0.1:5500/Index.html";
-  }, 1500);
+    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
+
 }
 
 function LogOut() {
@@ -82,14 +85,15 @@ function LogOut() {
       },
     }).then((data) => console.log(data));
     sessionStorage.clear();
-    var url = new URL("http://127.0.0.1:5500/Index.html");
+    var url = new URL("https://save-it.projects.bbdgrad.com/web/");
     localStorage.clear();
-    window.location.href = "http://127.0.0.1:5500/Index.html";
+    window.location.href = "https://save-it.projects.bbdgrad.com/web/";
   } else {
     window.alert("Already Logged Out");
   }
 }
 function SignIn() {
+  TurnOnLoader()
   let oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
   let form = document.createElement("form");
   form.setAttribute("method", "GET");
@@ -98,7 +102,7 @@ function SignIn() {
   let params = {
     client_id:
       "768762679937-1b30jk5c9v58cc3rok3pkcab5og53kjg.apps.googleusercontent.com",
-    redirect_uri: "http://127.0.0.1:5500/Index.html",
+    redirect_uri: "https://save-it.projects.bbdgrad.com/web/",
     response_type: "token",
     scope:
       "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
@@ -117,4 +121,17 @@ function SignIn() {
   document.body.appendChild(form);
 
   form.submit();
+}
+function TurnOnLoader() {
+  const loader = document.querySelector(".loader");
+  if (loader) {
+    loader.style.display = "block";
+} 
+}
+
+function TurnOffLoader() {
+  const loader = document.querySelector(".loader");
+  if (loader) {
+    loader.style.display = "none";
+} 
 }

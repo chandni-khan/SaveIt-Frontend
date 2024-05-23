@@ -1,4 +1,5 @@
 async function displayExpense() {
+  TurnOnLoader()
   await fetchAllExpense();
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
@@ -35,6 +36,7 @@ async function displayExpense() {
   mainContainer.appendChild(headerContainer);
 
   if (expenseData) {
+    TurnOffLoader()
     const gridContainer = document.createElement("div");
     gridContainer.classList.add("grid-container");
 
@@ -244,6 +246,7 @@ async function displayExpense() {
     });
   
     if (id != null) {
+      TurnOnLoader()
       fetch(`https://save-it.projects.bbdgrad.com/api/getExpenseById/${id}`, {
         method: "GET",
         headers: {
@@ -257,6 +260,7 @@ async function displayExpense() {
           } else if (response.status !== 200) {
             throw new Error("Network response was not ok");
           }
+          TurnOffLoader()
           return response.json();
         })
         .then((data) => {
@@ -281,6 +285,7 @@ async function displayExpense() {
       event.preventDefault();
       const formData = new FormData(this);
       let bodyData = {};
+      TurnOnLoader()
       if (id) {
         bodyData = {
           expenseDescription: formData.get("expenseDescription"),
@@ -316,6 +321,7 @@ async function displayExpense() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        TurnOffLoader()
         return response.text(); 
       })
       .then((message) => {
