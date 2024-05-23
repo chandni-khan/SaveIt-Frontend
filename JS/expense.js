@@ -4,8 +4,23 @@ async function displayExpense() {
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
 
+  const headerContainer = document.createElement("div");
+  headerContainer.style.display = "flex";
+  headerContainer.style.justifyContent = "space-between";
+  headerContainer.style.alignItems = "center";
+  headerContainer.style.marginBottom = "20px"; // Add some space below the header container
+
+  // Add heading
+  const heading = document.createElement("h1");
+  heading.textContent = "Expense";
+  heading.style.margin = "0"; // Remove default margin
+  headerContainer.appendChild(heading);
+
+  // Create a container for the button
+  const buttonContainer = document.createElement("div");
+
   const addBtn = document.createElement("button");
-  addBtn.id = "addData";
+  addBtn.id = "addExpense";
   addBtn.textContent = "Add Expense";
   addBtn.style.color = "green";
   addBtn.style.height = "30px";
@@ -14,27 +29,30 @@ async function displayExpense() {
   addBtn.onclick = () => {
     createxpenseForm(null);
   };
-  mainContainer.appendChild(addBtn);
+
+  buttonContainer.appendChild(addBtn);
+  headerContainer.appendChild(buttonContainer);
+
+  mainContainer.appendChild(headerContainer);
 
   if (expenseData) {
     TurnOffLoader()
     const gridContainer = document.createElement("div");
     gridContainer.classList.add("grid-container");
- 
+
     expenseData.forEach((expense) => {
       const gridItem = document.createElement("div");
       gridItem.classList.add("grid-item");
- 
+
       // Expense content container
       const expenseContent = document.createElement("div");
- 
+
       for (const key in expense) {
         if (Object.hasOwnProperty.call(expense, key) && key !== "userId") {
           const item = document.createElement("div");
           item.style.marginBottom = "5px";
           item.style.fontSize = "15px";
-          item.style.fontWeight = "bold";
- 
+
           if (key === "expenseCategory") {
             expenseAllCategory.map((v) => {
               if (v.expenseCategoryId === expense[key]) {
@@ -52,11 +70,11 @@ async function displayExpense() {
           expenseContent.appendChild(item);
         }
       }
- 
+
       const actionsContainer = document.createElement("div");
       actionsContainer.style.display = "flex";
       actionsContainer.style.gap = "10px";
- 
+
       // Edit icon
       const editIcon = document.createElement("span");
       editIcon.classList.add("material-icons-sharp");
@@ -67,7 +85,7 @@ async function displayExpense() {
         createxpenseForm(expense.expenseId);
       };
       actionsContainer.appendChild(editIcon);
- 
+
       // Delete icon
       const deleteIcon = document.createElement("span");
       deleteIcon.classList.add("material-icons-sharp");
@@ -78,12 +96,12 @@ async function displayExpense() {
         deleteExpense(expense.expenseId);
       };
       actionsContainer.appendChild(deleteIcon);
- 
+
       gridItem.appendChild(expenseContent);
       gridItem.appendChild(actionsContainer);
       gridContainer.appendChild(gridItem);
     });
- 
+
     mainContainer.appendChild(gridContainer);
   } else {
     const head = document.createElement("h1");
@@ -91,6 +109,7 @@ async function displayExpense() {
     mainContainer.appendChild(head);
   }
 }
+
   
   function createxpenseForm(id) {
     const mainContainer = document.getElementById("dashboard-content");

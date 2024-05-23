@@ -1,6 +1,6 @@
 function displayGoals() {
     const mainContainer = document.getElementById("dashboard-content");
-    mainContainer.innerHTML = ""; // Clear previous content
+    mainContainer.innerHTML = "";
    
     const addBtn = document.createElement("button");
     addBtn.id = "addGoal";
@@ -16,10 +16,10 @@ function displayGoals() {
     heading.textContent = "Goals";
     mainContainer.appendChild(heading);
    
-    // Add Modal Structure
+
     const modal = document.createElement("div");
     modal.id = "modal";
-    modal.style.display = "none"; // Hide modal by default
+    modal.style.display = "none"; 
     modal.style.position = "fixed";
     modal.style.zIndex = "1";
     modal.style.left = "0";
@@ -31,10 +31,10 @@ function displayGoals() {
    
     const modalContent = document.createElement("div");
     modalContent.style.backgroundColor = "#fefefe";
-    modalContent.style.margin = "15% auto"; // 15% from the top and centered
+    modalContent.style.margin = "15% auto";
     modalContent.style.padding = "20px";
     modalContent.style.border = "1px solid #888";
-    modalContent.style.width = "80%"; // Could be more or less, depending on screen size
+    modalContent.style.width = "80%";
     modalContent.style.maxWidth = "300px";
     modalContent.style.textAlign = "center";
    
@@ -132,14 +132,16 @@ function displayGoals() {
           progressBar.max = goal["target_amount"];
           progressContainer.appendChild(progressBar);
    
+     
           const progressText = document.createElement("p");
           const progress = (goal["saved_already"] / goal["target_amount"]) * 100;
           progressText.textContent = `Saved: ${goal["saved_already"]} out of ${
             goal["target_amount"]
           } (${progress.toFixed(2)}%)`;
    
+       
           if (progress >= 100) {
-            progressText.textContent += " - Goal Completed"; // Add completed message
+            progressText.textContent += " - Goal Completed"; 
           }
    
           progressContainer.appendChild(progressText);
@@ -154,8 +156,9 @@ function displayGoals() {
             addSavedAmountBtn.disabled = true;
           } else {
             addSavedAmountBtn.onclick = function () {
+              
               modal.style.display = "block";
-   
+
               insertButton.onclick = function () {
                 const amountToAdd = amountInput.value;
                 if (
@@ -187,6 +190,7 @@ function displayGoals() {
                       }
                     })
                     .then((data) => {
+                      
                       goal["saved_already"] = newSavedAmount;
                       progressBar.value = newSavedAmount;
                       const progress =
@@ -195,8 +199,8 @@ function displayGoals() {
                         goal["target_amount"]
                       } (${progress.toFixed(2)}%)`;
                       if (progress >= 100) {
-                        progressText.textContent += " - Goal Completed"; // Add completed message
-                        addSavedAmountBtn.disabled = true; // Disable button
+                        progressText.textContent += " - Goal Completed"; 
+                        addSavedAmountBtn.disabled = true; 
                       }
                       modal.style.display = "none";
                     })
@@ -214,14 +218,17 @@ function displayGoals() {
           }
           goalContent.appendChild(addSavedAmountBtn);
    
+
           const buttonContainer = document.createElement("div");
           buttonContainer.style.display = "flex";
    
+         
           const editIcon = document.createElement("span");
           editIcon.classList.add("material-icons-sharp");
           editIcon.textContent = "edit";
           editIcon.style.color = "#6C9BCF";
           editIcon.style.cursor = "pointer";
+  
           if (progress >= 100) {
             editIcon.style.pointerEvents = "none";
             editIcon.style.opacity = 0.5;
@@ -308,8 +315,8 @@ function displayGoals() {
       },
       { type: "input", inputType: "submit", name: "createGoal", value: "Add Goal" }, // Updated submit button
     ];
-  
-    // Add CSS styles
+   
+    
     const style = document.createElement("style");
     style.textContent = `
       .goal-form-container {
