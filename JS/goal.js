@@ -101,48 +101,43 @@ function displayGoals() {
       },
     })
       .then((response) => {
+        TurnOffLoader()
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        TurnOffLoader()
+       
         return response.json();
       })
       .then((data) => {
-        // Create a container with CSS Grid
+
         const gridContainer = document.createElement("div");
         gridContainer.classList.add("grid-container");
    
-        // Populate the grid with goal data
         data.forEach((goal) => {
           const gridItem = document.createElement("div");
           gridItem.classList.add("grid-item");
    
-          // Goal content container
+   
           const goalContent = document.createElement("div");
    
-          // Goal title
           const title = document.createElement("h2");
           title.textContent = goal["goal_for"];
           goalContent.appendChild(title);
    
-          // Progress bar container
           const progressContainer = document.createElement("div");
           progressContainer.classList.add("progress-container");
    
-          // Progress bar
           const progressBar = document.createElement("progress");
           progressBar.value = goal["saved_already"];
           progressBar.max = goal["target_amount"];
           progressContainer.appendChild(progressBar);
    
-          // Progress text
           const progressText = document.createElement("p");
           const progress = (goal["saved_already"] / goal["target_amount"]) * 100;
           progressText.textContent = `Saved: ${goal["saved_already"]} out of ${
             goal["target_amount"]
           } (${progress.toFixed(2)}%)`;
    
-          // Check if progress is 100%
           if (progress >= 100) {
             progressText.textContent += " - Goal Completed"; // Add completed message
           }
@@ -150,21 +145,17 @@ function displayGoals() {
           progressContainer.appendChild(progressText);
           goalContent.appendChild(progressContainer);
    
-          // Add saved amount button
           const addSavedAmountBtn = document.createElement("button");
           addSavedAmountBtn.textContent = "Add saved Amount >";
           addSavedAmountBtn.style.marginTop = "10px";
           addSavedAmountBtn.style.color = "#6C9BCF";
           addSavedAmountBtn.style.fontWeight = "bold";
-          // Disable button if progress is 100%
           if (progress >= 100) {
             addSavedAmountBtn.disabled = true;
           } else {
             addSavedAmountBtn.onclick = function () {
-              // Show modal
               modal.style.display = "block";
    
-              // Handle "INSERT" button click
               insertButton.onclick = function () {
                 const amountToAdd = amountInput.value;
                 if (
@@ -190,12 +181,12 @@ function displayGoals() {
                     }),
                   })
                     .then((response) => {
+                      TurnOffLoader()
                       if (!response.ok) {
                         throw new Error("Network response was not ok");
                       }
                     })
                     .then((data) => {
-                      // Update the progress bar and text in the UI
                       goal["saved_already"] = newSavedAmount;
                       progressBar.value = newSavedAmount;
                       const progress =
@@ -223,29 +214,26 @@ function displayGoals() {
           }
           goalContent.appendChild(addSavedAmountBtn);
    
-          // Edit and delete buttons container
           const buttonContainer = document.createElement("div");
           buttonContainer.style.display = "flex";
    
-          // Edit icon
           const editIcon = document.createElement("span");
           editIcon.classList.add("material-icons-sharp");
           editIcon.textContent = "edit";
           editIcon.style.color = "#6C9BCF";
           editIcon.style.cursor = "pointer";
-          // Disable edit button if progress is 100%
           if (progress >= 100) {
             editIcon.style.pointerEvents = "none";
             editIcon.style.opacity = 0.5;
           } else {
             editIcon.onclick = function () {
               addGoalForm();
+              editGoal(goal.goal_id)
               editRecord = goal.goal_id;
             };
           }
           buttonContainer.appendChild(editIcon);
    
-          // Delete icon
           const deleteIcon = document.createElement("span");
           deleteIcon.classList.add("material-icons-sharp");
           deleteIcon.textContent = "delete";
@@ -256,7 +244,6 @@ function displayGoals() {
           };
           buttonContainer.appendChild(deleteIcon);
    
-          // Append goal content and buttons to the grid item
           gridItem.appendChild(goalContent);
           gridItem.appendChild(buttonContainer);
    
@@ -269,7 +256,30 @@ function displayGoals() {
         console.error("There was a problem with the fetch operation:", error);
       });
   }
-  function addGoalForm() {
+
+  function editGoal(goalId) {
+    fetch(`https://save-it.projects.bbdgrad.com/api/getGoalById/${goalId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((goalData) => {
+        addGoalForm(goalData);
+      })
+      .catch((error) => {
+        showErrorMessage("Error occurred while fetching goal data. Please try again later!");
+      });
+  }
+  
+  function addGoalForm(goalData = null) {
     const mainContainer = document.getElementById("dashboard-content");
     const formElements = [
       {
@@ -298,7 +308,7 @@ function displayGoals() {
       },
       { type: "input", inputType: "submit", name: "createGoal", value: "Add Goal" }, // Updated submit button
     ];
-   
+  
     // Add CSS styles
     const style = document.createElement("style");
     style.textContent = `
@@ -350,46 +360,51 @@ function displayGoals() {
       }
     `;
     document.head.appendChild(style);
-   
+  
     const formContainer = document.createElement("div");
     formContainer.classList.add("goal-form-container");
-   
+  
     const form = document.createElement("form");
     form.id = "GoalForm";
     form.classList.add("goal-form");
-   
+  
     formElements.forEach((element) => {
       const formGroup = document.createElement("div");
       formGroup.classList.add("form-group");
-   
+  
       const label = document.createElement("label");
       label.textContent = element.labelText;
       label.classList.add("form-label");
       formGroup.appendChild(label);
-   
+  
       const input = document.createElement("input");
       input.type = element.inputType;
       input.name = element.name;
       input.id = element.name;
       input.required = true;
       input.classList.add("form-control");
+  
+      if (goalData && goalData[element.name] !== undefined) {
+        input.value = goalData[element.name];
+      }
+  
       if (element.inputType === "submit") {
-        input.value = element.value;
+        input.value = goalData ? "Update Goal" : "Add Goal";
         input.classList.add("submit-button");
       }
       formGroup.appendChild(input);
       form.appendChild(formGroup);
     });
-   
+  
     // Replace existing content with the goal form
     mainContainer.replaceChildren(formContainer);
-   
+  
     formContainer.appendChild(form);
-   
+  
     // Add form submission event listener
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      TurnOnLoader()
+     
       const formData = new FormData(this);
       const bodyData = {
         goal_for: formData.get("goal_for"),
@@ -398,32 +413,46 @@ function displayGoals() {
         saved_already: formData.get("saved_already"),
         user_id: 8, // You may need to update this based on your requirements
       };
-   
-      fetch("https://save-it.projects.bbdgrad.com/api/addGoal", {
-        method: "POST",
+  
+      let url = "https://save-it.projects.bbdgrad.com/api/addGoal";
+      let method = "POST";
+  
+      if (goalData) {
+        url = `https://save-it.projects.bbdgrad.com/api/updateGoal`;
+        method = "PUT";
+      }
+      
+      fetch(url, {
+        method: method,
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(bodyData),
+        body: JSON.stringify({ ...bodyData, goal_id:goalData.goal_id }),
       })
         .then((response) => {
+          TurnOffLoader();
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
-          TurnOffLoader()
-          return response.json();
+          return response.text(); 
         })
-        .then(() => {
-         showSuccessMessage(response.text());
-          console.log("Goal added successfully!");
-          createDashboard(); 
+        .then((responseText) => {
+          if (goalData) {
+            showSuccessMessage("Goal updated successfully!");
+          } else {
+            showSuccessMessage("Goal added successfully!");
+          }
+          displayGoals();
         })
         .catch((error) => {
-         showErrorMessage("Error occured please try again later!!!")
+          TurnOffLoader();
+          showErrorMessage("Error occurred. Please try again later!");
+          console.error(error);
         });
     });
   }
+  
   function deleteGoal(goalId) {
     if (window.confirm("Do you want to delete?")) {
       fetch(`https://save-it.projects.bbdgrad.com/api/deleteGoal/${goalId}`, {
