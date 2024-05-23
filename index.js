@@ -309,6 +309,7 @@ async function fetchAllExpense() {
     }, 1000);
 }
 async function fetchAllIncome() {
+  TurnOffLoader()
   await fetch(
     `https://save-it.projects.bbdgrad.com/api/getIncomeByUserId/${userId}`,
     {
@@ -343,8 +344,10 @@ async function fetchAllIncome() {
       totalIncome = totalAmount;
     });
     TurnOffLoader()
+
 }
 async function fetchAllBudget() {
+
   await fetch(
     `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
     {
@@ -357,6 +360,7 @@ async function fetchAllBudget() {
   )
     .then((response) => {
       if (!response.ok) {
+        TurnOffLoader()
         throw new Error("Network response was not ok");
       }
       return response.json();

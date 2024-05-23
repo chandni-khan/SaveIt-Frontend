@@ -1,6 +1,4 @@
 async function displayIncome() {
-  TurnOnLoader()
-  await fetchAllIncome();
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
 
@@ -102,6 +100,7 @@ async function displayIncome() {
 
     mainContainer.appendChild(gridContainer);
   } else {
+    TurnOffLoader()
     const head = document.createElement("h1");
     head.textContent = "No record to show";
     mainContainer.appendChild(head);
@@ -238,6 +237,7 @@ function createIncomeForm(id) {
   });
 
   if (id != null) {
+   TurnOnLoader();
     fetch(`https://save-it.projects.bbdgrad.com/api/getIncomeById/${id}`, {
       method: "GET",
       headers: {
@@ -247,6 +247,7 @@ function createIncomeForm(id) {
     })
       .then((response) => {
         if (!response.ok) {
+          TurnOffLoader()
           throw new Error("Network response was not ok");
         }
         TurnOffLoader()
@@ -256,14 +257,14 @@ function createIncomeForm(id) {
         console.log("Fetched data:", data);
         document.getElementById("incomeCategory").value = data.incomeCategory;
         document.getElementById("incomeDescription").value = data.incomeDescription;
-        document.getElementById("incomeDate").value = data.incomeDate.split("T")[0];
         document.getElementById("incomeAmount").value = data.incomeAmount;
         form.elements["addIncome"].value = "Update Income";
         console.log("Editing income with ID:", id);
       })
       .catch((e) => {
         console.log("error", e);
-        showErrorMessage("Failed to load income data. Please try again later.");
+        TurnOffLoader()
+        // showErrorMessage("Failed to load income data. Please try again later.");
       });
   }
 
@@ -306,6 +307,7 @@ function createIncomeForm(id) {
       .then((message) => {
         console.log("message", message);
         showSuccessMessage(id ? "Updated Income" : "Added Income");
+        fetchAllIncome();
         displayIncome();
       })
       .catch((error) => {
