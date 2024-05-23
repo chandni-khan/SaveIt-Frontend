@@ -1,6 +1,6 @@
 function displayGoals() {
     const mainContainer = document.getElementById("dashboard-content");
-    mainContainer.innerHTML = ""; // Clear previous content
+    mainContainer.innerHTML = "";
    
     const addBtn = document.createElement("button");
     addBtn.id = "addGoal";
@@ -10,15 +10,14 @@ function displayGoals() {
     };
     mainContainer.appendChild(addBtn);
    
-    // Add heading
     const heading = document.createElement("h1");
     heading.textContent = "Goals";
     mainContainer.appendChild(heading);
    
-    // Add Modal Structure
+
     const modal = document.createElement("div");
     modal.id = "modal";
-    modal.style.display = "none"; // Hide modal by default
+    modal.style.display = "none"; 
     modal.style.position = "fixed";
     modal.style.zIndex = "1";
     modal.style.left = "0";
@@ -30,10 +29,10 @@ function displayGoals() {
    
     const modalContent = document.createElement("div");
     modalContent.style.backgroundColor = "#fefefe";
-    modalContent.style.margin = "15% auto"; // 15% from the top and centered
+    modalContent.style.margin = "15% auto";
     modalContent.style.padding = "20px";
     modalContent.style.border = "1px solid #888";
-    modalContent.style.width = "80%"; // Could be more or less, depending on screen size
+    modalContent.style.width = "80%";
     modalContent.style.maxWidth = "300px";
     modalContent.style.textAlign = "center";
    
@@ -106,63 +105,56 @@ function displayGoals() {
         return response.json();
       })
       .then((data) => {
-        // Create a container with CSS Grid
+       
         const gridContainer = document.createElement("div");
         gridContainer.classList.add("grid-container");
    
-        // Populate the grid with goal data
         data.forEach((goal) => {
           const gridItem = document.createElement("div");
           gridItem.classList.add("grid-item");
    
-          // Goal content container
           const goalContent = document.createElement("div");
    
-          // Goal title
           const title = document.createElement("h2");
           title.textContent = goal["goal_for"];
           goalContent.appendChild(title);
    
-          // Progress bar container
+     
           const progressContainer = document.createElement("div");
           progressContainer.classList.add("progress-container");
    
-          // Progress bar
           const progressBar = document.createElement("progress");
           progressBar.value = goal["saved_already"];
           progressBar.max = goal["target_amount"];
           progressContainer.appendChild(progressBar);
    
-          // Progress text
+     
           const progressText = document.createElement("p");
           const progress = (goal["saved_already"] / goal["target_amount"]) * 100;
           progressText.textContent = `Saved: ${goal["saved_already"]} out of ${
             goal["target_amount"]
           } (${progress.toFixed(2)}%)`;
    
-          // Check if progress is 100%
+       
           if (progress >= 100) {
-            progressText.textContent += " - Goal Completed"; // Add completed message
+            progressText.textContent += " - Goal Completed"; 
           }
    
           progressContainer.appendChild(progressText);
           goalContent.appendChild(progressContainer);
    
-          // Add saved amount button
           const addSavedAmountBtn = document.createElement("button");
           addSavedAmountBtn.textContent = "Add saved Amount >";
           addSavedAmountBtn.style.marginTop = "10px";
           addSavedAmountBtn.style.color = "#6C9BCF";
           addSavedAmountBtn.style.fontWeight = "bold";
-          // Disable button if progress is 100%
           if (progress >= 100) {
             addSavedAmountBtn.disabled = true;
           } else {
             addSavedAmountBtn.onclick = function () {
-              // Show modal
+              
               modal.style.display = "block";
-   
-              // Handle "INSERT" button click
+
               insertButton.onclick = function () {
                 const amountToAdd = amountInput.value;
                 if (
@@ -193,7 +185,7 @@ function displayGoals() {
                       }
                     })
                     .then((data) => {
-                      // Update the progress bar and text in the UI
+                      
                       goal["saved_already"] = newSavedAmount;
                       progressBar.value = newSavedAmount;
                       const progress =
@@ -202,8 +194,8 @@ function displayGoals() {
                         goal["target_amount"]
                       } (${progress.toFixed(2)}%)`;
                       if (progress >= 100) {
-                        progressText.textContent += " - Goal Completed"; // Add completed message
-                        addSavedAmountBtn.disabled = true; // Disable button
+                        progressText.textContent += " - Goal Completed"; 
+                        addSavedAmountBtn.disabled = true; 
                       }
                       modal.style.display = "none";
                     })
@@ -221,17 +213,17 @@ function displayGoals() {
           }
           goalContent.appendChild(addSavedAmountBtn);
    
-          // Edit and delete buttons container
+
           const buttonContainer = document.createElement("div");
           buttonContainer.style.display = "flex";
    
-          // Edit icon
+         
           const editIcon = document.createElement("span");
           editIcon.classList.add("material-icons-sharp");
           editIcon.textContent = "edit";
           editIcon.style.color = "#6C9BCF";
           editIcon.style.cursor = "pointer";
-          // Disable edit button if progress is 100%
+  
           if (progress >= 100) {
             editIcon.style.pointerEvents = "none";
             editIcon.style.opacity = 0.5;
@@ -243,7 +235,6 @@ function displayGoals() {
           }
           buttonContainer.appendChild(editIcon);
    
-          // Delete icon
           const deleteIcon = document.createElement("span");
           deleteIcon.classList.add("material-icons-sharp");
           deleteIcon.textContent = "delete";
@@ -254,7 +245,6 @@ function displayGoals() {
           };
           buttonContainer.appendChild(deleteIcon);
    
-          // Append goal content and buttons to the grid item
           gridItem.appendChild(goalContent);
           gridItem.appendChild(buttonContainer);
    
@@ -297,7 +287,7 @@ function displayGoals() {
       { type: "input", inputType: "submit", name: "createGoal", value: "Add Goal" }, // Updated submit button
     ];
    
-    // Add CSS styles
+    
     const style = document.createElement("style");
     style.textContent = `
       .goal-form-container {

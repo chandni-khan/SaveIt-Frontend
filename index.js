@@ -558,37 +558,84 @@ function generateExpenseChart() {
 }
 
 async function createDashboard() {
+  // CSS styles
+  const styles = `
+    #monthInput {
+      margin: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    #monthInput:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    #findButton {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #6C9BCF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    #findButton:hover {
+      background-color: #0056b3;
+    }
+
+    #findButton:focus {
+      outline: none;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .filter-container {
+      display: flex;
+      align-items: center;
+    }
+  `;
+
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
+
   await fetchAllExpense();
   await fetchAllIncome();
   await fetchAllBudget();
   const dashboardContent = document.getElementById("dashboard-content");
   dashboardContent.innerHTML = "";
 
+  const dashboardHeader = document.createElement("div");
+  dashboardHeader.classList.add("dashboard-header");
+
   const dashboardTitle = document.createElement("h1");
   dashboardTitle.textContent = "Dashboard";
-  dashboardContent.appendChild(dashboardTitle);
+  dashboardHeader.appendChild(dashboardTitle);
 
-  const currentDateDiv = document.createElement("div");
-  currentDateDiv.id = "currentDate";
-  dashboardContent.appendChild(currentDateDiv);
+  const filterContainer = document.createElement("div");
+  filterContainer.classList.add("filter-container");
 
   const monthInput = document.createElement("input");
   monthInput.type = "month";
   monthInput.id = "monthInput";
-  dashboardContent.appendChild(monthInput);
-  const formattedMonth = `${targetYear}-${String(targetMonth).padStart(
-    2,
-    "0"
-  )}`;
-
-  document.getElementById("monthInput").value = formattedMonth;
+  filterContainer.appendChild(monthInput);
+  const formattedMonth = `${targetYear}-${String(targetMonth).padStart(2, "0")}`;
+  monthInput.value = formattedMonth;
 
   const findButton = document.createElement("button");
+  findButton.id = "findButton";
   findButton.textContent = "Find";
-  findButton.style.backgroundColor = "blue";
-  findButton.style.color = "white";
-  findButton.style.width = "5rem";
-
   findButton.onclick = function () {
     const selectedMonth = document.getElementById("monthInput").value;
     const selectedYear = parseInt(selectedMonth.split("-")[0]);
@@ -598,10 +645,14 @@ async function createDashboard() {
     monthInString = getMonthName(selectedMonthNum - 1).toString();
     createDashboard();
   };
+  filterContainer.appendChild(findButton);
 
-  dashboardContent.appendChild(findButton);
+  dashboardHeader.appendChild(filterContainer);
+  dashboardContent.appendChild(dashboardHeader);
 
-  dashboardContent.appendChild(findButton);
+  const currentDateDiv = document.createElement("div");
+  currentDateDiv.id = "currentDate";
+  dashboardContent.appendChild(currentDateDiv);
 
   const analyseDiv = document.createElement("div");
   analyseDiv.classList.add("analyse");
@@ -612,9 +663,7 @@ async function createDashboard() {
   totalBalanceDiv.classList.add("status");
   const totalBalanceInfoDiv = document.createElement("div");
   totalBalanceInfoDiv.classList.add("info");
-  totalBalanceInfoDiv.innerHTML = `<h3>Current Balance</h3><h1>Rs.${
-    totalIncome - totalExpense
-  }</h1>`;
+  totalBalanceInfoDiv.innerHTML = `<h3>Current Balance</h3><h1>Rs.${totalIncome - totalExpense}</h1>`;
   totalBalanceDiv.appendChild(totalBalanceInfoDiv);
   totalBalance.appendChild(totalBalanceDiv);
 
@@ -644,7 +693,6 @@ async function createDashboard() {
   searchesStatusDiv.classList.add("status");
   const searchesInfoDiv = document.createElement("div");
   searchesInfoDiv.classList.add("info");
-
   searchesInfoDiv.innerHTML = `<h3>Total Budget</h3><h1>Rs.${totalBudget}</h1>`;
   if (totalExpense > totalBudget) {
     searchesInfoDiv.style.color = "red";
@@ -666,6 +714,7 @@ async function createDashboard() {
   dashboardContent.appendChild(newUsersDiv);
   generateExpenseChart();
 }
+
 
 function displayReport() {
   const dashboardContent = document.getElementById("dashboard-content");
