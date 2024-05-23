@@ -34,6 +34,7 @@ async function fetchAllBudget() {
 }
 
 function displayBudget() {
+  TurnOffLoader()
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
 
@@ -80,6 +81,7 @@ function displayBudget() {
   )
     .then((response) => {
       if (!response.ok) {
+        TurnOffLoader()
         throw new Error("Network response was not ok");
       }
       return response.json();
