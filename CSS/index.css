@@ -85,10 +85,11 @@
 .dark-mode-variables{
     --color-background: #181a1e;
     --color-white: #202528;
-    --color-dark: #edeffd;
+    --color-dark: #edeffd;            
     --color-dark-variant: #a3bdcc;
     --color-light: rgba(0, 0, 0, 0.4);
     --box-shadow: 0 2rem 3rem var(--color-light);
+    
 }
 
 *{
@@ -507,7 +508,7 @@ main .new-users .user-list .user img{
   }
   
   .form-control[type="submit"] {
-    background-color: #007bff;
+    background-color: --color-primary;
     color: white;
     cursor: pointer;
     border: none;
@@ -515,7 +516,7 @@ main .new-users .user-list .user img{
   
 
 #addGoal{
-    color:#1B9C85;
+    color:#6C9BCF;
     height:30px;
     width:100px;
     font-weight: bold;
@@ -806,7 +807,7 @@ progress::-moz-progress-bar {
           }
          
           .grid-item {
-            background-color: #f9f9f9;
+          
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
