@@ -49,24 +49,33 @@ async function displayExpense() {
           const item = document.createElement("div");
           item.style.marginBottom = "5px";
           item.style.fontSize = "15px";
-
+          
+          const keySpan = document.createElement("span");
+          keySpan.style.fontWeight = "bold";
+          keySpan.textContent = key.replace("_", " ").toUpperCase() + ": ";
+      
           if (key === "expenseCategory") {
             expenseAllCategory.map((v) => {
               if (v.expenseCategoryId === expense[key]) {
-                item.textContent = `${key.replace("_", " ").toUpperCase()}: ${v.expenseCategoryName}`;
+                item.appendChild(keySpan);
+                item.appendChild(document.createTextNode(v.expenseCategoryName));
               }
             });
           } else if (key === "expenseId") {
-            item.textContent = "";
+            // Skip expenseId content
+            continue;
           } else if (key === "spendDate") {
             const date = new Date(expense[key]);
-            item.textContent = `${key.toUpperCase()}: ${date.toDateString()}`;
+            item.appendChild(keySpan);
+            item.appendChild(document.createTextNode(date.toDateString()));
           } else {
-            item.textContent = `${key.toUpperCase()}: ${expense[key]}`;
+            item.appendChild(keySpan);
+            item.appendChild(document.createTextNode(expense[key]));
           }
           expenseContent.appendChild(item);
         }
       }
+      
 
       const actionsContainer = document.createElement("div");
       actionsContainer.style.display = "flex";

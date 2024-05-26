@@ -51,24 +51,31 @@ async function displayIncome() {
           item.style.marginBottom = "5px";
           item.style.fontSize = "15px";
           
-
+          const keySpan = document.createElement("span");
+          keySpan.style.fontWeight = "bold";
+          keySpan.textContent = key.replace("_", " ").toUpperCase() + ": ";
+      
           if (key === "incomeDate") {
             const timestamp = income[key];
             const date = new Date(timestamp);
-            item.textContent = `${key.replace("_", " ").toUpperCase()}: ${date.toDateString()}`;
+            item.appendChild(keySpan);
+            item.appendChild(document.createTextNode(date.toDateString()));
           } else if (key === "incomeCategory") {
             incomeAllCategory.map((v) => {
               if (v.incomeCategoryId === income[key]) {
-                item.textContent = `${key.replace("_", " ").toUpperCase()}: ${v.incomeCategoryName}`;
+                item.appendChild(keySpan);
+                item.appendChild(document.createTextNode(v.incomeCategoryName));
               }
             });
           } else {
-            item.textContent = `${key.replace("_", " ").toUpperCase()}: ${income[key]}`;
+            item.appendChild(keySpan);
+            item.appendChild(document.createTextNode(income[key]));
           }
           incomeContent.appendChild(item);
         }
       }
-
+      
+      
       const actionsContainer = document.createElement("div");
       actionsContainer.style.display = "flex";
       actionsContainer.style.gap = "10px";

@@ -54,32 +54,34 @@ async function displayBudget() {
             const infoItem = document.createElement("div");
             infoItem.style.marginBottom = "5px";
             infoItem.style.fontSize = "15px";
+            
+            const keySpan = document.createElement("span");
+            keySpan.style.fontWeight = "bold";
+            keySpan.textContent = key.replace("_", " ").toUpperCase() + ": ";
+        
             if (key === "start_date" || key === "end_date") {
               const timestamp = budget[key];
               const date = new Date(timestamp);
-              infoItem.textContent = `${key
-                .replace("_", " ")
-                .toUpperCase()}: ${date.toDateString()}`;
+              infoItem.appendChild(keySpan);
+              infoItem.appendChild(document.createTextNode(date.toDateString()));
             } else if (key === "budget_id") {
-              infoItem.textContent = "";
+              continue;
             } else if (key === "budget_category") {
               budgetAllCategory.map((v) => {
                 if (v.budgetCategoryId === budget[key]) {
-                  infoItem.textContent =
-                    key.replace("_", " ").toUpperCase() +
-                    ": " +
-                    v.budgetCategoryName;
+                  infoItem.appendChild(keySpan);
+                  infoItem.appendChild(document.createTextNode(v.budgetCategoryName));
                 }
               });
             } else {
-              infoItem.textContent = `${key.replace("_", " ").toUpperCase()}: ${
-                budget[key]
-              }`;
+              infoItem.appendChild(keySpan);
+              infoItem.appendChild(document.createTextNode(budget[key]));
             }
-
+        
             infoContainer.appendChild(infoItem);
           }
         }
+        
 
         const progressContainer = document.createElement("div");
         progressContainer.style.position = "relative"; 

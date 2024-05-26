@@ -194,7 +194,7 @@ window.onload = async function () {
         incomeAllCategory = data;
       })
       .catch((error) => {
-        console.error("Error getting total income:", error);
+        console.log("Error getting total income:");
       });
     fetchBudgetCategory()
       .then((data) => {
@@ -202,14 +202,14 @@ window.onload = async function () {
         budgetAllCategory = data;
       })
       .catch((error) => {
-        console.error("Error getting total Budget:", error);
+        console.log("Error getting total Budget:");
       });
     fetchExpenseCategory()
       .then((data) => {
         expenseAllCategory = data;
       })
       .catch((error) => {
-        console.error("Error getting total Expense:", error);
+        console.log("Error getting total Expense:");
       });
     await createDashboard();
     TurnOffLoader();
@@ -218,7 +218,7 @@ window.onload = async function () {
 
 function getMonthName(monthNumber) {
   if (monthNumber < 1 || monthNumber > 12) {
-    throw new Error("Month number must be between 1 and 12");
+   console.log("No records")
   }
   return monthNames[monthNumber + 1];
 }
@@ -239,12 +239,12 @@ async function fetchIncomeCategory() {
       console.log("No expenses found");
       return 0;
     } else if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+   console.log("No records")
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching Income category:", error);
+    console.log("Error fetching Income ategory:");
     return 0;
   }
 }
@@ -265,12 +265,12 @@ async function fetchBudgetCategory() {
       console.log("No budget categories found");
       return 0;
     } else if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+   console.log("No records")
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching budget categories:", error);
+    console.log("Error fetching budget ategories:");
     return 0;
   }
 }
@@ -290,7 +290,7 @@ async function fetchAllExpense() {
     );
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
+     expenseData=[];
     }
 
     const data = await response.json();
@@ -302,7 +302,7 @@ async function fetchAllExpense() {
     }
 
     if (Array.isArray(data)) {
-      expenseData = data;
+      expenseData = data.reverse();
       let expenseTotalDate = [];
       data.forEach((v) => {
         let month = new Date(v.spendDate).getMonth() + 1;
@@ -318,7 +318,7 @@ async function fetchAllExpense() {
     }
 
   } catch (error) {
-    console.error("Error fetching expenses:", error);
+    console.log("Error fetching expenses:");
     TurnOffLoader();
   }
 }
@@ -336,21 +336,17 @@ async function fetchAllIncome() {
         },
       }
     );
-
+    console.log("reponse",response);
     if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
+     incomeData=[]
     }
 
     const data = await response.json();
     TurnOffLoader();
 
-    if (typeof data === 'string') {
-      console.log("Received string data:", data);
-      return false;
-    }
 
     if (Array.isArray(data)) {
-      incomeData = data;
+      incomeData = data.reverse();
       let incomeTotalDate = [];
       data.forEach((v) => {
         let month = new Date(v.incomeDate).getMonth() + 1;
@@ -366,7 +362,7 @@ async function fetchAllIncome() {
     }
 
   } catch (error) {
-    console.error("Error fetching income:", error);
+    console.log("Error fetching income:");
     TurnOffLoader();
   }
 }
@@ -386,7 +382,7 @@ async function fetchAllBudget() {
     );
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
+     budgetData=[];
     }
 
     const data = await response.json();
@@ -398,7 +394,7 @@ async function fetchAllBudget() {
     }
 
     if (Array.isArray(data)) {
-      budgetData = data;
+      budgetData = data.reverse();
       let budgetTotalDate = [];
       data.forEach((v) => {
         let startmonth = new Date(v.start_date).getMonth() + 1;
@@ -414,7 +410,7 @@ async function fetchAllBudget() {
     }
 
   } catch (error) {
-    console.error("Error fetching budget:", error);
+    console.log("Error fetching budget:");
     TurnOffLoader();
   }
 }
@@ -434,7 +430,7 @@ async function fetchAllGoal() {
     );
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
+   console.log("No records")
     }
 
     const data = await response.json();
@@ -446,11 +442,11 @@ async function fetchAllGoal() {
     }
 
     if (Array.isArray(data)) {
-      goalData = data;
+      goalData = data.reverse();
     }
 
   } catch (error) {
-    console.error("Error fetching budget:", error);
+    console.log("Error fetching budget:");
     TurnOffLoader();
   }
 }
@@ -471,7 +467,7 @@ async function fetchExpenseCategory() {
     );
 
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+   console.log("No records")
     }
 
     const data = await response.json();
@@ -487,7 +483,7 @@ async function fetchExpenseCategory() {
     }
 
   } catch (error) {
-    console.error("Error fetching expense category:", error);
+    console.log("Error fetching expense category:");
     TurnOffLoader();
     return 0;
   }
@@ -665,23 +661,21 @@ async function createDashboard() {
   styleSheet.type = "text/css";
   styleSheet.innerText = styles;
   document.head.appendChild(styleSheet);
-
+  const dashboardContent = document.getElementById("dashboard-content");
+  dashboardContent.innerHTML = "";
+  const dashboardHeader = document.createElement("div");
+  dashboardHeader.classList.add("dashboard-header");
+  const dashboardTitle = document.createElement("h1");
+  dashboardTitle.textContent = "Dashboard";
+  dashboardHeader.appendChild(dashboardTitle);
   TurnOnLoader();
   await fetchAllExpense();
   await fetchAllIncome();
   await fetchAllBudget();
   await fetchAllGoal()
   TurnOffLoader();
-  const dashboardContent = document.getElementById("dashboard-content");
-  dashboardContent.innerHTML = "";
-
-  const dashboardHeader = document.createElement("div");
-  dashboardHeader.classList.add("dashboard-header");
-
-  const dashboardTitle = document.createElement("h1");
-  dashboardTitle.textContent = "Dashboard";
-  dashboardHeader.appendChild(dashboardTitle);
-
+if(expenseData.length>0||budgetData.length>0||budgetData.length>0){
+  dashboardContent.appendChild(dashboardHeader);
   const filterContainer = document.createElement("div");
   filterContainer.classList.add("filter-container");
 
@@ -710,7 +704,6 @@ async function createDashboard() {
   filterContainer.appendChild(findButton);
 
   dashboardHeader.appendChild(filterContainer);
-  dashboardContent.appendChild(dashboardHeader);
 
   const currentDateDiv = document.createElement("div");
   currentDateDiv.id = "currentDate";
@@ -777,6 +770,14 @@ async function createDashboard() {
   newUsersDiv.innerHTML = `<h2>Report for ${monthInString}</h2><canvas id='expenseChart'></canvas>`;
   dashboardContent.appendChild(newUsersDiv);
   generateExpenseChart();
+}else{
+  const head = document.createElement("h1");
+    head.style.marginTop="1.7rem"
+    head.textContent = "Please add records create dashboard";
+    dashboardContent.appendChild(dashboardHeader);
+    dashboardContent.appendChild(head);
+}
+  
 }
 
 function displayReport() {
