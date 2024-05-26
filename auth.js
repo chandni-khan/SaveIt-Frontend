@@ -1,4 +1,5 @@
 async function getUserInfo(accessToken) {
+  TurnOnLoader();
   fetch(
     "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=" +
       accessToken
@@ -19,7 +20,6 @@ async function getUserInfo(accessToken) {
 }
 async function getJwtToken(data) {
   try {
-
     if (localStorage.getItem("newUser")) {
       await fetch("https://save-it.projects.bbdgrad.com/api/addUser", {
         method: "POST",
@@ -69,6 +69,7 @@ async function getJwtToken(data) {
       TurnOffLoader()
     }
   } catch (error) {
+    TurnOffLoader()
     console.error("Error:", error);
   }
     window.location.href = "https://save-it.projects.bbdgrad.com/web/";

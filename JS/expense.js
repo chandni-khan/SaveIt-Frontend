@@ -1,5 +1,4 @@
 async function displayExpense() {
-  TurnOffLoader()
   await fetchAllExpense();
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
@@ -18,7 +17,6 @@ async function displayExpense() {
 
   // Create a container for the button
   const buttonContainer = document.createElement("div");
-
   const addBtn = document.createElement("button");
   addBtn.id = "addExpense";
   addBtn.textContent = "Add Expense";
@@ -35,8 +33,7 @@ async function displayExpense() {
 
   mainContainer.appendChild(headerContainer);
 
-  if (expenseData) {
-    TurnOffLoader()
+  if (expenseData.length>0) {
     const gridContainer = document.createElement("div");
     gridContainer.classList.add("grid-container");
 
@@ -101,11 +98,8 @@ async function displayExpense() {
       gridItem.appendChild(actionsContainer);
       gridContainer.appendChild(gridItem);
     });
-
-    mainContainer.appendChild(gridContainer);
-    TurnOffLoader()
+ mainContainer.appendChild(gridContainer);
   } else {
-    TurnOffLoader()
     const head = document.createElement("h1");
     head.textContent = "No record to show";
     mainContainer.appendChild(head);
@@ -149,63 +143,63 @@ async function displayExpense() {
     ];
   
     // Add CSS styles
-    const style = document.createElement("style");
-    style.textContent = `
-      .expense-form-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-      }
-      .expense-form {
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 500px;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-      .form-control {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      .form-control:focus {
-        border-color: #5b9bd5;
-        box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
-        outline: none;
-      }
-      .submit-button {
-        background-color: #5b9bd5;
-        color: white;
-        border: none;
-        cursor: pointer;
-        padding: 10px 20px;
-        border-radius: 4px;
-        font-size: 16px;
-      }
-      .submit-button:hover {
-        background-color: #4a8ccc;
-      }
-    `;
-    document.head.appendChild(style);
+    // const style = document.createElement("style");
+    // style.textContent = `
+    //   .expense-form-container {
+    //     display: flex;
+    //     justify-content: center;
+    //     align-items: center;
+    //     margin-top: 20px;
+    //   }
+    //   .expense-form {
+    //     background-color: #f9f9f9;
+    //     padding: 20px;
+    //     border-radius: 8px;
+    //     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    //     width: 100%;
+    //     max-width: 500px;
+    //   }
+    //   .form-group {
+    //     margin-bottom: 15px;
+    //   }
+    //   .form-label {
+    //     display: block;
+    //     margin-bottom: 5px;
+    //     font-weight: bold;
+    //   }
+    //   .form-control {
+    //     width: 100%;
+    //     padding: 10px;
+    //     border: 1px solid #ddd;
+    //     border-radius: 4px;
+    //     box-sizing: border-box;
+    //   }
+    //   .form-control:focus {
+    //     border-color: #5b9bd5;
+    //     box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
+    //     outline: none;
+    //   }
+    //   .submit-button {
+    //     background-color: #5b9bd5;
+    //     color: white;
+    //     border: none;
+    //     cursor: pointer;
+    //     padding: 10px 20px;
+    //     border-radius: 4px;
+    //     font-size: 16px;
+    //   }
+    //   .submit-button:hover {
+    //     background-color: #4a8ccc;
+    //   }
+    // `;
+    // document.head.appendChild(style);
   
     const formContainer = document.createElement("div");
-    formContainer.classList.add("expense-form-container");
+    formContainer.classList.add("form-container");
   
     const form = document.createElement("form");
     form.id = "addExpenseForm";
-    form.classList.add("expense-form");
+    form.classList.add("form");
   
     formElements.forEach((element) => {
       const formGroup = document.createElement("div");
@@ -248,7 +242,6 @@ async function displayExpense() {
     });
   
     if (id != null) {
-      TurnOnLoader()
       fetch(`https://save-it.projects.bbdgrad.com/api/getExpenseById/${id}`, {
         method: "GET",
         headers: {
@@ -262,7 +255,7 @@ async function displayExpense() {
           } else if (response.status !== 200) {
             throw new Error("Network response was not ok");
           }
-          TurnOffLoader()
+    
           return response.json();
         })
         .then((data) => {
@@ -287,7 +280,6 @@ async function displayExpense() {
       event.preventDefault();
       const formData = new FormData(this);
       let bodyData = {};
-      TurnOnLoader()
       if (id) {
         bodyData = {
           expenseDescription: formData.get("expenseDescription"),
@@ -323,7 +315,7 @@ async function displayExpense() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        TurnOffLoader()
+  
         return response.text(); 
       })
       .then((message) => {

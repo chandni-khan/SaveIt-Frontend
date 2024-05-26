@@ -1,40 +1,5 @@
-async function fetchAllBudget() {
-  await fetch(
-    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      budgetData = data;
-
-      let budgetTotalDate = [];
-      data.map((v) => {
-        let startmonth = new Date(v.start_date).getMonth() + 1;
-        if (targetMonth == parseInt(startmonth)) {
-          budgetTotalDate.push(v);
-        }
-      });
-      const totalAmount = budgetTotalDate.reduce(
-        (acc, budget) => acc + budget.amount,
-        0
-      );
-      totalBudget = totalAmount;
-    });
-}
-
-function displayBudget() {
-  TurnOffLoader()
+async function displayBudget() {
+  await fetchAllBudget()
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
 
@@ -68,35 +33,12 @@ function displayBudget() {
   headerContainer.appendChild(buttonContainer);
 
   mainContainer.appendChild(headerContainer);
-  TurnOnLoader();
-  fetch(
-    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then((response) => {
-      if (!response.ok) {
-        TurnOffLoader()
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      const totalBudget = data.reduce(
-        (acc, budget) => acc + budget.amount,
-        0
-      );
-
-      TurnOffLoader();
+    if(budgetData.length>0){
+    
       const gridContainer = document.createElement("div");
       gridContainer.classList.add("grid-container");
 
-      data.forEach((budget) => {
+      budgetData.forEach((budget) => {
         const gridItem = document.createElement("div");
         gridItem.classList.add("grid-item");
 
@@ -203,17 +145,13 @@ function displayBudget() {
       });
 
       mainContainer.appendChild(gridContainer);
-    })
-    .catch((error) => {
-      console.error("There was a problem with the fetch operation:", error);
-    });
+    }else{
+      const head = document.createElement("h1");
+      head.textContent = "No record to show";
+      mainContainer.appendChild(head);
+    }
 }
 
-
-
-
-
-  
 function createBudgetForm(id) {
   const mainContainer = document.getElementById("dashboard-content");
   const formElements = [
@@ -255,63 +193,63 @@ function createBudgetForm(id) {
     },
   ];
 
-  const style = document.createElement("style");
-  style.textContent = `
-    .budget-form-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 20px;
-    }
-    .budget-form {
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 500px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .form-control:focus {
-      border-color: #5b9bd5;
-      box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
-      outline: none;
-    }
-    .submit-button {
-      background-color: #5b9bd5;
-      color: white;
-      border: none;
-      cursor: pointer;
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    .submit-button:hover {
-      background-color: #4a8ccc;
-    }
-  `;
-  document.head.appendChild(style);
+  // const style = document.createElement("style");
+  // style.textContent = `
+  //   .budget-form-container {
+  //     display: flex;
+  //     justify-content: center;
+  //     align-items: center;
+  //     margin-top: 20px;
+  //   }
+  //   .budget-form {
+  //     background-color: #f9f9f9;
+  //     padding: 20px;
+  //     border-radius: 8px;
+  //     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  //     width: 100%;
+  //     max-width: 500px;
+  //   }
+  //   .form-group {
+  //     margin-bottom: 15px;
+  //   }
+  //   .form-label {
+  //     display: block;
+  //     margin-bottom: 5px;
+  //     font-weight: bold;
+  //   }
+  //   .form-control {
+  //     width: 100%;
+  //     padding: 10px;
+  //     border: 1px solid #ddd;
+  //     border-radius: 4px;
+  //     box-sizing: border-box;
+  //   }
+  //   .form-control:focus {
+  //     border-color: #5b9bd5;
+  //     box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
+  //     outline: none;
+  //   }
+  //   .submit-button {
+  //     background-color: #5b9bd5;
+  //     color: white;
+  //     border: none;
+  //     cursor: pointer;
+  //     padding: 10px 20px;
+  //     border-radius: 4px;
+  //     font-size: 16px;
+  //   }
+  //   .submit-button:hover {
+  //     background-color: #4a8ccc;
+  //   }
+  // `;
+  // document.head.appendChild(style);
 
   const formContainer = document.createElement("div");
-  formContainer.classList.add("budget-form-container");
+  formContainer.classList.add("form-container");
 
   const form = document.createElement("form");
   form.id = "addBudgetForm";
-  form.classList.add("budget-form");
+  form.classList.add("form");
 
   formElements.forEach((element) => {
     const formGroup = document.createElement("div");
