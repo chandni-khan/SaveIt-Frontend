@@ -1,7 +1,6 @@
 function displayGoals() {
     const mainContainer = document.getElementById("dashboard-content");
     mainContainer.innerHTML = "";
-   
     const addBtn = document.createElement("button");
     addBtn.id = "addGoal";
     addBtn.textContent = "Create Goal";
@@ -11,40 +10,18 @@ function displayGoals() {
 
     mainContainer.appendChild(addBtn);
     TurnOnLoader()
-    // Add heading
     const heading = document.createElement("h1");
     heading.textContent = "Goals";
     mainContainer.appendChild(heading);
-   
-
     const modal = document.createElement("div");
     modal.id = "modal";
-    modal.style.display = "none"; 
-    modal.style.position = "fixed";
-    modal.style.zIndex = "1";
-    modal.style.left = "0";
-    modal.style.top = "0";
-    modal.style.width = "100%";
-    modal.style.height = "100%";
-    modal.style.overflow = "auto";
-    modal.style.backgroundColor = "rgba(0,0,0,0.4)";
    
     const modalContent = document.createElement("div");
-    modalContent.style.backgroundColor = "#fefefe";
-    modalContent.style.margin = "15% auto";
-    modalContent.style.padding = "20px";
-    modalContent.style.border = "1px solid #888";
-    modalContent.style.width = "80%";
-    modalContent.style.maxWidth = "300px";
-    modalContent.style.textAlign = "center";
+    modalContent.id = "modalContent";
    
     const closeModal = document.createElement("span");
+    closeModal.id = "closeModal";
     closeModal.textContent = "×";
-    closeModal.style.color = "#aaa";
-    closeModal.style.float = "right";
-    closeModal.style.fontSize = "28px";
-    closeModal.style.fontWeight = "bold";
-    closeModal.style.cursor = "pointer";
     closeModal.onclick = function () {
       modal.style.display = "none";
     };
@@ -58,10 +35,8 @@ function displayGoals() {
     amountInput.placeholder = "Enter amount";
    
     const modalButtons = document.createElement("div");
-    modalButtons.style.display = "flex";
-    modalButtons.style.justifyContent = "space-around";
-    modalButtons.style.marginTop = "20px";
-   
+    modalButtons.id = "modalButtons";
+  
     const cancelButton = document.createElement("button");
     cancelButton.id = "cancelButton";
     cancelButton.textContent = "CANCEL";
@@ -77,15 +52,9 @@ function displayGoals() {
     const insertButton = document.createElement("button");
     insertButton.id = "insertButton";
     insertButton.textContent = "INSERT";
-    insertButton.style.padding = "10px 20px";
-    insertButton.style.fontSize = "16px";
-    insertButton.style.cursor = "pointer";
-    insertButton.style.backgroundColor = "#4CAF50"; // Green
-    insertButton.style.color = "white";
    
     modalButtons.appendChild(cancelButton);
     modalButtons.appendChild(insertButton);
-   
     modalContent.appendChild(closeModal);
     modalContent.appendChild(modalTitle);
     modalContent.appendChild(amountInput);
@@ -103,9 +72,9 @@ function displayGoals() {
       .then((response) => {
         TurnOffLoader()
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+        
+          // throw new Error("Network response was not ok");
         }
-       
         return response.json();
       })
       .then((data) => {
@@ -138,7 +107,6 @@ function displayGoals() {
           progressText.textContent = `Saved: ${goal["saved_already"]} out of ${
             goal["target_amount"]
           } (${progress.toFixed(2)}%)`;
-   
        
           if (progress >= 100) {
             progressText.textContent += " - Goal Completed"; 
@@ -149,9 +117,8 @@ function displayGoals() {
    
           const addSavedAmountBtn = document.createElement("button");
           addSavedAmountBtn.textContent = "Add saved Amount >";
-          addSavedAmountBtn.style.marginTop = "10px";
-          addSavedAmountBtn.style.color = "#6C9BCF";
-          addSavedAmountBtn.style.fontWeight = "bold";
+          addSavedAmountBtn.id = "addSavedAmountBtn"
+
           if (progress >= 100) {
             addSavedAmountBtn.disabled = true;
           } else {
@@ -226,8 +193,7 @@ function displayGoals() {
           const editIcon = document.createElement("span");
           editIcon.classList.add("material-icons-sharp");
           editIcon.textContent = "edit";
-          editIcon.style.color = "#6C9BCF";
-          editIcon.style.cursor = "pointer";
+          editIcon.id = "editIcon";
   
           if (progress >= 100) {
             editIcon.style.pointerEvents = "none";
@@ -244,16 +210,13 @@ function displayGoals() {
           const deleteIcon = document.createElement("span");
           deleteIcon.classList.add("material-icons-sharp");
           deleteIcon.textContent = "delete";
-          deleteIcon.style.color = "#FF0060";
-          deleteIcon.style.cursor = "pointer";
+          deleteIcon.id ="deleteIcon";
           deleteIcon.onclick = function () {
             deleteGoal(goal.goal_id);
           };
           buttonContainer.appendChild(deleteIcon);
-   
           gridItem.appendChild(goalContent);
-          gridItem.appendChild(buttonContainer);
-   
+          gridItem.appendChild(buttonContainer); 
           gridContainer.appendChild(gridItem);
         });
    
@@ -313,7 +276,10 @@ function displayGoals() {
         name: "saved_already",
         labelText: "Saved Already:",
       },
-      { type: "input", inputType: "submit", name: "createGoal", value: "Add Goal" }, // Updated submit button
+      { type: "input",
+       inputType: "submit",
+        name: "createGoal",
+         value: "Add Goal" },
     ];
    
     
@@ -403,12 +369,10 @@ function displayGoals() {
       form.appendChild(formGroup);
     });
   
-    // Replace existing content with the goal form
     mainContainer.replaceChildren(formContainer);
   
     formContainer.appendChild(form);
-  
-    // Add form submission event listener
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
      
@@ -418,7 +382,7 @@ function displayGoals() {
         target_amount: formData.get("target_amount"),
         desired_date: formData.get("desired_date"),
         saved_already: formData.get("saved_already"),
-        user_id: 8, // You may need to update this based on your requirements
+        user_id: 8, 
       };
   
       let url = "https://save-it.projects.bbdgrad.com/api/addGoal";
@@ -427,6 +391,14 @@ function displayGoals() {
       if (goalData) {
         url = `https://save-it.projects.bbdgrad.com/api/updateGoal`;
         method = "PUT";
+        const bodyData = {
+          goal_for: formData.get("goal_for"),
+          target_amount: formData.get("target_amount"),
+          desired_date: formData.get("desired_date"),
+          saved_already: formData.get("saved_already"),
+          user_id: 8, 
+          goal_id:goalData.goal_id
+        };
       }
       
       fetch(url, {
@@ -435,7 +407,7 @@ function displayGoals() {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...bodyData, goal_id:goalData.goal_id }),
+        body: JSON.stringify(bodyData),
       })
         .then((response) => {
           TurnOffLoader();
@@ -473,12 +445,12 @@ function displayGoals() {
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
-          return response.text(); // Assuming the response is plain text
+          return response.text();
         })
         .then((message) => {
-          console.log("Delete response message:", message); // Log the response message
+          console.log("Delete response message:", message);
           showSuccessMessage("Deleted successfully");
-          displayGoals(); // Refresh the goals list or update the UI accordingly
+          displayGoals();
         })
         .catch((error) => {
           console.error("Error:", error);

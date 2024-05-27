@@ -8,15 +8,13 @@ async function displayExpense() {
   headerContainer.style.display = "flex";
   headerContainer.style.justifyContent = "space-between";
   headerContainer.style.alignItems = "center";
-  headerContainer.style.marginBottom = "20px"; // Add some space below the header container
+  headerContainer.style.marginBottom = "20px"; 
 
-  // Add heading
   const heading = document.createElement("h1");
   heading.textContent = "Expense";
-  heading.style.margin = "0"; // Remove default margin
+  heading.style.margin = "0"; 
   headerContainer.appendChild(heading);
 
-  // Create a container for the button
   const buttonContainer = document.createElement("div");
 
   const addBtn = document.createElement("button");
@@ -44,7 +42,6 @@ async function displayExpense() {
       const gridItem = document.createElement("div");
       gridItem.classList.add("grid-item");
 
-      // Expense content container
       const expenseContent = document.createElement("div");
 
       for (const key in expense) {
