@@ -1,4 +1,5 @@
 async function displayIncome() {
+  await fetchAllIncome()
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
 
@@ -31,7 +32,6 @@ async function displayIncome() {
   mainContainer.appendChild(headerContainer);
 
   if (incomeData.length > 0) {
-    TurnOffLoader()
     const gridContainer = document.createElement("div");
     gridContainer.classList.add("grid-container");
 
@@ -51,24 +51,31 @@ async function displayIncome() {
           item.style.marginBottom = "5px";
           item.style.fontSize = "15px";
           
-
+          const keySpan = document.createElement("span");
+          keySpan.style.fontWeight = "bold";
+          keySpan.textContent = key.replace("_", " ").toUpperCase() + ": ";
+      
           if (key === "incomeDate") {
             const timestamp = income[key];
             const date = new Date(timestamp);
-            item.textContent = `${key.replace("_", " ").toUpperCase()}: ${date.toDateString()}`;
+            item.appendChild(keySpan);
+            item.appendChild(document.createTextNode(date.toDateString()));
           } else if (key === "incomeCategory") {
             incomeAllCategory.map((v) => {
               if (v.incomeCategoryId === income[key]) {
-                item.textContent = `${key.replace("_", " ").toUpperCase()}: ${v.incomeCategoryName}`;
+                item.appendChild(keySpan);
+                item.appendChild(document.createTextNode(v.incomeCategoryName));
               }
             });
           } else {
-            item.textContent = `${key.replace("_", " ").toUpperCase()}: ${income[key]}`;
+            item.appendChild(keySpan);
+            item.appendChild(document.createTextNode(income[key]));
           }
           incomeContent.appendChild(item);
         }
       }
-
+      
+      
       const actionsContainer = document.createElement("div");
       actionsContainer.style.display = "flex";
       actionsContainer.style.gap = "10px";
@@ -100,7 +107,6 @@ async function displayIncome() {
 
     mainContainer.appendChild(gridContainer);
   } else {
-    TurnOffLoader()
     const head = document.createElement("h1");
     head.textContent = "No record to show";
     mainContainer.appendChild(head);
@@ -138,63 +144,63 @@ function createIncomeForm(id) {
   ];
 
   // Add CSS styles
-  const style = document.createElement("style");
-  style.textContent = `
-    .income-form-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 20px;
-    }
-    .income-form {
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 500px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .form-control:focus {
-      border-color: #5b9bd5;
-      box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
-      outline: none;
-    }
-    .submit-button {
-      background-color: #5b9bd5;
-      color: white;
-      border: none;
-      cursor: pointer;
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    .submit-button:hover {
-      background-color: #4a8ccc;
-    }
-  `;
-  document.head.appendChild(style);
+  // const style = document.createElement("style");
+  // style.textContent = `
+  //   .income-form-container {
+  //     display: flex;
+  //     justify-content: center;
+  //     align-items: center;
+  //     margin-top: 20px;
+  //   }
+  //   .income-form {
+  //     background-color: #f9f9f9;
+  //     padding: 20px;
+  //     border-radius: 8px;
+  //     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  //     width: 100%;
+  //     max-width: 500px;
+  //   }
+  //   .form-group {
+  //     margin-bottom: 15px;
+  //   }
+  //   .form-label {
+  //     display: block;
+  //     margin-bottom: 5px;
+  //     font-weight: bold;
+  //   }
+  //   .form-control {
+  //     width: 100%;
+  //     padding: 10px;
+  //     border: 1px solid #ddd;
+  //     border-radius: 4px;
+  //     box-sizing: border-box;
+  //   }
+  //   .form-control:focus {
+  //     border-color: #5b9bd5;
+  //     box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
+  //     outline: none;
+  //   }
+  //   .submit-button {
+  //     background-color: #5b9bd5;
+  //     color: white;
+  //     border: none;
+  //     cursor: pointer;
+  //     padding: 10px 20px;
+  //     border-radius: 4px;
+  //     font-size: 16px;
+  //   }
+  //   .submit-button:hover {
+  //     background-color: #4a8ccc;
+  //   }
+  // `;
+  // document.head.appendChild(style);
 
   const formContainer = document.createElement("div");
-  formContainer.classList.add("income-form-container");
+  formContainer.classList.add("form-container");
 
   const form = document.createElement("form");
   form.id = "addIncomeForm";
-  form.classList.add("income-form");
+  form.classList.add("form");
 
   formElements.forEach((element) => {
     const formGroup = document.createElement("div");
@@ -237,7 +243,7 @@ function createIncomeForm(id) {
   });
 
   if (id != null) {
-   TurnOnLoader();
+
     fetch(`https://save-it.projects.bbdgrad.com/api/getIncomeById/${id}`, {
       method: "GET",
       headers: {
@@ -247,10 +253,10 @@ function createIncomeForm(id) {
     })
       .then((response) => {
         if (!response.ok) {
-          TurnOffLoader()
+    
           throw new Error("Network response was not ok");
         }
-        TurnOffLoader()
+  
         return response.json();
       })
       .then((data) => {
@@ -263,7 +269,7 @@ function createIncomeForm(id) {
       })
       .catch((e) => {
         console.log("error", e);
-        TurnOffLoader()
+  
         // showErrorMessage("Failed to load income data. Please try again later.");
       });
   }
@@ -273,7 +279,7 @@ function createIncomeForm(id) {
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
-      TurnOnLoader()
+
     const formData = new FormData(this);
     const bodyData = {
       incomeCategory: formData.get("incomeCategory"),
@@ -301,7 +307,7 @@ function createIncomeForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        TurnOffLoader()
+  
         return response.text();
       })
       .then((message) => {

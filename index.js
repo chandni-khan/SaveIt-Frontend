@@ -1,9 +1,9 @@
 const sideMenu = document.querySelector("aside");
 const menuBtn = document.getElementById("menu-btn");
 const darkMode = document.querySelector(".dark-mode");
-const closeBtn=document.getElementById("close-btn")
-const asidename=document.getElementsByClassName("asidename")[0]
-const rightSection=document.getElementsByClassName("right-section")[0]
+const closeBtn = document.getElementById("close-btn");
+const asidename = document.getElementsByClassName("asidename")[0];
+const rightSection = document.getElementsByClassName("right-section")[0];
 
 menuBtn.addEventListener("click", () => {
   if (sideMenu.style.display === "block") {
@@ -36,6 +36,7 @@ let userToken = sessionStorage.getItem("userToken");
 let expenseData = [];
 let incomeData = [];
 let budgetData = [];
+let goalData = [];
 let totalExpense = 0;
 let totalIncome = 0;
 let totalBudget = 0;
@@ -63,7 +64,6 @@ const monthNames = [
   "December",
 ];
 let monthInString = getMonthName(new Date().getMonth());
-
 window.onload = async function () {
   const dashboardContent = document.getElementById("dashboard-content");
   dashboardContent.innerHTML = "";
@@ -135,7 +135,6 @@ window.onload = async function () {
     loginBtn.id = "login";
     loginBtn.onclick = SignIn;
 
-    // Create and style the signup button
     const signupBtn = createAndStyleElement("button", "Sign Up", {
       color: "white",
       backgroundColor: "blue",
@@ -154,6 +153,7 @@ window.onload = async function () {
     function SignUp() {
       localStorage.setItem("newUser", true);
       SignIn();
+
       console.log("Sign Up button clicked");
     }
 
@@ -178,25 +178,50 @@ window.onload = async function () {
     buttons.forEach((button) => {
       button.addEventListener("mouseenter", () => {
         button.style.backgroundColor =
-          button.id === "login" ? "#004d00" : "#0000a0"; 
+          button.id === "login" ? "#004d00" : "#0000a0";
       });
       button.addEventListener("mouseleave", () => {
-        button.style.backgroundColor = button.id === "login" ? "green" : "blue"; 
+        button.style.backgroundColor = button.id === "login" ? "green" : "blue";
       });
     });
   } else {
-    
     const elements = document.querySelectorAll(".after-login");
-    elements.forEach(element => {
-      element.style.display='block';
+    elements.forEach((element) => {
+      element.style.display = "block";
     });
-    TurnOnLoader()
+    fetchIncomeCategory()
+      .then((data) => {
+        incomeAllCategory = data;
+      })
+      .catch((error) => {
+        console.log("Error getting total income:");
+      });
+    fetchBudgetCategory()
+      .then((data) => {
+        console.log("data", data);
+        budgetAllCategory = data;
+      })
+      .catch((error) => {
+        console.log("Error getting total Budget:");
+      });
+    fetchExpenseCategory()
+      .then((data) => {
+        expenseAllCategory = data;
+      })
+      .catch((error) => {
+        console.log("Error getting total Expense:");
+      });
     await createDashboard();
-    TurnOffLoader()
-
+    TurnOffLoader();
   }
 };
 
+function getMonthName(monthNumber) {
+  if (monthNumber < 1 || monthNumber > 12) {
+   console.log("No records")
+  }
+  return monthNames[monthNumber + 1];
+}
 async function fetchIncomeCategory() {
   try {
     const response = await fetch(
@@ -214,88 +239,72 @@ async function fetchIncomeCategory() {
       console.log("No expenses found");
       return 0;
     } else if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+   console.log("No records")
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching Income category:", error);
+    console.log("Error fetching Income ategory:");
+    return 0;
+  }
+}
+async function fetchBudgetCategory() {
+  try {
+    const response = await fetch(
+      "https://save-it.projects.bbdgrad.com/api/getBudgetCategories",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 204) {
+      console.log("No budget categories found");
+      return 0;
+    } else if (!response.ok) {
+   console.log("No records")
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log("Error fetching budget ategories:");
     return 0;
   }
 }
 
-fetchIncomeCategory()
-  .then((data) => {
-    incomeAllCategory = data;
-  })
-  .catch((error) => {
-    console.error("Error getting total income:", error);
-  });
-
-  async function fetchBudgetCategory() {
-    try {
-      const response = await fetch(
-        "https://save-it.projects.bbdgrad.com/api/getBudgetCategories",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-  
-      if (response.status === 204) {
-        console.log("No budget categories found");
-        return 0;
-      } else if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching budget categories:", error);
-      return 0;
-    }
-  }
-  
-  fetchBudgetCategory()
-    .then((data) => {
-      console.log("data", data);
-      budgetAllCategory = data;
-    })
-    .catch((error) => {
-      console.error("Error getting total Budget:", error);
-    });
-
-function getMonthName(monthNumber) {
-  if (monthNumber < 1 || monthNumber > 12) {
-    throw new Error("Month number must be between 1 and 12");
-  }
-  return monthNames[monthNumber + 1];
-}
-
 async function fetchAllExpense() {
-  await fetch(
-    `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+  TurnOnLoader();
+  try {
+    const response = await fetch(
+      `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
       }
-      return response.json();
-    })
-    .then((data) => {
-      expenseData = data;
+    );
+
+    if (!response.ok) {
+     expenseData=[];
+    }
+
+    const data = await response.json();
+    TurnOffLoader();
+
+    if (typeof data === 'string') {
+      console.log("Received string data:", data);
+      return false;
+    }
+
+    if (Array.isArray(data)) {
+      expenseData = data.reverse();
       let expenseTotalDate = [];
-      data.map((v) => {
+      data.forEach((v) => {
         let month = new Date(v.spendDate).getMonth() + 1;
         if (targetMonth == parseInt(month)) {
           expenseTotalDate.push(v);
@@ -306,32 +315,40 @@ async function fetchAllExpense() {
         0
       );
       totalExpense = totalAmount;
-    }, 1000);
-}
-async function fetchAllIncome() {
-  TurnOffLoader()
-  await fetch(
-    `https://save-it.projects.bbdgrad.com/api/getIncomeByUserId/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
-      },
     }
-  )
-    .then((response) => {
-      TurnOffLoader()
-      if (!response.ok) {
-        TurnOffLoader()
-        throw new Error("Network response was not ok");
+
+  } catch (error) {
+    console.log("Error fetching expenses:");
+    TurnOffLoader();
+  }
+}
+
+async function fetchAllIncome() {
+  TurnOnLoader();
+  try {
+    const response = await fetch(
+      `https://save-it.projects.bbdgrad.com/api/getIncomeByUserId/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
       }
-      return response.json();
-    })
-    .then((data) => {
-      incomeData = data;
+    );
+    console.log("reponse",response);
+    if (!response.ok) {
+     incomeData=[]
+    }
+
+    const data = await response.json();
+    TurnOffLoader();
+
+
+    if (Array.isArray(data)) {
+      incomeData = data.reverse();
       let incomeTotalDate = [];
-      data.map((v) => {
+      data.forEach((v) => {
         let month = new Date(v.incomeDate).getMonth() + 1;
         if (targetMonth == parseInt(month)) {
           incomeTotalDate.push(v);
@@ -342,34 +359,44 @@ async function fetchAllIncome() {
         0
       );
       totalIncome = totalAmount;
-    });
-    TurnOffLoader()
-
-}
-async function fetchAllBudget() {
-
-  await fetch(
-    `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
-      },
     }
-  )
-    .then((response) => {
-      if (!response.ok) {
-        TurnOffLoader()
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      budgetData = data;
 
+  } catch (error) {
+    console.log("Error fetching income:");
+    TurnOffLoader();
+  }
+}
+
+async function fetchAllBudget() {
+  TurnOnLoader();
+  try {
+    const response = await fetch(
+      `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+     budgetData=[];
+    }
+
+    const data = await response.json();
+    TurnOffLoader();
+
+    if (typeof data === 'string') {
+      console.log("Received string data:", data);
+      return false;
+    }
+
+    if (Array.isArray(data)) {
+      budgetData = data.reverse();
       let budgetTotalDate = [];
-      data.map((v) => {
+      data.forEach((v) => {
         let startmonth = new Date(v.start_date).getMonth() + 1;
         if (targetMonth == parseInt(startmonth)) {
           budgetTotalDate.push(v);
@@ -380,9 +407,53 @@ async function fetchAllBudget() {
         0
       );
       totalBudget = totalAmount;
-    });
+    }
+
+  } catch (error) {
+    console.log("Error fetching budget:");
+    TurnOffLoader();
+  }
 }
+
+async function fetchAllGoal() {
+  TurnOnLoader();
+  try {
+    const response = await fetch(
+      `https://save-it.projects.bbdgrad.com/api/getGoalByUserId/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+   console.log("No records")
+    }
+
+    const data = await response.json();
+    TurnOffLoader();
+
+    if (typeof data === 'string') {
+      console.log("Received string data:", data);
+      return false;
+    }
+
+    if (Array.isArray(data)) {
+      goalData = data.reverse();
+    }
+
+  } catch (error) {
+    console.log("Error fetching budget:");
+    TurnOffLoader();
+  }
+}
+
+
 async function fetchExpenseCategory() {
+  TurnOnLoader();
   try {
     const response = await fetch(
       "https://save-it.projects.bbdgrad.com/api/getExpenseCategories",
@@ -395,27 +466,28 @@ async function fetchExpenseCategory() {
       }
     );
 
-    if (response.status === 204) {
-      console.log("No expenses found");
-      return 0;
-    } else if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+    if (!response.ok) {
+   console.log("No records")
     }
+
     const data = await response.json();
-    return data;
+    TurnOffLoader();
+
+    if (typeof data === 'string') {
+      console.log("Received string data:", data);
+      return 0;
+    }
+
+    if (Array.isArray(data)) {
+      return data;
+    }
+
   } catch (error) {
-    console.error("Error fetching expensecategory:", error);
+    console.log("Error fetching expense category:");
+    TurnOffLoader();
     return 0;
   }
 }
-
-fetchExpenseCategory()
-  .then((data) => {
-    expenseAllCategory = data;
-  })
-  .catch((error) => {
-    console.error("Error getting total Expense:", error);
-  });
 
 menuBtn.addEventListener("click", () => {
   sideMenu.style.display = "block";
@@ -474,7 +546,6 @@ function showSuccessMessage(message) {
     successful.removeChild(successMessage);
   }, 2000);
 }
-
 
 function generateExpenseChart() {
   const canvas = document.getElementById("expenseChart");
@@ -539,7 +610,7 @@ function generateExpenseChart() {
 }
 
 async function createDashboard() {
-  // CSS styles
+
   const styles = `
     #monthInput {
       margin: 0.5rem;
@@ -590,22 +661,21 @@ async function createDashboard() {
   styleSheet.type = "text/css";
   styleSheet.innerText = styles;
   document.head.appendChild(styleSheet);
-
-  TurnOnLoader()
-  await fetchAllExpense();
-  await fetchAllIncome();
-  await fetchAllBudget();
-  TurnOffLoader()
   const dashboardContent = document.getElementById("dashboard-content");
   dashboardContent.innerHTML = "";
-
   const dashboardHeader = document.createElement("div");
   dashboardHeader.classList.add("dashboard-header");
-
   const dashboardTitle = document.createElement("h1");
   dashboardTitle.textContent = "Dashboard";
   dashboardHeader.appendChild(dashboardTitle);
-
+  TurnOnLoader();
+  await fetchAllExpense();
+  await fetchAllIncome();
+  await fetchAllBudget();
+  await fetchAllGoal()
+  TurnOffLoader();
+if(expenseData.length>0||budgetData.length>0||budgetData.length>0){
+  dashboardContent.appendChild(dashboardHeader);
   const filterContainer = document.createElement("div");
   filterContainer.classList.add("filter-container");
 
@@ -613,7 +683,10 @@ async function createDashboard() {
   monthInput.type = "month";
   monthInput.id = "monthInput";
   filterContainer.appendChild(monthInput);
-  const formattedMonth = `${targetYear}-${String(targetMonth).padStart(2, "0")}`;
+  const formattedMonth = `${targetYear}-${String(targetMonth).padStart(
+    2,
+    "0"
+  )}`;
   monthInput.value = formattedMonth;
 
   const findButton = document.createElement("button");
@@ -631,7 +704,6 @@ async function createDashboard() {
   filterContainer.appendChild(findButton);
 
   dashboardHeader.appendChild(filterContainer);
-  dashboardContent.appendChild(dashboardHeader);
 
   const currentDateDiv = document.createElement("div");
   currentDateDiv.id = "currentDate";
@@ -646,7 +718,9 @@ async function createDashboard() {
   totalBalanceDiv.classList.add("status");
   const totalBalanceInfoDiv = document.createElement("div");
   totalBalanceInfoDiv.classList.add("info");
-  totalBalanceInfoDiv.innerHTML = `<h3>Current Balance</h3><h1>Rs.${totalIncome - totalExpense}</h1>`;
+  totalBalanceInfoDiv.innerHTML = `<h3>Current Balance</h3><h1>Rs.${
+    totalIncome - totalExpense
+  }</h1>`;
   totalBalanceDiv.appendChild(totalBalanceInfoDiv);
   totalBalance.appendChild(totalBalanceDiv);
 
@@ -696,8 +770,15 @@ async function createDashboard() {
   newUsersDiv.innerHTML = `<h2>Report for ${monthInString}</h2><canvas id='expenseChart'></canvas>`;
   dashboardContent.appendChild(newUsersDiv);
   generateExpenseChart();
+}else{
+  const head = document.createElement("h1");
+    head.style.marginTop="1.7rem"
+    head.textContent = "Please add records create dashboard";
+    dashboardContent.appendChild(dashboardHeader);
+    dashboardContent.appendChild(head);
 }
-
+  
+}
 
 function displayReport() {
   const dashboardContent = document.getElementById("dashboard-content");
