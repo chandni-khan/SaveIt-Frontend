@@ -1,5 +1,5 @@
 async function getUserInfo(accessToken) {
-  TurnOnLoader();
+  startLoading();
   fetch(
     "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=" +
       accessToken
@@ -20,6 +20,7 @@ async function getUserInfo(accessToken) {
 }
 async function getJwtToken(data) {
   try {
+    startLoading();
     if (localStorage.getItem("newUser")) {
       await fetch("https://save-it.projects.bbdgrad.com/api/addUser", {
         method: "POST",
@@ -32,17 +33,15 @@ async function getJwtToken(data) {
         }),
       }).then((response) => {
         if (response.status == 409) {
-          showSuccessMessage("Already a user please login !!");
-          sessionStorage.clear();
-          localStorage.clear();
+           showErrorMessage("Already a user please login !!");
         }
         if (response.ok) {
-          showSuccessMessage("User Created!!!");
-         
+          showSuccessMessage("User Created. Please Login");
         }
       });
+      sessionStorage.clear();
+      localStorage.clear();
     } else {
-
       const response = await fetch(
         "https://save-it.projects.bbdgrad.com/api/login/auth",
         {
@@ -56,6 +55,7 @@ async function getJwtToken(data) {
         }
       );
       if (!response.ok) {
+        showErrorMessage("Not a User Please create")
         sessionStorage.clear();
         localStorage.clear();
         throw new Error("Network response was not ok");
@@ -66,14 +66,15 @@ async function getJwtToken(data) {
       console.log(verifiedUser.user[0]);
       localStorage.setItem("userId", verifiedUser.user[0].userId);
       localStorage.setItem("userName", verifiedUser.user[0].userName);
-      TurnOffLoader()
+      stopLoading()
     }
   } catch (error) {
-    TurnOffLoader()
+    stopLoading()
     console.error("Error:", error);
   }
+  setTimeout(() => {
     window.location.href = "https://save-it.projects.bbdgrad.com/web/";
-
+  }, 1500);
 }
 
 function LogOut() {
@@ -94,7 +95,7 @@ function LogOut() {
   }
 }
 function SignIn() {
-  TurnOnLoader()
+  startLoading()
   let oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
   let form = document.createElement("form");
   form.setAttribute("method", "GET");
@@ -122,17 +123,4 @@ function SignIn() {
   document.body.appendChild(form);
 
   form.submit();
-}
-function TurnOnLoader() {
-  const loader = document.querySelector(".loader");
-  if (loader) {
-    loader.style.display = "block";
-} 
-}
-
-function TurnOffLoader() {
-  const loader = document.querySelector(".loader");
-  if (loader) {
-    loader.style.display = "none";
-} 
 }
