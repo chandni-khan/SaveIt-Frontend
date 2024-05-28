@@ -300,56 +300,6 @@ function addGoalForm(goalData = null) {
     }, // Updated submit button
   ];
 
-  // const style = document.createElement("style");
-  // style.textContent = `
-  //     .goal-form-container {
-  //       display: flex;
-  //       justify-content: center;
-  //       align-items: center;
-  //       margin-top: 20px;
-  //     }
-  //     .goal-form {
-  //       background-color: #f9f9f9;
-  //       padding: 20px;
-  //       border-radius: 8px;
-  //       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  //       width: 100%;
-  //       max-width: 500px;
-  //     }
-  //     .form-group {
-  //       margin-bottom: 15px;
-  //     }
-  //     .form-label {
-  //       display: block;
-  //       margin-bottom: 5px;
-  //       font-weight: bold;
-  //     }
-  //     .form-control {
-  //       width: 100%;
-  //       padding: 10px;
-  //       border: 1px solid #ddd;
-  //       border-radius: 4px;
-  //       box-sizing: border-box;
-  //     }
-  //     .form-control:focus {
-  //       border-color: #5b9bd5;
-  //       box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
-  //       outline: none;
-  //     }
-  //     .submit-button {
-  //       background-color: #5b9bd5;
-  //       color: white;
-  //       border: none;
-  //       cursor: pointer;
-  //       padding: 10px 20px;
-  //       border-radius: 4px;
-  //       font-size: 16px;
-  //     }
-  //     .submit-button:hover {
-  //       background-color: #4a8ccc;
-  //     }
-  //   `;
-  // document.head.appendChild(style);
 
   const formContainer = document.createElement("div");
   formContainer.classList.add("form-container");
@@ -367,12 +317,7 @@ function addGoalForm(goalData = null) {
     label.classList.add("form-label");
     formGroup.appendChild(label);
 
-    const input = document.createElement("input");
-    input.type = element.inputType;
-    input.name = element.name;
-    input.id = element.name;
-    input.required = true;
-    input.classList.add("form-control");
+    const input = createInput(element)
 
     if (goalData && goalData[element.name] !== undefined) {
       input.value = goalData[element.name];

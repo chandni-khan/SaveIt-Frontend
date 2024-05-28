@@ -195,56 +195,6 @@ function createBudgetForm(id) {
     },
   ];
 
-  // const style = document.createElement("style");
-  // style.textContent = `
-  //   .budget-form-container {
-  //     display: flex;
-  //     justify-content: center;
-  //     align-items: center;
-  //     margin-top: 20px;
-  //   }
-  //   .budget-form {
-  //     background-color: #f9f9f9;
-  //     padding: 20px;
-  //     border-radius: 8px;
-  //     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  //     width: 100%;
-  //     max-width: 500px;
-  //   }
-  //   .form-group {
-  //     margin-bottom: 15px;
-  //   }
-  //   .form-label {
-  //     display: block;
-  //     margin-bottom: 5px;
-  //     font-weight: bold;
-  //   }
-  //   .form-control {
-  //     width: 100%;
-  //     padding: 10px;
-  //     border: 1px solid #ddd;
-  //     border-radius: 4px;
-  //     box-sizing: border-box;
-  //   }
-  //   .form-control:focus {
-  //     border-color: #5b9bd5;
-  //     box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
-  //     outline: none;
-  //   }
-  //   .submit-button {
-  //     background-color: #5b9bd5;
-  //     color: white;
-  //     border: none;
-  //     cursor: pointer;
-  //     padding: 10px 20px;
-  //     border-radius: 4px;
-  //     font-size: 16px;
-  //   }
-  //   .submit-button:hover {
-  //     background-color: #4a8ccc;
-  //   }
-  // `;
-  // document.head.appendChild(style);
 
   const formContainer = document.createElement("div");
   formContainer.classList.add("form-container");
@@ -263,27 +213,10 @@ function createBudgetForm(id) {
     formGroup.appendChild(label);
 
     if (element.name === "budget_category") {
-      const budgetCategorySelect = document.createElement("select");
-      budgetCategorySelect.id = "budgetCategory";
-      budgetCategorySelect.name = "budget_category";
-      budgetCategorySelect.required = true;
-      budgetCategorySelect.classList.add("form-control");
-
-      budgetAllCategory?.forEach((budgetCategoryItem) => {
-        const option = document.createElement("option");
-        option.value = budgetCategoryItem.budgetCategoryId;
-        option.textContent = budgetCategoryItem.budgetCategoryName;
-        budgetCategorySelect.appendChild(option);
-      });
-
+      const budgetCategorySelect = createSelect(budgetAllCategory,element,"budgetCategoryId","budgetCategoryName")
       formGroup.appendChild(budgetCategorySelect);
     } else {
-      const input = document.createElement("input");
-      input.type = element.inputType;
-      input.name = element.name;
-      input.id = element.name;
-      input.required = true;
-      input.classList.add("form-control");
+      const input = createInput(element);
       if (element.inputType === "submit") {
         input.value = element.value;
         input.classList.add("submit-button");
@@ -296,7 +229,7 @@ function createBudgetForm(id) {
   
   mainContainer.replaceChildren(form);
   if (id != null) {
-    TurnOnLoader();
+    startLoading();
     fetch(`https://save-it.projects.bbdgrad.com/api/getBudgetById/${id}`, {
       method: "GET",
       headers: {
@@ -313,13 +246,12 @@ function createBudgetForm(id) {
         return response.json();
       })
       .then((data) => {
-        TurnOffLoader();
-        document.getElementsByName("budget_category")[0].value =
-          data.budget_category;
+        stopLoading();
+        document.getElementsByName("budget_category")[0].value =data.budget_category;
         document.getElementsByName("budget_category")[0].value = data.budget_category;
+        document.getElementsByName("start_date")[0].value = getCurrentFormatDate(data.start_date);
+        document.getElementsByName("end_date")[0].value = getCurrentFormatDate(data.end_date);
         document.getElementsByName("amount")[0].value = data.amount;
-        document.getElementsByName("start_date")[0].value = data.start_date.split("T")[0];
-        document.getElementsByName("end_date")[0].value = data.end_date.split("T")[0];
         document.getElementsByName("budget_description")[0].value = data.budget_description;
         document.getElementsByName("addBudget")[0].value = "Update Budget"; // Update submit button text
         id = data.budget_id;
@@ -334,7 +266,7 @@ function createBudgetForm(id) {
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
-    TurnOnLoader()
+    startLoading()
     const formData = new FormData(this);
     let bodyData = {};
     if (id) {
@@ -374,7 +306,7 @@ function createBudgetForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        TurnOffLoader()
+        stopLoading()
         return response.text();
       })
       .then((message) => {

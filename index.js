@@ -212,7 +212,7 @@ window.onload = async function () {
         console.log("Error getting total Expense:");
       });
     await createDashboard();
-    TurnOffLoader();
+    stopLoading();
   }
 };
 
@@ -276,7 +276,7 @@ async function fetchBudgetCategory() {
 }
 
 async function fetchAllExpense() {
-  TurnOnLoader();
+  startLoading();
   try {
     const response = await fetch(
       `https://save-it.projects.bbdgrad.com/api/getExpensesByUserId/${userId}`,
@@ -294,7 +294,7 @@ async function fetchAllExpense() {
     }
 
     const data = await response.json();
-    TurnOffLoader();
+    stopLoading();
 
     if (typeof data === 'string') {
       console.log("Received string data:", data);
@@ -319,12 +319,12 @@ async function fetchAllExpense() {
 
   } catch (error) {
     console.log("Error fetching expenses:");
-    TurnOffLoader();
+    stopLoading();
   }
 }
 
 async function fetchAllIncome() {
-  TurnOnLoader();
+  startLoading();
   try {
     const response = await fetch(
       `https://save-it.projects.bbdgrad.com/api/getIncomeByUserId/${userId}`,
@@ -342,7 +342,7 @@ async function fetchAllIncome() {
     }
 
     const data = await response.json();
-    TurnOffLoader();
+    stopLoading();
 
 
     if (Array.isArray(data)) {
@@ -363,12 +363,12 @@ async function fetchAllIncome() {
 
   } catch (error) {
     console.log("Error fetching income:");
-    TurnOffLoader();
+    stopLoading();
   }
 }
 
 async function fetchAllBudget() {
-  TurnOnLoader();
+  startLoading();
   try {
     const response = await fetch(
       `https://save-it.projects.bbdgrad.com/api/getBudgetByUserId/${userId}`,
@@ -386,7 +386,7 @@ async function fetchAllBudget() {
     }
 
     const data = await response.json();
-    TurnOffLoader();
+    stopLoading();
 
     if (typeof data === 'string') {
       console.log("Received string data:", data);
@@ -411,12 +411,12 @@ async function fetchAllBudget() {
 
   } catch (error) {
     console.log("Error fetching budget:");
-    TurnOffLoader();
+    stopLoading();
   }
 }
 
 async function fetchAllGoal() {
-  TurnOnLoader();
+  startLoading();
   try {
     const response = await fetch(
       `https://save-it.projects.bbdgrad.com/api/getGoalByUserId/${userId}`,
@@ -434,7 +434,7 @@ async function fetchAllGoal() {
     }
 
     const data = await response.json();
-    TurnOffLoader();
+    stopLoading();
 
     if (typeof data === 'string') {
       console.log("Received string data:", data);
@@ -447,13 +447,13 @@ async function fetchAllGoal() {
 
   } catch (error) {
     console.log("Error fetching budget:");
-    TurnOffLoader();
+    stopLoading();
   }
 }
 
 
 async function fetchExpenseCategory() {
-  TurnOnLoader();
+  startLoading();
   try {
     const response = await fetch(
       "https://save-it.projects.bbdgrad.com/api/getExpenseCategories",
@@ -471,7 +471,7 @@ async function fetchExpenseCategory() {
     }
 
     const data = await response.json();
-    TurnOffLoader();
+    stopLoading();
 
     if (typeof data === 'string') {
       console.log("Received string data:", data);
@@ -484,7 +484,7 @@ async function fetchExpenseCategory() {
 
   } catch (error) {
     console.log("Error fetching expense category:");
-    TurnOffLoader();
+    stopLoading();
     return 0;
   }
 }
@@ -668,12 +668,12 @@ async function createDashboard() {
   const dashboardTitle = document.createElement("h1");
   dashboardTitle.textContent = "Dashboard";
   dashboardHeader.appendChild(dashboardTitle);
-  TurnOnLoader();
+  startLoading();
   await fetchAllExpense();
   await fetchAllIncome();
   await fetchAllBudget();
   await fetchAllGoal()
-  TurnOffLoader();
+  stopLoading();
 if(expenseData.length>0||budgetData.length>0||budgetData.length>0){
   dashboardContent.appendChild(dashboardHeader);
   const filterContainer = document.createElement("div");

@@ -1,5 +1,5 @@
 async function displayIncome() {
-  await fetchAllIncome()
+  await fetchAllIncome();
   const mainContainer = document.getElementById("dashboard-content");
   mainContainer.innerHTML = "";
 
@@ -7,10 +7,10 @@ async function displayIncome() {
   headerContainer.style.display = "flex";
   headerContainer.style.justifyContent = "space-between";
   headerContainer.style.alignItems = "center";
-  headerContainer.style.marginBottom = "20px"; 
+  headerContainer.style.marginBottom = "20px";
   const heading = document.createElement("h1");
   heading.textContent = "Income";
-  heading.style.margin = "0"; 
+  heading.style.margin = "0";
   headerContainer.appendChild(heading);
 
   const buttonContainer = document.createElement("div");
@@ -50,11 +50,11 @@ async function displayIncome() {
           const item = document.createElement("div");
           item.style.marginBottom = "5px";
           item.style.fontSize = "15px";
-          
+
           const keySpan = document.createElement("span");
           keySpan.style.fontWeight = "bold";
           keySpan.textContent = key.replace("_", " ").toUpperCase() + ": ";
-      
+
           if (key === "incomeDate") {
             const timestamp = income[key];
             const date = new Date(timestamp);
@@ -74,8 +74,7 @@ async function displayIncome() {
           incomeContent.appendChild(item);
         }
       }
-      
-      
+
       const actionsContainer = document.createElement("div");
       actionsContainer.style.display = "flex";
       actionsContainer.style.gap = "10px";
@@ -120,19 +119,19 @@ function createIncomeForm(id) {
       type: "select",
       inputType: "text",
       name: "incomeCategory",
-      labelText: "Income Category:",
+      labelText: "Category:",
     },
     {
       type: "input",
       inputType: "text",
       name: "incomeDescription",
-      labelText: "Income Description:",
+      labelText: "Description:",
     },
     {
       type: "input",
       inputType: "date",
       name: "incomeDate",
-      labelText: "Income Date:",
+      labelText: "Date:",
     },
     {
       type: "input",
@@ -140,60 +139,13 @@ function createIncomeForm(id) {
       name: "incomeAmount",
       labelText: "Income Amount:",
     },
-    { type: "input", inputType: "submit", name: "addIncome", value: "Add Income" },
+    {
+      type: "input",
+      inputType: "submit",
+      name: "addIncome",
+      value: "Add Income",
+    },
   ];
-
-  // Add CSS styles
-  // const style = document.createElement("style");
-  // style.textContent = `
-  //   .income-form-container {
-  //     display: flex;
-  //     justify-content: center;
-  //     align-items: center;
-  //     margin-top: 20px;
-  //   }
-  //   .income-form {
-  //     background-color: #f9f9f9;
-  //     padding: 20px;
-  //     border-radius: 8px;
-  //     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  //     width: 100%;
-  //     max-width: 500px;
-  //   }
-  //   .form-group {
-  //     margin-bottom: 15px;
-  //   }
-  //   .form-label {
-  //     display: block;
-  //     margin-bottom: 5px;
-  //     font-weight: bold;
-  //   }
-  //   .form-control {
-  //     width: 100%;
-  //     padding: 10px;
-  //     border: 1px solid #ddd;
-  //     border-radius: 4px;
-  //     box-sizing: border-box;
-  //   }
-  //   .form-control:focus {
-  //     border-color: #5b9bd5;
-  //     box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
-  //     outline: none;
-  //   }
-  //   .submit-button {
-  //     background-color: #5b9bd5;
-  //     color: white;
-  //     border: none;
-  //     cursor: pointer;
-  //     padding: 10px 20px;
-  //     border-radius: 4px;
-  //     font-size: 16px;
-  //   }
-  //   .submit-button:hover {
-  //     background-color: #4a8ccc;
-  //   }
-  // `;
-  // document.head.appendChild(style);
 
   const formContainer = document.createElement("div");
   formContainer.classList.add("form-container");
@@ -212,27 +164,21 @@ function createIncomeForm(id) {
     formGroup.appendChild(label);
 
     if (element.name === "incomeCategory") {
-      const incomeCategorySelect = document.createElement("select");
-      incomeCategorySelect.id = "incomeCategory";
-      incomeCategorySelect.name = "incomeCategory";
-      incomeCategorySelect.required = true;
-      incomeCategorySelect.classList.add("form-control");
-
-      incomeAllCategory?.forEach((incomeCategoryItem) => {
-        const option = document.createElement("option");
-        option.value = incomeCategoryItem.incomeCategoryId;
-        option.textContent = incomeCategoryItem.incomeCategoryName;
-        incomeCategorySelect.appendChild(option);
-      });
-
+      const incomeCategorySelect = createSelect(
+        incomeAllCategory,
+        element,
+        "incomeCategoryId",
+        "incomeCategoryName"
+      );
       formGroup.appendChild(incomeCategorySelect);
-    } else {
-      const input = document.createElement("input");
-      input.type = element.inputType;
-      input.name = element.name;
-      input.id = element.name;
-      input.required = true;
+    } else if (element.name == "incomeDate") {
+      const formattedDate = getCurrentFormatDate();
+      const input = createInput(element);
+      input.max = formattedDate;
       input.classList.add("form-control");
+      formGroup.appendChild(input);
+    } else {
+      const input = createInput(element);
       if (element.inputType === "submit") {
         input.value = element.value;
         input.classList.add("submit-button");
@@ -243,7 +189,6 @@ function createIncomeForm(id) {
   });
 
   if (id != null) {
-
     fetch(`https://save-it.projects.bbdgrad.com/api/getIncomeById/${id}`, {
       method: "GET",
       headers: {
@@ -253,23 +198,25 @@ function createIncomeForm(id) {
     })
       .then((response) => {
         if (!response.ok) {
-    
           throw new Error("Network response was not ok");
         }
-  
+
         return response.json();
       })
       .then((data) => {
         console.log("Fetched data:", data);
         document.getElementById("incomeCategory").value = data.incomeCategory;
-        document.getElementById("incomeDescription").value = data.incomeDescription;
+        document.getElementById("incomeDescription").value =
+          data.incomeDescription;
+        document.getElementsByName("incomeDate")[0].value =
+          getCurrentFormatDate(data.incomeDate);
         document.getElementById("incomeAmount").value = data.incomeAmount;
         form.elements["addIncome"].value = "Update Income";
         console.log("Editing income with ID:", id);
       })
       .catch((e) => {
         console.log("error", e);
-  
+
         // showErrorMessage("Failed to load income data. Please try again later.");
       });
   }
@@ -307,7 +254,7 @@ function createIncomeForm(id) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-  
+
         return response.text();
       })
       .then((message) => {
@@ -323,35 +270,30 @@ function createIncomeForm(id) {
   });
 }
 
-  
-  
-
-
 function deleteIncome(incomeId) {
-    if (window.confirm("Do you want to delete?")) {
-      fetch(`https://save-it.projects.bbdgrad.com/api/deleteIncome/${incomeId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          "Content-Type": "application/json",
-        },
+  if (window.confirm("Do you want to delete?")) {
+    fetch(`https://save-it.projects.bbdgrad.com/api/deleteIncome/${incomeId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.text();
-        })
-        .then((message) => {
-          console.log("message", message);
-          showSuccessMessage("Income Deleted successfully");
-          displayIncome(); 
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          showErrorMessage("An error occurred. Please try again later.");
-        });
-    }
-    console.log("Deleting income with ID:", incomeId);
+      .then((message) => {
+        console.log("message", message);
+        showSuccessMessage("Income Deleted successfully");
+        displayIncome();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        showErrorMessage("An error occurred. Please try again later.");
+      });
+  }
+  console.log("Deleting income with ID:", incomeId);
 }
-  
