@@ -217,26 +217,11 @@ async function displayExpense() {
       formGroup.appendChild(label);
   
       if (element.name === "expenseCategory") {
-        const expenseCategorySelect = document.createElement("select");
-        expenseCategorySelect.id = "expenseCategory";
-        expenseCategorySelect.name = "expenseCategory";
-        expenseCategorySelect.required = true;
-        expenseCategorySelect.classList.add("form-control");
-  
-        expenseAllCategory?.forEach((expenseCategoryItem) => {
-          const option = document.createElement("option");
-          option.value = expenseCategoryItem.expenseCategoryId;
-          option.textContent = expenseCategoryItem.expenseCategoryName;
-          expenseCategorySelect.appendChild(option);
-        });
-  
+        const expenseCategorySelect = createSelect(expenseAllCategory,element,"expenseCategoryId","expenseCategoryName")
         formGroup.appendChild(expenseCategorySelect);
-      } else {
-        const input = document.createElement("input");
-        input.type = element.inputType;
-        input.name = element.name;
-        input.id = element.name;
-        input.required = true;
+      }
+       else {
+        const input = createInput(element)
         input.classList.add("form-control");
         if (element.inputType === "submit") {
           input.value = element.value;
@@ -267,7 +252,7 @@ async function displayExpense() {
         .then((data) => {
           document.getElementsByName("expenseDescription")[0].value =
             data.expenseDescription;
-          document.getElementsByName("spendDate")[0].value = data.spendDate;
+          document.getElementsByName("spendDate")[0].value = getCurrentFormatDate(data.spendDate);
           document.getElementsByName("amountSpend")[0].value = data.amountSpend;
           document.getElementsByName("expenseCategory")[0].value =
             data.expenseCategory;

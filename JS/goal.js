@@ -227,151 +227,100 @@ function displayGoals() {
       });
   }
 
-  function editGoal(goalId) {
-    fetch(`https://save-it.projects.bbdgrad.com/api/getGoalById/${goalId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
-      },
+function editGoal(goalId) {
+  fetch(`https://save-it.projects.bbdgrad.com/api/getGoalById/${goalId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((goalData) => {
-        addGoalForm(goalData);
-      })
-      .catch((error) => {
-        showErrorMessage("Error occurred while fetching goal data. Please try again later!");
-      });
-  }
-  
-  function addGoalForm(goalData = null) {
-    const mainContainer = document.getElementById("dashboard-content");
-    const formElements = [
-      {
-        type: "input",
-        inputType: "text",
-        name: "goal_for",
-        labelText: "Goal For:",
-      },
-      {
-        type: "input",
-        inputType: "number",
-        name: "target_amount",
-        labelText: "Target Amount:",
-      },
-      {
-        type: "input",
-        inputType: "date",
-        name: "desired_date",
-        labelText: "Desired Date:",
-      },
-      {
-        type: "input",
-        inputType: "number",
-        name: "saved_already",
-        labelText: "Saved Already:",
-      },
-      { type: "input",
-       inputType: "submit",
-        name: "createGoal",
-         value: "Add Goal" },
-    ];
-   
-    
-    const style = document.createElement("style");
-    style.textContent = `
-      .goal-form-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-      }
-      .goal-form {
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 500px;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-      .form-control {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      .form-control:focus {
-        border-color: #5b9bd5;
-        box-shadow: 0 0 5px rgba(91, 155, 213, 0.5);
-        outline: none;
-      }
-      .submit-button {
-        background-color: #5b9bd5;
-        color: white;
-        border: none;
-        cursor: pointer;
-        padding: 10px 20px;
-        border-radius: 4px;
-        font-size: 16px;
-      }
-      .submit-button:hover {
-        background-color: #4a8ccc;
-      }
-    `;
-    document.head.appendChild(style);
-  
-    const formContainer = document.createElement("div");
-    formContainer.classList.add("goal-form-container");
-  
-    const form = document.createElement("form");
-    form.id = "GoalForm";
-    form.classList.add("goal-form");
-  
-    formElements.forEach((element) => {
-      const formGroup = document.createElement("div");
-      formGroup.classList.add("form-group");
-  
-      const label = document.createElement("label");
-      label.textContent = element.labelText;
-      label.classList.add("form-label");
-      formGroup.appendChild(label);
-  
-      const input = document.createElement("input");
-      input.type = element.inputType;
-      input.name = element.name;
-      input.id = element.name;
-      input.required = true;
-      input.classList.add("form-control");
-  
-      if (goalData && goalData[element.name] !== undefined) {
-        input.value = goalData[element.name];
-      }
-  
-      if (element.inputType === "submit") {
-        input.value = goalData ? "Update Goal" : "Add Goal";
-        input.classList.add("submit-button");
-      }
-      formGroup.appendChild(input);
-      form.appendChild(formGroup);
+    .then((goalData) => {
+      addGoalForm(goalData);
+    })
+    .catch((error) => {
+      showErrorMessage(
+        "Error occurred while fetching goal data. Please try again later!"
+      );
     });
-  
-    mainContainer.replaceChildren(formContainer);
-  
-    formContainer.appendChild(form);
+}
+
+function addGoalForm(goalData = null) {
+  const mainContainer = document.getElementById("dashboard-content");
+  const formElements = [
+    {
+      type: "input",
+      inputType: "text",
+      name: "goal_for",
+      labelText: "Goal For:",
+    },
+    {
+      type: "input",
+      inputType: "number",
+      name: "target_amount",
+      labelText: "Target Amount:",
+    },
+    {
+      type: "input",
+      inputType: "date",
+      name: "desired_date",
+      labelText: "Desired Date:",
+    },
+    {
+      type: "input",
+      inputType: "number",
+      name: "saved_already",
+      labelText: "Saved Already:",
+    },
+    {
+      type: "input",
+      inputType: "submit",
+      name: "createGoal",
+      value: "Add Goal",
+    }, // Updated submit button
+  ];
+
+
+  const formContainer = document.createElement("div");
+  formContainer.classList.add("form-container");
+
+  const form = document.createElement("form");
+  form.id = "GoalForm";
+  form.classList.add("form");
+
+  formElements.forEach((element) => {
+    const formGroup = document.createElement("div");
+    formGroup.classList.add("form-group");
+
+    const label = document.createElement("label");
+    label.textContent = element.labelText;
+    label.classList.add("form-label");
+    formGroup.appendChild(label);
+
+    const input = createInput(element)
+
+    if (goalData && goalData[element.name] !== undefined) {
+      input.value = goalData[element.name];
+    }
+
+    if (element.inputType === "submit") {
+      input.value = goalData ? "Update Goal" : "Add Goal";
+      input.classList.add("submit-button");
+    }
+    formGroup.appendChild(input);
+    form.appendChild(formGroup);
+  });
+
+  // Replace existing content with the goal form
+  mainContainer.replaceChildren(formContainer);
+
+  formContainer.appendChild(form);
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
